@@ -13,62 +13,62 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
 
     // 覆盖父类的方法，返回子类类型
     @Override
-    public <T> ConditionExpressionBuilder eq(SFunction<T, ?> field, Object value) {
-        super.eq(field, value);
+    public <T> ConditionExpressionBuilder eq(SFunction<T, ?> column, Object value) {
+        super.eq(column, value);
         return this;
     }
 
     @Override
-    public <L, R> ConditionExpressionBuilder eq(SFunction<L, ?> leftField, SFunction<R, ?> rightField) {
-        super.eq(leftField, rightField);
+    public <L, R> ConditionExpressionBuilder eq(SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
+        super.eq(leftColumn, rightColumn);
         return this;
     }
 
     @Override
-    public <T> ConditionExpressionBuilder ne(SFunction<T, ?> field, Object value) {
-        super.ne(field, value);
+    public <T> ConditionExpressionBuilder ne(SFunction<T, ?> column, Object value) {
+        super.ne(column, value);
         return this;
     }
 
     @Override
-    public <L, R> ConditionExpressionBuilder ne(SFunction<L, ?> leftField, SFunction<R, ?> rightField) {
-        super.ne(leftField, rightField);
+    public <L, R> ConditionExpressionBuilder ne(SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
+        super.ne(leftColumn, rightColumn);
         return this;
     }
 
     @Override
-    public <T> ConditionExpressionBuilder gt(SFunction<T, ?> field, Object value) {
-        super.gt(field, value);
+    public <T> ConditionExpressionBuilder gt(SFunction<T, ?> column, Object value) {
+        super.gt(column, value);
         return this;
     }
 
     @Override
-    public <T> ConditionExpressionBuilder ge(SFunction<T, ?> field, Object value) {
-        super.ge(field, value);
+    public <T> ConditionExpressionBuilder ge(SFunction<T, ?> column, Object value) {
+        super.ge(column, value);
         return this;
     }
 
     @Override
-    public <T> ConditionExpressionBuilder lt(SFunction<T, ?> field, Object value) {
-        super.lt(field, value);
+    public <T> ConditionExpressionBuilder lt(SFunction<T, ?> column, Object value) {
+        super.lt(column, value);
         return this;
     }
 
     @Override
-    public <T> ConditionExpressionBuilder le(SFunction<T, ?> field, Object value) {
-        super.le(field, value);
+    public <T> ConditionExpressionBuilder le(SFunction<T, ?> column, Object value) {
+        super.le(column, value);
         return this;
     }
 
     @Override
-    public <T> ConditionExpressionBuilder isNull(SFunction<T, ?> field) {
-        super.isNull(field);
+    public <T> ConditionExpressionBuilder isNull(SFunction<T, ?> column) {
+        super.isNull(column);
         return this;
     }
 
     @Override
-    public <T> ConditionExpressionBuilder isNotNull(SFunction<T, ?> field) {
-        super.isNotNull(field);
+    public <T> ConditionExpressionBuilder isNotNull(SFunction<T, ?> column) {
+        super.isNotNull(column);
         return this;
     }
 
@@ -99,81 +99,81 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /*=========================== ConditionExpressionBuilder特有的方法 =================================*/
 
     /**
-     * 等值匹配：field1 = value
+     * 等值匹配：column1 = value
      */
-    public <T> ConditionExpressionBuilder eq(boolean condition, SFunction<T, ?> field, Object value) {
+    public <T> ConditionExpressionBuilder eq(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
-            return eq(field, value);
+            return eq(column, value);
         }
         return this;
     }
 
     /**
-     * 等值匹配：field1 = field2
+     * 等值匹配：column1 = column2
      */
-    public <L, R> ConditionExpressionBuilder eq(boolean condition, SFunction<L, ?> leftField, SFunction<R, ?> rightField) {
+    public <L, R> ConditionExpressionBuilder eq(boolean condition, SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
         if (condition) {
-            return eq(leftField, rightField);
+            return eq(leftColumn, rightColumn);
         }
         return this;
     }
 
     /**
-     * 不等于：field != value
+     * 不等于：column != value
      */
-    public <T> ConditionExpressionBuilder ne(boolean condition, SFunction<T, ?> field, Object value) {
+    public <T> ConditionExpressionBuilder ne(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
-            return ne(field, value);
+            return ne(column, value);
         }
         return this;
     }
 
     /**
-     * 不等于：field1 != field2
+     * 不等于：column1 != column2
      */
-    public <L, R> ConditionExpressionBuilder ne(boolean condition, SFunction<L, ?> leftField, SFunction<R, ?> rightField) {
+    public <L, R> ConditionExpressionBuilder ne(boolean condition, SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
         if (condition) {
-            return ne(leftField, rightField);
+            return ne(leftColumn, rightColumn);
         }
         return this;
     }
 
     /**
-     * 大于：field > value
+     * 大于：column > value
      */
-    public <T> ConditionExpressionBuilder gt(boolean condition, SFunction<T, ?> field, Object value) {
+    public <T> ConditionExpressionBuilder gt(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
-            return gt(field, value);
+            return gt(column, value);
         }
         return this;
     }
 
     /**
-     * 大于等于：field >= value
+     * 大于等于：column >= value
      */
-    public <T> ConditionExpressionBuilder ge(boolean condition, SFunction<T, ?> field, Object value) {
+    public <T> ConditionExpressionBuilder ge(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
-            return ge(field, value);
+            return ge(column, value);
         }
         return this;
     }
 
     /**
-     * 小于：field < value
+     * 小于：column < value
      */
-    public <T> ConditionExpressionBuilder lt(boolean condition, SFunction<T, ?> field, Object value) {
+    public <T> ConditionExpressionBuilder lt(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
-            return lt(field, value);
+            return lt(column, value);
         }
         return this;
     }
 
     /**
-     * 小于等于：field <= value
+     * 小于等于：column <= value
      */
-    public <T> ConditionExpressionBuilder le(boolean condition, SFunction<T, ?> field, Object value) {
+    public <T> ConditionExpressionBuilder le(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
-            return le(field, value);
+            return le(column, value);
         }
         return this;
     }
@@ -181,9 +181,9 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /**
      * IS NULL
      */
-    public <T> ConditionExpressionBuilder isNull(boolean condition, SFunction<T, ?> field) {
+    public <T> ConditionExpressionBuilder isNull(boolean condition, SFunction<T, ?> column) {
         if (condition) {
-            return isNull(field);
+            return isNull(column);
         }
         return this;
     }
@@ -191,9 +191,9 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /**
      * IS NOT NULL
      */
-    public <T> ConditionExpressionBuilder isNotNull(boolean condition, SFunction<T, ?> field) {
+    public <T> ConditionExpressionBuilder isNotNull(boolean condition, SFunction<T, ?> column) {
         if (condition) {
-            return isNotNull(field);
+            return isNotNull(column);
         }
         return this;
     }

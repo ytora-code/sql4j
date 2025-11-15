@@ -21,8 +21,8 @@ public class InsertStage extends AbsInsert {
      * INSERT 后面一定是 INTO
      */
     @SafeVarargs
-    public final <T> IntoStage into(SFunction<T, ?>... insertedFields) {
-        return new IntoStage(getInsertBuilder(), Arrays.asList(insertedFields));
+    public final <T> IntoStage into(SFunction<T, ?>... insertedColumn) {
+        return new IntoStage(getInsertBuilder(), Arrays.asList(insertedColumn));
     }
 
     public Class<?> getTable() {

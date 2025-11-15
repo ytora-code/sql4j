@@ -24,12 +24,12 @@ public class BaseSelectTranslator implements ISelectTranslator {
         List<Object> orderedParms = new ArrayList<>();
 
         // 1.SELECT 查询字段
-        List<SFunction<?, ?>> selectFields = builder.getSelectStage().getSelectFields();
-        String selectFieldStr = selectFields.stream().map(f -> LambdaUtil.parseField(f, builder)).collect(Collectors.joining(", "));
-        if (selectFieldStr.isEmpty()) {
-            selectFieldStr = "*";
+        List<SFunction<?, ?>> selectColumns = builder.getSelectStage().getSelectColumn();
+        String selectColumnStr = selectColumns.stream().map(f -> LambdaUtil.parseColumn(f, builder)).collect(Collectors.joining(", "));
+        if (selectColumnStr.isEmpty()) {
+            selectColumnStr = "*";
         }
-        sql.append("SELECT ").append(selectFieldStr).append(' ');
+        sql.append("SELECT ").append(selectColumnStr).append(' ');
 
         // 2.FORM 表
         Class<?> mainTable = builder.getFromStage().getMainTable();
@@ -73,12 +73,12 @@ public class BaseSelectTranslator implements ISelectTranslator {
         }
 
         // 5. GROUP BY 子句
-        List<SFunction<?, ?>> groupByFields = builder.getGroupByStage().getGroupFields();
-        if (groupByFields != null && !groupByFields.isEmpty()) {
-            String groupByField = groupByFields.stream()
-                    .map(f -> LambdaUtil.parseField(f, builder))
+        List<SFunction<?, ?>> groupByColumns = builder.getGroupByStage().getGroupColumn();
+        if (groupByColumns != null && !groupByColumns.isEmpty()) {
+            String groupByColumn = groupByColumns.stream()
+                    .map(f -> LambdaUtil.parseColumn(f, builder))
                     .collect(Collectors.joining(", "));
-            sql.append("GROUP BY ").append(groupByField).append(' ');
+            sql.append("GROUP BY ").append(groupByColumn).append(' ');
         }
 
         // 6. HAVING 条件，HAVING 子句中可能会出现占位符参数
@@ -99,8 +99,8 @@ public class BaseSelectTranslator implements ISelectTranslator {
         if (orderByStage != null) {
             String orderExpression = orderByStage.getOrderItems().stream()
                     .map(item -> {
-                        String field = LambdaUtil.parseField(item.getOrderField(), builder);
-                        return field + " " + item.getOrderType().name();
+                        String column = LambdaUtil.parseColumn(item.getOrderColumn(), builder);
+                        return column + " " + item.getOrderType().name();
                     })
                     .collect(Collectors.joining(", "));
             sql.append("ORDER BY ").append(orderExpression).append(' ');

@@ -36,13 +36,13 @@ public class BaseUpdateTranslator implements IUpdateTranslator {
 
         // 1. SET 阶段：构建字段更新部分
         SetStage setStage = builder.getSetStage();
-        Map<SFunction<?, ?>, Object> fieldValueMap = setStage.getUpdatedFieldValueMapper();
+        Map<SFunction<?, ?>, Object> columnValueMap = setStage.getUpdatedColumnValueMapper();
         List<String> setClauseList = new ArrayList<>();
         // 遍历字段和值的映射，生成 SET 子句
-        for (Map.Entry<SFunction<?, ?>, Object> entry : fieldValueMap.entrySet()) {
-            String fieldName = LambdaUtil.parseField(entry.getKey(), null);
-            // 生成 "field = ?" 形式的语句
-            setClauseList.add(fieldName + " = ?");
+        for (Map.Entry<SFunction<?, ?>, Object> entry : columnValueMap.entrySet()) {
+            String columnName = LambdaUtil.parseColumn(entry.getKey(), null);
+            // 生成 "column = ?" 形式的语句
+            setClauseList.add(columnName + " = ?");
             // 记录参数
             orderedParms.add(entry.getValue());
         }

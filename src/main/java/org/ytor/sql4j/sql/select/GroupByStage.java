@@ -12,28 +12,28 @@ import java.util.function.Consumer;
  */
 public class GroupByStage extends AbsSelect {
 
-    private final List<SFunction<?, ?>> groupFields = new ArrayList<>();
+    private final List<SFunction<?, ?>> groupColumn = new ArrayList<>();
 
     /**
      * 分组
      * @param selectBuilder SELECT 构造器
-     * @param groupField 分组字段
+     * @param groupColumn 分组字段
      */
-    public GroupByStage(SelectBuilder selectBuilder, SFunction<?, ?> groupField) {
+    public GroupByStage(SelectBuilder selectBuilder, SFunction<?, ?> groupColumn) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setGroupByStage(this);
-        this.groupFields.add(groupField);
+        this.groupColumn.add(groupColumn);
     }
 
     /**
      * 分组
      * @param selectBuilder SELECT 构造器
-     * @param groupFields 分组字段
+     * @param groupColumn 分组字段
      */
-    public GroupByStage(SelectBuilder selectBuilder, List<SFunction<?, ?>> groupFields) {
+    public GroupByStage(SelectBuilder selectBuilder, List<SFunction<?, ?>> groupColumn) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setGroupByStage(this);
-        this.groupFields.addAll(groupFields);
+        this.groupColumn.addAll(groupColumn);
     }
 
     /**
@@ -46,8 +46,8 @@ public class GroupByStage extends AbsSelect {
     /**
      * GROUP BY 后可能是 ORDER BY 子句
      */
-    public OrderByStage orderBy(SFunction<?, ?> orderField, OrderType orderType) {
-        return new OrderByStage(getSelectBuilder(), new OrderItem(orderField, orderType));
+    public OrderByStage orderBy(SFunction<?, ?> orderColumn, OrderType orderType) {
+        return new OrderByStage(getSelectBuilder(), new OrderItem(orderColumn, orderType));
     }
 
     /**
@@ -64,8 +64,8 @@ public class GroupByStage extends AbsSelect {
         return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
-    public List<SFunction<?, ?>> getGroupFields() {
-        return groupFields;
+    public List<SFunction<?, ?>> getGroupColumn() {
+        return groupColumn;
     }
 
 }

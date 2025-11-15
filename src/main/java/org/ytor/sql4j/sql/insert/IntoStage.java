@@ -11,12 +11,12 @@ import java.util.List;
  */
 public class IntoStage extends AbsInsert {
 
-    private final List<SFunction<?, ?>> insertedFields;
+    private final List<SFunction<?, ?>> insertedColumn;
 
-    public IntoStage(InsertBuilder insertBuilder, List<SFunction<?, ?>> insertedFields) {
+    public IntoStage(InsertBuilder insertBuilder, List<SFunction<?, ?>> insertedColumn) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setIntoStage(this);
-        this.insertedFields = insertedFields;
+        this.insertedColumn = insertedColumn;
     }
 
     /**
@@ -40,7 +40,7 @@ public class IntoStage extends AbsInsert {
         return new ValuesStage(getInsertBuilder(), new ArrayList<>()).values(insertedDataList);
     }
 
-    public List<SFunction<?, ?>> getInsertedFields() {
-        return insertedFields;
+    public List<SFunction<?, ?>> getInsertedColumn() {
+        return insertedColumn;
     }
 }

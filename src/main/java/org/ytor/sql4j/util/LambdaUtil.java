@@ -73,7 +73,7 @@ public class LambdaUtil {
     /**
      * 解析出拼接到SQL里面的字段，比如user.user_name
      */
-    public static <T> String parseField(SFunction<T, ?> fn, AliasRegister register) {
+    public static <T> String parseColumn(SFunction<T, ?> fn, AliasRegister register) {
         SerializedLambda sl = serializedLambda(fn);
         StringBuilder sb = new StringBuilder();
         // 如果不是单表，则要查表别名

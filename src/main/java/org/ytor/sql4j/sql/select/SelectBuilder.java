@@ -151,8 +151,8 @@ public class SelectBuilder extends AliasRegister implements SqlBuilder {
     }
 
     @SafeVarargs
-    public static <T> SelectStage select(SFunction<T, ?>... fields) {
+    public static <T> SelectStage select(SFunction<T, ?>... Columns) {
         SelectBuilder selectBuilder = new SelectBuilder();
-        return new SelectStage(selectBuilder, Arrays.asList(fields));
+        return new SelectStage(selectBuilder, Arrays.asList(Columns));
     }
 }

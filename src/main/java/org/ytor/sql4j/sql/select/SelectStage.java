@@ -15,26 +15,26 @@ public class SelectStage extends AbsSelect {
     /**
      * SELECT 查询字段
      */
-    private final List<SFunction<?, ?>> selectFields = new ArrayList<>();
+    private final List<SFunction<?, ?>> selectColumn = new ArrayList<>();
 
-    public SelectStage(SelectBuilder selectBuilder, SFunction<?, ?> selectField) {
+    public SelectStage(SelectBuilder selectBuilder, SFunction<?, ?> selectColumn) {
         setSelectBuilder(selectBuilder);
         selectBuilder.setSelectStage(this);
-        this.selectFields.add(selectField);
+        this.selectColumn.add(selectColumn);
     }
 
-    public SelectStage(SelectBuilder selectBuilder, List<SFunction<?, ?>> selectFields) {
+    public SelectStage(SelectBuilder selectBuilder, List<SFunction<?, ?>> selectColumn) {
         setSelectBuilder(selectBuilder);
         selectBuilder.setSelectStage(this);
-        this.selectFields.addAll(selectFields);
+        this.selectColumn.addAll(selectColumn);
     }
 
     /**
      * SELECT 后可能继续 SELECT
      */
     @SafeVarargs
-    public final <T> SelectStage select(SFunction<T, ?>... field) {
-        Collections.addAll(selectFields, field);
+    public final <T> SelectStage select(SFunction<T, ?>... column) {
+        Collections.addAll(selectColumn, column);
         return this;
     }
 
@@ -52,7 +52,7 @@ public class SelectStage extends AbsSelect {
         return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
-    public List<SFunction<?, ?>> getSelectFields() {
-        return selectFields;
+    public List<SFunction<?, ?>> getSelectColumn() {
+        return selectColumn;
     }
 }

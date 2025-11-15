@@ -61,11 +61,11 @@ public class ExpressionBuilder extends AbsSql {
     // ===================== 条件运算符 =====================
 
     /**
-     * 等值匹配：field = value
+     * 等值匹配：column = value
      */
-    public <T> ExpressionBuilder eq(SFunction<T, ?> field, Object value) {
+    public <T> ExpressionBuilder eq(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -73,23 +73,23 @@ public class ExpressionBuilder extends AbsSql {
     }
 
     /**
-     * 等值匹配：field1 = field2
+     * 等值匹配：column1 = column2
      */
-    public <L, R> ExpressionBuilder eq(SFunction<L, ?> leftField, SFunction<R, ?> rightField) {
+    public <L, R> ExpressionBuilder eq(SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(leftField, register);
-        String right = LambdaUtil.parseField(rightField, register);
+        String left = LambdaUtil.parseColumn(leftColumn, register);
+        String right = LambdaUtil.parseColumn(rightColumn, register);
         expression.append(left).append(SPACE).append("=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
         return this;
     }
 
     /**
-     * 不等于：field != value
+     * 不等于：column != value
      */
-    public <T> ExpressionBuilder ne(SFunction<T, ?> field, Object value) {
+    public <T> ExpressionBuilder ne(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("<>").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -97,23 +97,23 @@ public class ExpressionBuilder extends AbsSql {
     }
 
     /**
-     * 不等于：field1 != field2
+     * 不等于：column1 != column2
      */
-    public <L, R> ExpressionBuilder ne(SFunction<L, ?> leftField, SFunction<R, ?> rightField) {
+    public <L, R> ExpressionBuilder ne(SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(leftField, register);
-        String right = LambdaUtil.parseField(rightField, register);
+        String left = LambdaUtil.parseColumn(leftColumn, register);
+        String right = LambdaUtil.parseColumn(rightColumn, register);
         expression.append(left).append(SPACE).append("<>").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
         return this;
     }
 
     /**
-     * 大于：field > value
+     * 大于：column > value
      */
-    public <T> ExpressionBuilder gt(SFunction<T, ?> field, Object value) {
+    public <T> ExpressionBuilder gt(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append(">").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -121,11 +121,11 @@ public class ExpressionBuilder extends AbsSql {
     }
 
     /**
-     * 大于等于：field >= value
+     * 大于等于：column >= value
      */
-    public <T> ExpressionBuilder ge(SFunction<T, ?> field, Object value) {
+    public <T> ExpressionBuilder ge(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append(">=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -133,11 +133,11 @@ public class ExpressionBuilder extends AbsSql {
     }
 
     /**
-     * 小于：field < value
+     * 小于：column < value
      */
-    public <T> ExpressionBuilder lt(SFunction<T, ?> field, Object value) {
+    public <T> ExpressionBuilder lt(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("<").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -145,11 +145,11 @@ public class ExpressionBuilder extends AbsSql {
     }
 
     /**
-     * 小于等于：field <= value
+     * 小于等于：column <= value
      */
-    public <T> ExpressionBuilder le(SFunction<T, ?> field, Object value) {
+    public <T> ExpressionBuilder le(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("<=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -159,9 +159,9 @@ public class ExpressionBuilder extends AbsSql {
     /**
      * IS NULL
      */
-    public <T> ExpressionBuilder isNull(SFunction<T, ?> field) {
+    public <T> ExpressionBuilder isNull(SFunction<T, ?> column) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         expression.append(left).append(SPACE).append("IS NULL");
         lastType = SegmentType.PREDICATE;
         return this;
@@ -170,9 +170,9 @@ public class ExpressionBuilder extends AbsSql {
     /**
      * IS NOT NULL
      */
-    public <T> ExpressionBuilder isNotNull(SFunction<T, ?> field) {
+    public <T> ExpressionBuilder isNotNull(SFunction<T, ?> column) {
         appendPredicateStart();
-        String left = LambdaUtil.parseField(field, register);
+        String left = LambdaUtil.parseColumn(column, register);
         expression.append(left).append(SPACE).append("IS NOT NULL");
         lastType = SegmentType.PREDICATE;
         return this;

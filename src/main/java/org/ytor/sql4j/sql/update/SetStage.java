@@ -16,7 +16,7 @@ public class SetStage extends AbsUpdate {
     /**
      * 映射：要修改的字段 -> 要修改的值
      */
-    private final Map<SFunction<?, ?>, Object> updatedFieldValueMapper = new HashMap<>();
+    private final Map<SFunction<?, ?>, Object> updatedColumnValueMapper = new HashMap<>();
 
     public SetStage(UpdateBuilder updateBuilder) {
         setUpdateBuilder(updateBuilder);
@@ -26,8 +26,8 @@ public class SetStage extends AbsUpdate {
     /**
      * SET 后，可能继续 SET
      */
-    public final SetStage set(SFunction<?, ?> updatedFields, Object value) {
-        updatedFieldValueMapper.put(updatedFields, value);
+    public final SetStage set(SFunction<?, ?> updatedColumn, Object value) {
+        updatedColumnValueMapper.put(updatedColumn, value);
         return this;
     }
 
@@ -45,7 +45,7 @@ public class SetStage extends AbsUpdate {
         return getUpdateBuilder().getTranslator().translate(getUpdateBuilder());
     }
 
-    public Map<SFunction<?, ?>, Object> getUpdatedFieldValueMapper() {
-        return updatedFieldValueMapper;
+    public Map<SFunction<?, ?>, Object> getUpdatedColumnValueMapper() {
+        return updatedColumnValueMapper;
     }
 }

@@ -21,15 +21,15 @@ public class SelectWhereStage extends AbsSelect {
     /**
      * WHERE 后可能是 GROUP BY 子句
      */
-    public <T> GroupByStage groupBy(SFunction<T, ?> groupFields) {
-        return new GroupByStage(getSelectBuilder(), groupFields);
+    public <T> GroupByStage groupBy(SFunction<T, ?> groupColumn) {
+        return new GroupByStage(getSelectBuilder(), groupColumn);
     }
 
     /**
      * WHERE 后可能是 ORDER BY 子句
      */
-    public <T> OrderByStage orderBy(SFunction<T, ?> orderField, OrderType orderType) {
-        return new OrderByStage(getSelectBuilder(), new OrderItem(orderField, orderType));
+    public <T> OrderByStage orderBy(SFunction<T, ?> orderColumn, OrderType orderType) {
+        return new OrderByStage(getSelectBuilder(), new OrderItem(orderColumn, orderType));
     }
 
     /**

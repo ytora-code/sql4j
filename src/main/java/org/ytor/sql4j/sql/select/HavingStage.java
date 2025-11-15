@@ -21,8 +21,8 @@ public class HavingStage extends AbsSelect {
     /**
      * HAVING 后可能是 ORDER BY 子句
      */
-    public OrderByStage orderBy(SFunction<?, ?> orderField, OrderType orderType) {
-        return new OrderByStage(getSelectBuilder(), new OrderItem(orderField, orderType));
+    public OrderByStage orderBy(SFunction<?, ?> orderColumn, OrderType orderType) {
+        return new OrderByStage(getSelectBuilder(), new OrderItem(orderColumn, orderType));
     }
 
     /**

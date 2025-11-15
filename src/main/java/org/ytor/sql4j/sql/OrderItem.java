@@ -10,20 +10,20 @@ public class OrderItem {
     /**
      * 排序字段
      */
-    private SFunction<?, ?> orderField;
+    private SFunction<?, ?> orderColumn;
 
     /**
      * 排序类型
      */
     private OrderType orderType;
 
-    public OrderItem(SFunction<?, ?> orderField, OrderType orderType) {
-        this.orderField = orderField;
+    public OrderItem(SFunction<?, ?> orderColumn, OrderType orderType) {
+        this.orderColumn = orderColumn;
         this.orderType = orderType;
     }
 
-    public void setOrderField(SFunction<?, ?> orderField) {
-        this.orderField = orderField;
+    public void setOrderColumn(SFunction<?, ?> orderColumn) {
+        this.orderColumn = orderColumn;
     }
 
     public OrderType getOrderType() {
@@ -34,7 +34,7 @@ public class OrderItem {
         this.orderType = orderType;
     }
 
-    public SFunction<?, ?> getOrderField() {
-        return orderField;
+    public SFunction<?, ?> getOrderColumn() {
+        return orderColumn;
     }
 }

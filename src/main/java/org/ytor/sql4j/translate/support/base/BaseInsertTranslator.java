@@ -33,12 +33,12 @@ public class BaseInsertTranslator implements IInsertTranslator {
         sql.append("INSERT INTO ").append(tableName).append(' ');
 
         // 2. INSERT INTO 字段
-        List<SFunction<?, ?>> columns = builder.getIntoStage().getInsertedFields();
+        List<SFunction<?, ?>> columns = builder.getIntoStage().getInsertedColumn();
         if (columns == null || columns.isEmpty()) {
             throw new Sql4JException("翻译SQL时出错：INSERT时必须指定COLUMNS");
         }
         String columnStr = columns.stream()
-                .map(field -> LambdaUtil.parseMethodName(LambdaUtil.serializedLambda(field)))
+                .map(column -> LambdaUtil.parseMethodName(LambdaUtil.serializedLambda(column)))
                 .collect(Collectors.joining(", "));
         sql.append("(").append(columnStr).append(") ");
 
