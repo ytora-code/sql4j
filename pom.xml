@@ -7,6 +7,7 @@
     <groupId>org.ytor</groupId>
     <artifactId>sql4J</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <description>本项目旨在使开发者在进行ORM操作时，能够像写SQL一样写代码</description>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

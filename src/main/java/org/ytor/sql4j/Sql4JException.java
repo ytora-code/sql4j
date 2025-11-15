@@ -1,8 +1,7 @@
 package org.ytor.sql4j;
 
 /**
- * created by YT on 2025/11/10 22:52:36
- * <br/>
+ * 异常类
  */
 public class Sql4JException extends RuntimeException {
     private final String message;
