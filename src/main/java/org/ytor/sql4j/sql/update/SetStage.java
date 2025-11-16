@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 /**
  * SET 阶段，指定要更新的字段和值
  */
-public class SetStage extends AbsUpdate {
+public class SetStage extends AbsUpdate implements UpdateEndStage {
 
     /**
      * 映射：要修改的字段 -> 要修改的值
@@ -47,5 +47,10 @@ public class SetStage extends AbsUpdate {
 
     public Map<SFunction<?, ?>, Object> getUpdatedColumnValueMapper() {
         return updatedColumnValueMapper;
+    }
+
+    @Override
+    public Integer submit() {
+        return getUpdateBuilder().getSQLHelper().getSqlExecutionEngine().executeUpdate(getUpdateBuilder().getTranslator().translate(getUpdateBuilder())).getEffectedRows();
     }
 }

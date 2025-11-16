@@ -2,10 +2,12 @@ package org.ytor.sql4j.sql.select;
 
 import org.ytor.sql4j.sql.SqlInfo;
 
+import java.util.List;
+
 /**
  * OFFSET 阶段
  */
-public class OffsetStage extends AbsSelect {
+public class OffsetStage extends AbsSelect implements SelectEndStage {
 
     private final Integer offset;
 
@@ -24,5 +26,10 @@ public class OffsetStage extends AbsSelect {
 
     public Integer getOffset() {
         return offset;
+    }
+
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
     }
 }

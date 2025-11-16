@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * ORDER BY 阶段
  */
-public class OrderByStage extends AbsSelect {
+public class OrderByStage extends AbsSelect implements SelectEndStage {
 
     private final List<OrderItem> orderItems = new ArrayList<>();
 
@@ -60,5 +60,8 @@ public class OrderByStage extends AbsSelect {
         return orderItems;
     }
 
-
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
 }

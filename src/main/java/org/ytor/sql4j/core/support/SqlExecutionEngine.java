@@ -86,7 +86,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                     while (generatedKeys.next()) {
                         ids.add(generatedKeys.getObject(1));
                     }
-                    return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, (long) affectedRows, ids, System.currentTimeMillis() - startTime);
+                    return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime);
                 }
             }
         } catch (SQLException e) {
@@ -106,7 +106,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 setParameters(statement, params);
                 int affectedRows = statement.executeUpdate();
-                return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, (long) affectedRows, null, System.currentTimeMillis() - startTime);
+                return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime);
             }
         } catch (SQLException e) {
             throw new Sql4JException(e);
@@ -137,7 +137,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
      * 创建 ExecResult 对象
      */
     private ExecResult createExecResult(SqlInfo sqlInfo, DatabaseType databaseType, List<Map<String, Object>> resultList,
-                                        Long effectedRows, List<Object> ids, Long executionTime) {
+                                        Integer effectedRows, List<Object> ids, Long executionTime) {
         ExecResult execResult = new ExecResult();
         execResult.setSqlHelper(sqlHelper);
         execResult.setSqlInfo(sqlInfo);

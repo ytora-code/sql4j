@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 /**
  * WHERE 阶段，指定更新条件
  */
-public class UpdateWhereStage extends AbsUpdate {
+public class UpdateWhereStage extends AbsUpdate implements UpdateEndStage {
 
     private final Consumer<ConditionExpressionBuilder> where;
 
@@ -27,5 +27,10 @@ public class UpdateWhereStage extends AbsUpdate {
 
     public Consumer<ConditionExpressionBuilder> getWhere() {
         return where;
+    }
+
+    @Override
+    public Integer submit() {
+        return getUpdateBuilder().getSQLHelper().getSqlExecutionEngine().executeUpdate(getUpdateBuilder().getTranslator().translate(getUpdateBuilder())).getEffectedRows();
     }
 }

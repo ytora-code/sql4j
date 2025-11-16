@@ -4,12 +4,13 @@ import org.ytor.sql4j.sql.*;
 import org.ytor.sql4j.enums.JoinType;
 import org.ytor.sql4j.enums.OrderType;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * JOIN 阶段
  */
-public class JoinStage extends AbsSelect {
+public class JoinStage extends AbsSelect implements SelectEndStage {
 
     /**
      * 连接类型
@@ -105,4 +106,8 @@ public class JoinStage extends AbsSelect {
         return on;
     }
 
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
 }

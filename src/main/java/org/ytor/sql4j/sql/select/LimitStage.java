@@ -2,10 +2,12 @@ package org.ytor.sql4j.sql.select;
 
 import org.ytor.sql4j.sql.SqlInfo;
 
+import java.util.List;
+
 /**
  * LIMIT 阶段
  */
-public class LimitStage extends AbsSelect {
+public class LimitStage extends AbsSelect implements SelectEndStage {
 
     private final Integer limit;
 
@@ -33,4 +35,8 @@ public class LimitStage extends AbsSelect {
         return limit;
     }
 
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
 }

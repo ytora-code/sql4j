@@ -33,6 +33,10 @@ public class DeleteBuilder extends SqlBuilder {
         return sqlHelper.getTranslator();
     }
 
+    public SQLHelper getSQLHelper() {
+        return sqlHelper;
+    }
+
     public void setDeleteStage(DeleteStage deleteStage) {
         this.deleteStage = deleteStage;
     }

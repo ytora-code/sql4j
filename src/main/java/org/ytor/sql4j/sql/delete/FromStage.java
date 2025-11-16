@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 /**
  * FROM 阶段，指定要删除的目标表
  */
-public class FromStage extends AbsDelete {
+public class FromStage extends AbsDelete implements DeleteEndStage {
 
     private final Class<?> table;
 
@@ -35,5 +35,10 @@ public class FromStage extends AbsDelete {
 
     public Class<?> getTable() {
         return table;
+    }
+
+    @Override
+    public Integer submit() {
+        return getDeleteBuilder().getSQLHelper().getSqlExecutionEngine().executeDelete(getDeleteBuilder().getTranslator().translate(getDeleteBuilder())).getEffectedRows();
     }
 }

@@ -35,7 +35,7 @@ public class ExecResult {
     /**
      * 受影响的行数（仅当 SQL 类型是 INSERT、DELETE、UPDATE 时该字段才有值）
      */
-    private Long effectedRows;
+    private Integer effectedRows;
 
     /**
      * 数据新增后，产生的主键ID（仅当 SQL 类型是 INSERT 时该字段才有值）
@@ -75,11 +75,11 @@ public class ExecResult {
         this.resultList = resultList;
     }
 
-    public Long getEffectedRows() {
+    public Integer getEffectedRows() {
         return effectedRows;
     }
 
-    public void setEffectedRows(Long effectedRows) {
+    public void setEffectedRows(Integer effectedRows) {
         this.effectedRows = effectedRows;
     }
 

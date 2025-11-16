@@ -1,15 +1,19 @@
 package org.ytor.sql4j.sql.select;
 
-import org.ytor.sql4j.sql.*;
 import org.ytor.sql4j.enums.JoinType;
 import org.ytor.sql4j.enums.OrderType;
+import org.ytor.sql4j.sql.ConditionExpressionBuilder;
+import org.ytor.sql4j.sql.OrderItem;
+import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.sql.SqlInfo;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * FROM 阶段
  */
-public class FromStage extends AbsSelect {
+public class FromStage extends AbsSelect implements SelectEndStage {
 
     /**
      * 主表
@@ -83,4 +87,8 @@ public class FromStage extends AbsSelect {
         return mainTable;
     }
 
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
 }

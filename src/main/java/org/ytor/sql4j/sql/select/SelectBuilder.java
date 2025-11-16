@@ -66,6 +66,10 @@ public class SelectBuilder extends SqlBuilder {
         return sqlHelper.getTranslator();
     }
 
+    public SQLHelper getSQLHelper() {
+        return sqlHelper;
+    }
+
     public void setSelectStage(SelectStage selectStage) {
         this.selectStage = selectStage;
     }

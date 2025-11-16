@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 /**
  * GROUP BY 阶段
  */
-public class GroupByStage extends AbsSelect {
+public class GroupByStage extends AbsSelect implements SelectEndStage {
 
     private final List<SFunction<?, ?>> groupColumn = new ArrayList<>();
 
@@ -68,4 +68,8 @@ public class GroupByStage extends AbsSelect {
         return groupColumn;
     }
 
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
 }

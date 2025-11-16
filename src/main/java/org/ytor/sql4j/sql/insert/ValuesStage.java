@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * VALUE 阶段，指定要插入的数据
  */
-public class ValuesStage extends AbsInsert {
+public class ValuesStage extends AbsInsert implements InsertEndStage {
 
     /**
      * 可能插入多条数据
@@ -68,5 +68,10 @@ public class ValuesStage extends AbsInsert {
 
     public List<List<Object>> getInsertedDataList() {
         return insertedDataList;
+    }
+
+    @Override
+    public List<Object> submit() {
+        return getInsertBuilder().getSQLHelper().getSqlExecutionEngine().executeInsert(getInsertBuilder().getTranslator().translate(getInsertBuilder())).getIds();
     }
 }

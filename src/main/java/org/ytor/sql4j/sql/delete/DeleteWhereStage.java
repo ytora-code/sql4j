@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 /**
  * DELETE 阶段，指定要删除的目标表
  */
-public class DeleteWhereStage extends AbsDelete {
+public class DeleteWhereStage extends AbsDelete implements DeleteEndStage {
 
     private final Consumer<ConditionExpressionBuilder> where;
 
@@ -27,5 +27,10 @@ public class DeleteWhereStage extends AbsDelete {
 
     public Consumer<ConditionExpressionBuilder> getWhere() {
         return where;
+    }
+
+    @Override
+    public Integer submit() {
+        return getDeleteBuilder().getSQLHelper().getSqlExecutionEngine().executeDelete(getDeleteBuilder().getTranslator().translate(getDeleteBuilder())).getEffectedRows();
     }
 }

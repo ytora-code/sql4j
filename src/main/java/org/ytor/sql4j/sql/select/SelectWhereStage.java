@@ -3,12 +3,13 @@ package org.ytor.sql4j.sql.select;
 import org.ytor.sql4j.sql.*;
 import org.ytor.sql4j.enums.OrderType;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * WHERE 阶段
  */
-public class SelectWhereStage extends AbsSelect {
+public class SelectWhereStage extends AbsSelect implements SelectEndStage {
 
     private final Consumer<ConditionExpressionBuilder> where;
 
@@ -50,4 +51,8 @@ public class SelectWhereStage extends AbsSelect {
         return where;
     }
 
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
 }

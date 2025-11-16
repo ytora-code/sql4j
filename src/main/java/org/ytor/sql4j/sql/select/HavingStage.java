@@ -3,12 +3,13 @@ package org.ytor.sql4j.sql.select;
 import org.ytor.sql4j.sql.*;
 import org.ytor.sql4j.enums.OrderType;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * HAVING 阶段
  */
-public class HavingStage extends AbsSelect {
+public class HavingStage extends AbsSelect implements SelectEndStage {
 
     private final Consumer<ConditionExpressionBuilder> having;
 
@@ -43,4 +44,8 @@ public class HavingStage extends AbsSelect {
         return having;
     }
 
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
 }

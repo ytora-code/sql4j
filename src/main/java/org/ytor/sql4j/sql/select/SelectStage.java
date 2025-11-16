@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * SELECT 阶段
  */
-public class SelectStage extends AbsSelect {
+public class SelectStage extends AbsSelect implements SelectEndStage {
 
     /**
      * SELECT 查询字段
@@ -54,5 +54,10 @@ public class SelectStage extends AbsSelect {
 
     public List<SFunction<?, ?>> getSelectColumn() {
         return selectColumn;
+    }
+
+    @Override
+    public <T> List<T> submit(Class<T> clazz) {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
     }
 }
