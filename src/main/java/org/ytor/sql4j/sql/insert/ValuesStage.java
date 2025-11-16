@@ -22,11 +22,13 @@ public class ValuesStage extends AbsInsert {
      */
     private final Integer count;
 
-    public ValuesStage(InsertBuilder insertBuilder, List<Object> insertedData) {
+    public ValuesStage(InsertBuilder insertBuilder, List<Object> insertedData, Integer count) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setValuesStage(this);
-        this.insertedDataList.add(insertedData);
-        this.count = insertedData.size();
+        if (insertedData != null && !insertedData.isEmpty()) {
+            this.insertedDataList.add(insertedData);
+        }
+        this.count = count;
     }
 
     /**

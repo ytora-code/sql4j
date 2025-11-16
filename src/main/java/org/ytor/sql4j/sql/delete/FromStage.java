@@ -15,6 +15,7 @@ public class FromStage extends AbsDelete {
     public FromStage(DeleteBuilder deleteBuilder, Class<?> table) {
         setDeleteBuilder(deleteBuilder);
         getDeleteBuilder().setFromStage(this);
+        getDeleteBuilder().addAlias(table);
         this.table = table;
     }
 

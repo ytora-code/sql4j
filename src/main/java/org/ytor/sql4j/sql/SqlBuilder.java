@@ -1,13 +1,17 @@
 package org.ytor.sql4j.sql;
 
+import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.translate.ITranslator;
 
 /**
  * SQL 构造器
  */
-public interface SqlBuilder {
+public abstract class SqlBuilder extends AliasRegister {
 
-    void setTranslator(ITranslator translator);
+    /**
+     * SQLHelper
+     */
+    protected SQLHelper sqlHelper;
 
-    ITranslator getTranslator();
+    abstract protected ITranslator getTranslator();
 }

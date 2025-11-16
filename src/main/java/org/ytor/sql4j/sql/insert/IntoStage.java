@@ -23,21 +23,21 @@ public class IntoStage extends AbsInsert {
      * INTO 后面是 VALUE
      */
     public ValuesStage value(Object... insertedData) {
-        return new ValuesStage(getInsertBuilder(), Arrays.asList(insertedData));
+        return new ValuesStage(getInsertBuilder(), Arrays.asList(insertedData), insertedColumn.size());
     }
 
     /**
      * INTO 后面是 VALUE
      */
     public ValuesStage value(List<Object> insertedData) {
-        return new ValuesStage(getInsertBuilder(), insertedData);
+        return new ValuesStage(getInsertBuilder(), insertedData, insertedColumn.size());
     }
 
     /**
      * INTO 后面是 VALUE
      */
     public ValuesStage values(List<List<Object>> insertedDataList) {
-        return new ValuesStage(getInsertBuilder(), new ArrayList<>()).values(insertedDataList);
+        return new ValuesStage(getInsertBuilder(), new ArrayList<>(), insertedColumn.size()).values(insertedDataList);
     }
 
     public List<SFunction<?, ?>> getInsertedColumn() {

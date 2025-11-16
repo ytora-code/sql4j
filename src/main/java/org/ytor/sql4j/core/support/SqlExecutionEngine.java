@@ -1,6 +1,5 @@
 package org.ytor.sql4j.core.support;
 
-import org.ytor.sql4j.core.ConnectionProviderHelper;
 import org.ytor.sql4j.core.ExecResult;
 import org.ytor.sql4j.core.IConnectionProvider;
 import org.ytor.sql4j.core.ISqlExecutionEngine;
@@ -18,11 +17,10 @@ import java.util.Map;
  */
 public class SqlExecutionEngine implements ISqlExecutionEngine {
 
+    /**
+     * 数据库连接提供者
+     */
     private final IConnectionProvider connectionProvider;
-
-    public SqlExecutionEngine() {
-        this.connectionProvider = ConnectionProviderHelper.getConnectionProvider();
-    }
 
     public SqlExecutionEngine(IConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
@@ -103,7 +101,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
     @Override
     public ExecResult executeDelete(SqlInfo sqlInfo) throws SQLException {
-        return executeUpdate(sqlInfo); // DELETE 和 UPDATE 的处理方式一样
+        // DELETE 和 UPDATE 的处理方式一样
+        return executeUpdate(sqlInfo);
     }
 
     /**

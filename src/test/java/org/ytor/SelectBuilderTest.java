@@ -3,18 +3,20 @@ package org.ytor;
 import org.junit.jupiter.api.Test;
 import org.ytor.bean.Order;
 import org.ytor.bean.User;
+import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.enums.OrderType;
 import org.ytor.sql4j.sql.SqlInfo;
-import org.ytor.sql4j.sql.select.SelectBuilder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SqlBuilderTest {
+public class SelectBuilderTest {
+
+    private final SQLHelper sqlHelper = new SQLHelper();
 
     // 1. 测试SELECT语句：基本查询
     @Test
     public void testSelectBuilder() {
-        SqlInfo sqlInfo = SelectBuilder.select(User::getUserName, User::getUserEmail)
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName, User::getUserEmail)
                 .from(User.class)
                 .where(w -> w.gt(User::getAge, 18))
                 .orderBy(User::getUserName, OrderType.ASC)
@@ -29,7 +31,7 @@ public class SqlBuilderTest {
     // 2. 测试多个JOIN子句的情况
     @Test
     public void testJoinBuilder() {
-        SqlInfo sqlInfo = SelectBuilder.select(User::getUserName).select(Order::getOrderAmount)
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName).select(Order::getOrderAmount)
                 .from(User.class)
                 .innerJoin(Order.class, on -> on.eq(User::getId, Order::getUserId))
                 .where(w -> w.gt(User::getAge, 18))
@@ -45,7 +47,7 @@ public class SqlBuilderTest {
     // 3. 测试GROUP BY和HAVING的使用
     @Test
     public void testGroupByHavingBuilder() {
-        SqlInfo sqlInfo = SelectBuilder.select(User::getUserName, User::getAge)
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName, User::getAge)
                 .from(User.class)
                 .groupBy(User::getAge)
                 .having(w -> w.gt(User::getAge, 18))
@@ -60,7 +62,7 @@ public class SqlBuilderTest {
     //    // 4. 测试LIMIT和OFFSET的使用
     @Test
     public void testLimitOffsetBuilder() {
-        SqlInfo sqlInfo = SelectBuilder.select(User::getUserName, User::getUserEmail)
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName, User::getUserEmail)
                 .from(User.class)
                 .limit(10)
                 .offset(20).end();
@@ -73,7 +75,7 @@ public class SqlBuilderTest {
     // 5. 测试空的SELECT语句，期望返回*
     @Test
     public void testEmptySelectBuilder() {
-        SqlInfo sqlInfo = SelectBuilder.select()
+        SqlInfo sqlInfo = sqlHelper.select()
                 .from(User.class).end();
         // 预期生成的SQL语句
         String expectedSql = "SELECT * FROM user";
@@ -83,7 +85,7 @@ public class SqlBuilderTest {
     // 6. 测试没有ORDER BY时的SQL
     @Test
     public void testSelectWithoutOrderBy() {
-        SqlInfo sqlInfo = SelectBuilder.select(User::getUserName, User::getUserEmail)
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName, User::getUserEmail)
                 .from(User.class)
                 .where(w -> w.gt(User::getAge, 18))
                 .end();
@@ -98,7 +100,7 @@ public class SqlBuilderTest {
     // 7. 测试多个WHERE条件
     @Test
     public void testMultipleWhereConditions() {
-        SqlInfo sqlInfo = SelectBuilder.select(User::getUserName, User::getUserEmail)
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName, User::getUserEmail)
                 .from(User.class)
                 .where(w -> w.gt(User::getAge, 18).and(ww -> ww.eq(User::getUserName, "John")))
                 .end();
@@ -112,7 +114,7 @@ public class SqlBuilderTest {
     // 8. 测试复杂JOIN和多个条件
     @Test
     public void testComplexJoinWithMultipleConditions() {
-        SqlInfo sqlInfo = SelectBuilder.select(User::getUserName).select(Order::getOrderAmount)
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName).select(Order::getOrderAmount)
                 .from(User.class)
                 .leftJoin(Order.class, on -> on.eq(User::getId, Order::getUserId).gt(Order::getOrderAmount, 100.0))
                 .where(w -> w.gt(User::getAge, 18))

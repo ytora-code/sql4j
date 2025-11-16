@@ -1,19 +1,13 @@
 package org.ytor.sql4j.sql.update;
 
-import org.ytor.sql4j.sql.AliasRegister;
+import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.sql.SqlBuilder;
 import org.ytor.sql4j.translate.ITranslator;
-import org.ytor.sql4j.translate.support.base.BaseTranslator;
 
 /**
  * UPDATE 构造器
  */
-public class UpdateBuilder extends AliasRegister implements SqlBuilder {
-
-    /**
-     * SQL 翻译器
-     */
-    private ITranslator translator = new BaseTranslator();
+public class UpdateBuilder extends SqlBuilder {
 
     /**
      * UPDATE 阶段，指定表
@@ -30,14 +24,13 @@ public class UpdateBuilder extends AliasRegister implements SqlBuilder {
      */
     private UpdateWhereStage whereStage;
 
-    @Override
-    public void setTranslator(ITranslator translator) {
-        this.translator = translator;
+    public UpdateBuilder(SQLHelper sqlHelper) {
+        this.sqlHelper = sqlHelper;
     }
 
     @Override
     public ITranslator getTranslator() {
-        return translator;
+        return sqlHelper.getTranslator();
     }
 
     public void setUpdateStage(UpdateStage updateStage) {
@@ -62,10 +55,5 @@ public class UpdateBuilder extends AliasRegister implements SqlBuilder {
 
     public UpdateWhereStage getWhereStage() {
         return whereStage;
-    }
-
-    public static UpdateStage update(Class<?> table) {
-        UpdateBuilder updateBuilder = new UpdateBuilder();
-        return new UpdateStage(updateBuilder, table);
     }
 }

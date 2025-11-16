@@ -1,22 +1,13 @@
 package org.ytor.sql4j.sql.insert;
 
-import org.ytor.sql4j.sql.AliasRegister;
+import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.sql.SqlBuilder;
 import org.ytor.sql4j.translate.ITranslator;
-import org.ytor.sql4j.translate.support.base.BaseTranslator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * INSERT 构造器
  */
-public class InsertBuilder extends AliasRegister implements SqlBuilder {
-
-    /**
-     * SQL 翻译器
-     */
-    private ITranslator translator = new BaseTranslator();
+public class InsertBuilder extends SqlBuilder {
 
     /**
      * INSERT 阶段，指定表
@@ -33,14 +24,13 @@ public class InsertBuilder extends AliasRegister implements SqlBuilder {
      */
     private ValuesStage valuesStage;
 
-    @Override
-    public void setTranslator(ITranslator translator) {
-        this.translator = translator;
+    public InsertBuilder(SQLHelper sqlHelper) {
+        this.sqlHelper = sqlHelper;
     }
 
     @Override
     public ITranslator getTranslator() {
-        return translator;
+        return sqlHelper.getTranslator();
     }
 
     public void setInsertStage(InsertStage insertStage) {
@@ -65,10 +55,5 @@ public class InsertBuilder extends AliasRegister implements SqlBuilder {
 
     public ValuesStage getValuesStage() {
         return valuesStage;
-    }
-
-    public static InsertStage insert(Class<?> table) {
-        InsertBuilder insertBuilder = new InsertBuilder();
-        return new InsertStage(insertBuilder, table);
     }
 }

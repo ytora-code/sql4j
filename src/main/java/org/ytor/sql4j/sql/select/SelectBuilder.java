@@ -1,24 +1,16 @@
 package org.ytor.sql4j.sql.select;
 
-import org.ytor.sql4j.sql.AliasRegister;
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.sql.SqlBuilder;
 import org.ytor.sql4j.translate.ITranslator;
-import org.ytor.sql4j.translate.support.base.BaseTranslator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * SELECT 构造器
  */
-public class SelectBuilder extends AliasRegister implements SqlBuilder {
-
-    /**
-     * SQL 翻译器
-     */
-    private ITranslator translator = new BaseTranslator();
+public class SelectBuilder extends SqlBuilder {
 
     /**
      * SELECT 阶段
@@ -65,14 +57,13 @@ public class SelectBuilder extends AliasRegister implements SqlBuilder {
      */
     private OffsetStage offsetStage;
 
-    @Override
-    public void setTranslator(ITranslator translator) {
-        this.translator = translator;
+    public SelectBuilder(SQLHelper sqlHelper) {
+        this.sqlHelper = sqlHelper;
     }
 
     @Override
     public ITranslator getTranslator() {
-        return translator;
+        return sqlHelper.getTranslator();
     }
 
     public void setSelectStage(SelectStage selectStage) {
@@ -148,11 +139,5 @@ public class SelectBuilder extends AliasRegister implements SqlBuilder {
 
     public OffsetStage getOffsetStage() {
         return offsetStage;
-    }
-
-    @SafeVarargs
-    public static <T> SelectStage select(SFunction<T, ?>... Columns) {
-        SelectBuilder selectBuilder = new SelectBuilder();
-        return new SelectStage(selectBuilder, Arrays.asList(Columns));
     }
 }

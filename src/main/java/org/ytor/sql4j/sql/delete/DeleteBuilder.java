@@ -1,19 +1,13 @@
 package org.ytor.sql4j.sql.delete;
 
-import org.ytor.sql4j.sql.AliasRegister;
+import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.sql.SqlBuilder;
 import org.ytor.sql4j.translate.ITranslator;
-import org.ytor.sql4j.translate.support.base.BaseTranslator;
 
 /**
  * DELETE 构造器
  */
-public class DeleteBuilder extends AliasRegister implements SqlBuilder {
-
-    /**
-     * SQL 翻译器
-     */
-    private ITranslator translator = new BaseTranslator();
+public class DeleteBuilder extends SqlBuilder {
 
     /**
      * DELETE 阶段
@@ -30,14 +24,13 @@ public class DeleteBuilder extends AliasRegister implements SqlBuilder {
      */
     private DeleteWhereStage whereStage;
 
-    @Override
-    public void setTranslator(ITranslator translator) {
-        this.translator = translator;
+    public DeleteBuilder(SQLHelper sqlHelper) {
+        this.sqlHelper = sqlHelper;
     }
 
     @Override
     public ITranslator getTranslator() {
-        return translator;
+        return sqlHelper.getTranslator();
     }
 
     public void setDeleteStage(DeleteStage deleteStage) {
@@ -62,10 +55,5 @@ public class DeleteBuilder extends AliasRegister implements SqlBuilder {
 
     public DeleteWhereStage getWhereStage() {
         return whereStage;
-    }
-
-    public static DeleteStage delete() {
-        DeleteBuilder deleteBuilder = new DeleteBuilder();
-        return new DeleteStage(deleteBuilder);
     }
 }

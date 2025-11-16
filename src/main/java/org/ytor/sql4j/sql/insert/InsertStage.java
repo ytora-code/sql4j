@@ -14,6 +14,7 @@ public class InsertStage extends AbsInsert {
     public InsertStage(InsertBuilder insertBuilder, Class<?> table) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setInsertStage(this);
+        getInsertBuilder().addAlias(table);
         this.table = table;
     }
 

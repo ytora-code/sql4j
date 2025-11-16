@@ -24,7 +24,7 @@ public class AliasRegister {
     private final Map<String, String> stringAliasMapper = new HashMap<>();
 
     public Boolean single() {
-        return classAliasMapper.size() == 1;
+        return classAliasMapper.size() <= 1;
     }
 
     public String getAlias(Class<?> clazz) {

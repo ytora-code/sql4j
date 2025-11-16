@@ -11,7 +11,8 @@ public class UpdateStage extends AbsUpdate {
 
     public UpdateStage(UpdateBuilder updateBuilder, Class<?> table) {
         setUpdateBuilder(updateBuilder);
-        updateBuilder.setUpdateStage(this);
+        getUpdateBuilder().setUpdateStage(this);
+        getUpdateBuilder().addAlias(table);
         this.table = table;
     }
 
