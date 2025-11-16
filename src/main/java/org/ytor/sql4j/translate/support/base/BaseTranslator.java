@@ -9,6 +9,8 @@ import org.ytor.sql4j.sql.select.SelectBuilder;
 import org.ytor.sql4j.sql.update.UpdateBuilder;
 import org.ytor.sql4j.translate.*;
 
+import java.util.stream.Collectors;
+
 public class BaseTranslator implements ITranslator {
 
     private final ISelectTranslator selectTranslator = new BaseSelectTranslator();
@@ -18,17 +20,25 @@ public class BaseTranslator implements ITranslator {
 
     @Override
     public SqlInfo translate(SqlBuilder sqlBuilder) {
+        SqlInfo sqlInfo;
         if (sqlBuilder instanceof SelectBuilder) {
-            return selectTranslator.translate((SelectBuilder) sqlBuilder);
+            sqlInfo = selectTranslator.translate((SelectBuilder) sqlBuilder);
         } else if (sqlBuilder instanceof InsertBuilder) {
-            return insertTranslator.translate((InsertBuilder) sqlBuilder);
+            sqlInfo = insertTranslator.translate((InsertBuilder) sqlBuilder);
         } else if (sqlBuilder instanceof UpdateBuilder) {
-            return updateTranslator.translate((UpdateBuilder) sqlBuilder);
+            sqlInfo = updateTranslator.translate((UpdateBuilder) sqlBuilder);
         } else if (sqlBuilder instanceof DeleteBuilder) {
-            return deleteTranslator.translate((DeleteBuilder) sqlBuilder);
+            sqlInfo = deleteTranslator.translate((DeleteBuilder) sqlBuilder);
         } else {
             throw new Sql4JException("翻译SQL时出错：未知的SqlBuilder类型【" + sqlBuilder.getClass().getName() + "】");
         }
+        // 记录 SQL
+        sqlBuilder.getSQLHelper().getLogger().info("(" + System.identityHashCode(sqlBuilder) + ") ===>\t" + sqlInfo.getSql());
+        // 记录参数
+        String orderedParmStr = "[ " +
+                sqlInfo.getOrderedParms().stream().map(i -> i + "(" + i.getClass().getSimpleName() + ")").collect(Collectors.joining(", ")) +
+                " ]";
+        sqlBuilder.getSQLHelper().getLogger().info("(" + System.identityHashCode(sqlBuilder) + ") ===>\t" + orderedParmStr);
+        return sqlInfo;
     }
-
 }

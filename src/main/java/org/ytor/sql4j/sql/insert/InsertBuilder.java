@@ -28,10 +28,6 @@ public class InsertBuilder extends SqlBuilder {
         this.sqlHelper = sqlHelper;
     }
 
-    public SQLHelper getSQLHelper() {
-        return sqlHelper;
-    }
-
     @Override
     public ITranslator getTranslator() {
         return sqlHelper.getTranslator();

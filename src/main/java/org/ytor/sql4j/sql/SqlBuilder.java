@@ -13,5 +13,9 @@ public abstract class SqlBuilder extends AliasRegister {
      */
     protected SQLHelper sqlHelper;
 
+    public SQLHelper getSQLHelper() {
+        return sqlHelper;
+    }
+
     abstract protected ITranslator getTranslator();
 }
