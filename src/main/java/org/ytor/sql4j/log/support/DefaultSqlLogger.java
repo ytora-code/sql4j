@@ -7,22 +7,22 @@ import org.ytor.sql4j.log.ISqlLogger;
  */
 public class DefaultSqlLogger implements ISqlLogger {
     @Override
-    public void error(String msg) {
+    public void error(Object msg) {
         System.err.println(msg);
     }
 
     @Override
-    public void warn(String msg) {
+    public void warn(Object msg) {
         System.out.println(msg);
     }
 
     @Override
-    public void info(String msg) {
+    public void info(Object msg) {
         System.out.println(msg);
     }
 
     @Override
-    public void debug(String msg) {
+    public void debug(Object msg) {
         System.out.println(msg);
     }
 }

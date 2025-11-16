@@ -58,6 +58,9 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                             row.put(metaData.getColumnLabel(i), resultSet.getObject(i));
                         }
                         resultList.add(row);
+
+                        // 记录 SQL 执行结果
+                        sqlHelper.getLogger().debug(" <===\t" + row);
                     }
                     // 创建并返回执行结果
                     return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, System.currentTimeMillis() - startTime);
@@ -86,6 +89,9 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                     while (generatedKeys.next()) {
                         ids.add(generatedKeys.getObject(1));
                     }
+
+                    // 记录 SQL 执行结果
+                    sqlHelper.getLogger().debug(" <===\t 新增行数：" + affectedRows);
                     return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime);
                 }
             }
@@ -106,6 +112,9 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 setParameters(statement, params);
                 int affectedRows = statement.executeUpdate();
+
+                // 记录 SQL 执行结果
+                sqlHelper.getLogger().debug(" <===\t 影响行数" + affectedRows);
                 return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime);
             }
         } catch (SQLException e) {
