@@ -5,6 +5,7 @@ import org.ytor.bean.Order;
 import org.ytor.bean.User;
 import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.enums.OrderType;
+import org.ytor.sql4j.func.support.Concat;
 import org.ytor.sql4j.func.support.Count;
 import org.ytor.sql4j.sql.SqlInfo;
 import org.ytor.sql4j.sql.Wrapper;
@@ -121,15 +122,16 @@ public class SelectBuilderTest {
                 .leftJoin(Order.class, on -> on.eq(User::getId, Order::getUserId))
                 .where(w -> w.gt(User::getAge, Wrapper.of(23))
                         .and(ww -> ww.eq(User::getUserName, Wrapper.of("John")))
+                        .eq(Concat.of(User::getUserName, User::getId, User::getUserEmail), "21312")
                 )
                 .groupBy(User::getUserName, User::getUserEmail)
                 .having(w -> w.ge(Count.of(User::getUserName), Wrapper.of(100)))
                 .end();
-        System.out.println(sqlInfo);
+
         // 预期生成的SQL语句
-        String expectedSql = "SELECT count(u.id) FROM user u LEFT JOIN order o ON u.id = o.user_id WHERE u.age > 23 AND (u.user_name = 'John') GROUP BY u.user_name, u.user_email HAVING count(u.user_name) >= 100";
+        String expectedSql = "SELECT count(u.id) FROM user u LEFT JOIN order o ON u.id = o.user_id WHERE u.age > 23 AND (u.user_name = 'John') AND concat(u.user_name, u.id, u.user_email) = ? GROUP BY u.user_name, u.user_email HAVING count(u.user_name) >= 100";
         assertEquals(expectedSql, sqlInfo.getSql());
-        assertEquals(0, sqlInfo.getOrderedParms().size());
+        assertEquals(1, sqlInfo.getOrderedParms().size());
     }
 
     // 8. 测试复杂JOIN和多个条件

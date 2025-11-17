@@ -106,7 +106,7 @@ sqlHelper.registerConnectionProvider(new MyConnectionProvider());
 先创建BEAN
 
 ```java
-@Bean
+@Data
 public class SysUser {
     private Long id;
     @Column("user_name")

@@ -27,7 +27,6 @@ public class Length implements SQLFunc {
 
     @Override
     public String getValue() {
-        int length = str == null ? 0 : str.length();
-        return length + "";
+        return "length(" + str + ")";
     }
 }
