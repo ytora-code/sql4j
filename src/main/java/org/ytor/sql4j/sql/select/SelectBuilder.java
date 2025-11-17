@@ -13,6 +13,11 @@ import java.util.List;
 public class SelectBuilder extends SqlBuilder {
 
     /**
+     * DISTINCT 阶段
+     */
+    private DistinctStage distinctStage;
+
+    /**
      * SELECT 阶段
      */
     private SelectStage selectStage;
@@ -64,6 +69,14 @@ public class SelectBuilder extends SqlBuilder {
     @Override
     public ITranslator getTranslator() {
         return sqlHelper.getTranslator();
+    }
+
+    public void setDistinctStage(DistinctStage distinctStage) {
+        this.distinctStage = distinctStage;
+    }
+
+    public DistinctStage getDistinctStage() {
+        return distinctStage;
     }
 
     public void setSelectStage(SelectStage selectStage) {

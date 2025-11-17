@@ -1,6 +1,6 @@
 package org.ytor.sql4j.sql.insert;
 
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.func.SFunction;
 
 import java.util.ArrayList;
 import java.util.Arrays;

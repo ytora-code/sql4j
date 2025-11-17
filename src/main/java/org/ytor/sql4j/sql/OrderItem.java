@@ -1,6 +1,7 @@
 package org.ytor.sql4j.sql;
 
 import org.ytor.sql4j.enums.OrderType;
+import org.ytor.sql4j.func.SFunction;
 
 /**
  * 排序字段

@@ -10,6 +10,7 @@ sqlHelper.select(User::getUserName).select(User::getAge)
         .leftJoin(Order.class, on -> on.eq(User::getId, Order::getUserId).gt(Order::getOrderAmount, 100.0))
         .where(w -> w.gt(User::getAge, 18))
         .groupBy(User::getUserName, User::getAge)
+    	.having(h -> h.gt(Count.of(User::getId), Wrapper.of(1)))
         .orderBy(User::getAge, OrderType.DESC)
         .limit(10)
         .offset(10);
@@ -18,7 +19,7 @@ sqlHelper.select(User::getUserName).select(User::getAge)
 等价于下面的 SQL
 
 ```sql
-SELECT u.user_name, u.age FROM user u LEFT JOIN order o ON u.id = o.user_id AND o.order_amount > ? WHERE u.age > ? GROUP BY u.user_name, u.age ORDER BY u.age DESC LIMIT 10 OFFSET 10
+SELECT u.user_name, u.age FROM user u LEFT JOIN order o ON u.id = o.user_id AND o.order_amount > ? WHERE u.age > ? GROUP BY u.user_name, u.age HAVING count(u.id) > 1 ORDER BY u.age DESC LIMIT 10 OFFSET 10
 ```
 
 参数列表如下
@@ -27,7 +28,7 @@ SELECT u.user_name, u.age FROM user u LEFT JOIN order o ON u.id = o.user_id AND 
 [100.0, 18]
 ```
 
-
+------
 
 ## 1 快速入门
 
@@ -82,7 +83,7 @@ public class MyConnectionProvider implements IConnectionProvider {
 }
 ```
 
-
+------
 
 ### 1.2 创建 SQLHelper 对象
 
@@ -98,7 +99,7 @@ SQLHelper sqlHelper = new SQLHelper();
 sqlHelper.registerConnectionProvider(new MyConnectionProvider());
 ```
 
-
+------
 
 ### 1.3 准备数据
 
@@ -143,7 +144,7 @@ CREATE TABLE `sys_user`  (
 INSERT INTO `test`.`sys_user` (`id`, `user_name`, `real_name`, `password`, `depart_code`, `phone`, `birthday`) VALUES (1, 'admin', '杨三', '123', 'A01', '112233', '2025-11-17');
 ```
 
-
+------
 
 ### 1.4 CRUD
 
@@ -242,7 +243,7 @@ Integer count1 = sqlHelper.delete()
  <===	 影响行数2
 ```
 
-
+------
 
 ## 2 数据绑定
 
@@ -254,7 +255,7 @@ Integer count1 = sqlHelper.delete()
 2. JDBC处理后，此时会得到`原始数据`：List<Map<String, Object>>
 3. Bean，也就是将原始数据绑定为Bean对象数组
 
-这里介绍数据从原始数据 -> Bean，也就是List<Map<String, Object>> 变成 List<Bean>
+这里介绍数据从原始数据 -> Bean，也就是List<Map<String, Object>> 变成 List< Bean>
 
 ### 2.1 setter
 
@@ -276,6 +277,8 @@ Bean是一个对象，将Map<String, Object>变成一个Bean对象，本质就�
 * 数字：将数字作为下标，去枚举类型里面找到对应的枚举值
 * 字符串：将字符串作为枚举值的名称，去枚举类型里面找到对应的枚举值
 
+------
+
 ### 2.2 @Column
 
 有时候Bean的字段名称，可能并不是和数据库的字段名称一致，此时需要使用`@Column`指定数据库的字段名称
@@ -286,6 +289,8 @@ Bean是一个对象，将Map<String, Object>变成一个Bean对象，本质就�
 ```
 
 上面代码表示Bean里面的字段名称是s_s_s_s_name，但是数据库的字段名称是user_name
+
+------
 
 ### 2.3 @Table
 
@@ -310,6 +315,204 @@ public class SysUser {
 
 再次运行 SELECT 程序，一切正常
 
+------
+
+## 3 Wrapper和SQLFunc
+
+### 3.1 Wrapper
+
+默认情况下，为了避免依赖注入，代码中的参数在被解析成 SQL 时，都是被解析成占位符`?`
+
+比如
+
+```java
+sqlHelper.select().from(SysUser.class).where(w -> w.eq(SysUser::getId, 123))
+```
+
+会被解析成
+
+```sql
+select * from sys_user where id = ?
+```
+
+代码中的参数`123`会被有序地放进`参数列表`里面，等到将 SQL 提交给数据库执行时，会从参数列表依次取出每个参数，然后调用setObject(index, param)将参数绑定到 SQL 上
+
+
+
+如果想要将参数直接拼接到 SQL 字符串里面，需要额外包一层Wrapper
+
+```java
+sqlHelper.select().from(SysUser.class).where(w -> w.eq(SysUser::getId, Wrapper.of(123)))
+```
+
+此时则会被解析成
+
+```sql
+select * from sys_user where id = 123
+```
+
+并且参数列表为空，因为被Wrapper包裹的参数会被直接拼接到 SQL 上，所以不会放进参数列表
+
+------
+
+
+
+### 3.2 SQLFunc
+
+有时候，SQL 里面需要用到函数，比如
+
+```sql
+select count(id) from sys_user
+```
+
+此时代码中应该如何表示`count(id)`这个函数呢？
+
+可不可以使用Wrappers？
+
+不行！
+
+如果Wrapper包裹的是字符串，比如
+
+```java
+sqlHelper.select(Wrapper.of("count(id)")).from(SysUser.class)
+```
+
+会被解析成
+
+```sql
+select 'count(id)' from sys_user
+```
+
+可见，count(id)被整体当成字符串处理了
+
+为了处理这种情况，需要引入`SQLFunc`，表示 SQL 函数对象
+
+上面带有函数的 SQL 使用SQLFunc表示如下
+
+```java
+// 会被解析成 select count(id) from sys_user
+sqlHelper.select(Count.of(SysUser::getId)).from(SysUser.class);
+```
+
+其中，Count是一个SQLFunc的内置实现类，表示 SQL 中的函数count
+
+```java
+public interface SQLFunc extends SFunction<Object, Object> {
+    @Override
+    default Object apply(Object o) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * 指定别名MAP
+     */
+    void addAliasRegister(AliasRegister aliasRegister);
+
+    /**
+     * 得到函数值（本质是字符串）
+     */
+    String getValue();
+}
+```
+
+可见SQLFunc是SFunction的子接口，所以程序中凡是能出现SFunction的地方，都可以使用SQLFunc替代
+
+addAliasRegister抽象函数是 SQL4J 框架内部使用的，开发者无需关心
+
+```java
+/**
+ * count 函数， count(1)、count(*)、count(id)
+ */
+public class Count implements SQLFunc {
+
+    private SFunction<?, ?> column;
+
+    private String str;
+
+    private AliasRegister aliasRegister;
+
+    public Count(SFunction<?, ?> column) {
+        this.column = column;
+    }
+
+    public Count(String str) {
+        this.str = str;
+    }
+
+    public static <T> Count of(SFunction<T, ?> column) {
+        return new Count(column);
+    }
+
+    public static Count of(String str) {
+        return new Count(str);
+    }
+
+    @Override
+    public void addAliasRegister(AliasRegister aliasRegister) {
+        this.aliasRegister = aliasRegister;
+    }
+
+    @Override
+    public String getValue() {
+        if (column != null) {
+            return "count(" + LambdaUtil.parseColumn(column, aliasRegister) + ")";
+        } else {
+            return "count(" + str + ")";
+        }
+    }
+}
+```
+
+从上面代码可以得知，Count本质就是也是做了一个字符串拼接
+
+Count里面的`aliasRegister`是别名注册器，将来一句 SQL 可能涉及很多表，每个表都可以有别名，所有的别名信息都放在aliasRegister里面
+
+aliasRegister由 SQL4J 框架调用`addAliasRegister`方法注入
+
+------
+
+
+
+### 3.3 自定义SQLFunc
+
+```java
+// length(str)，返回字符串的长度
+public class Length implements SQLFunc {
+    private AliasRegister aliasRegister;
+    
+    @Override
+    public void addAliasRegister(AliasRegister aliasRegister) {
+        this.aliasRegister = aliasRegister;
+    }
+    
+    // 上面的代码是固定的，写死即可
+    // 下面代码则需要根据实际情况编写
+    
+    private final String str;
+    
+    public Length(String str) {
+        this.str = str;
+    }
+    
+    // 方便外界获取Length对象：Length.of(xxx)，外界不使用of直接new一个对象也是等价的
+    public static Length of(String str) {
+        return new Length(str);
+    }
+    
+    @Override
+    public String getValue() {
+        int length = str == null ? 0 : str.length();
+        // 由于最终得到的SQL是字符串，所以这里也要返回字符串
+        return length + "";
+    }
+}
+         
+```
+
+最终拼接到 SQL 中的，就是getValue返回的字符串
+
+
+
 ## 3 类型转换器
 
 将数据从数据库读取到程序中的Bean时，可能需要进行类型转换
@@ -327,9 +530,9 @@ public class SysUser {
 
 由于birthday的JDBC类型是java.sql.Date，而Bean的接收类型是java.time.LocalDate，由于已经存在了对应的内置类型转换器（java.sql.Date -> java.time.LocalDate），所以上面的代码可以直接绑定birthday
 
+------
 
-
-如果将SysUser类的id字段变成String类型，此时就无法直接绑定数据了，需要注册自定义的类型转换器
+如果将SysUser类的`id`字段变成String类型，就无法绑定数据了，需要注册一个自定义的类型转换器
 
 注册自定义的类型转换器
 
@@ -410,7 +613,7 @@ public class SqlInterceptorAdapter implements SqlInterceptor {
 }
 ```
 
-
+------
 
 **创建自定义拦截器**
 
@@ -433,7 +636,7 @@ public class MySqlInterceptor extends SqlInterceptorAdapter {
 }
 ```
 
-
+------
 
 **注册自定义拦截器**
 
@@ -451,10 +654,9 @@ sqlHelper.addSqlInterceptor(new MySqlInterceptor());
 前置拦截================
  <===	{birthday=2025-11-17, phone=112233, user_name=admin, real_name=杨三, id=1}
 后置拦截================
-[SysUser{id=1, s_s_s_s_name='admin', realName='杨三', password='null', departCode='null', phone='112233', birthday=2025-11-17}]
 ```
 
-
+------
 
 ## 6 日志记录
 

@@ -3,7 +3,7 @@ package org.ytor.sql4j.util;
 import org.ytor.sql4j.Sql4JException;
 import org.ytor.sql4j.anno.Column;
 import org.ytor.sql4j.sql.AliasRegister;
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.func.SFunction;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;

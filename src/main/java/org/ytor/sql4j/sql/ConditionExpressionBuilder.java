@@ -1,5 +1,7 @@
 package org.ytor.sql4j.sql;
 
+import org.ytor.sql4j.func.SFunction;
+
 import java.util.function.Consumer;
 
 /**

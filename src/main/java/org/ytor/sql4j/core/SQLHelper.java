@@ -2,17 +2,17 @@ package org.ytor.sql4j.core;
 
 import org.ytor.sql4j.caster.Caster;
 import org.ytor.sql4j.caster.TypeCaster;
-import org.ytor.sql4j.caster.TypeCasterRegister;
 import org.ytor.sql4j.caster.TypePair;
 import org.ytor.sql4j.core.support.SqlExecutionEngine;
+import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.interceptor.SqlInterceptor;
 import org.ytor.sql4j.log.ISqlLogger;
 import org.ytor.sql4j.log.support.DefaultSqlLogger;
-import org.ytor.sql4j.sql.SFunction;
 import org.ytor.sql4j.sql.delete.DeleteBuilder;
 import org.ytor.sql4j.sql.delete.DeleteStage;
 import org.ytor.sql4j.sql.insert.InsertBuilder;
 import org.ytor.sql4j.sql.insert.InsertStage;
+import org.ytor.sql4j.sql.select.DistinctStage;
 import org.ytor.sql4j.sql.select.SelectBuilder;
 import org.ytor.sql4j.sql.select.SelectStage;
 import org.ytor.sql4j.sql.update.UpdateBuilder;
@@ -132,10 +132,15 @@ public class SQLHelper {
         return sqlInterceptors;
     }
 
-    @SafeVarargs
-    public final <T> SelectStage select(SFunction<T, ?>... Columns) {
+    public DistinctStage distinct() {
         SelectBuilder selectBuilder = new SelectBuilder(this);
-        return new SelectStage(selectBuilder, Arrays.asList(Columns));
+        return new DistinctStage(selectBuilder);
+    }
+
+    @SafeVarargs
+    public final <T> SelectStage select(SFunction<T, ?>... columns) {
+        SelectBuilder selectBuilder = new SelectBuilder(this);
+        return new SelectStage(selectBuilder, Arrays.asList(columns));
     }
 
     public InsertStage insert(Class<?> table) {

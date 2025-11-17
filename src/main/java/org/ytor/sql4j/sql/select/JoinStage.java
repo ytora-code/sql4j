@@ -1,5 +1,6 @@
 package org.ytor.sql4j.sql.select;
 
+import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.sql.*;
 import org.ytor.sql4j.enums.JoinType;
 import org.ytor.sql4j.enums.OrderType;

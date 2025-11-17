@@ -1,8 +1,9 @@
 package org.ytor.sql4j.translate.support.base;
 
 import org.ytor.sql4j.enums.SqlType;
+import org.ytor.sql4j.func.SFunction;
+import org.ytor.sql4j.func.SQLFunc;
 import org.ytor.sql4j.sql.ConditionExpressionBuilder;
-import org.ytor.sql4j.sql.SFunction;
 import org.ytor.sql4j.sql.SqlInfo;
 import org.ytor.sql4j.sql.select.*;
 import org.ytor.sql4j.translate.ISelectTranslator;
@@ -25,12 +26,28 @@ public class BaseSelectTranslator implements ISelectTranslator {
         List<Object> orderedParms = new ArrayList<>();
 
         // 1.SELECT 查询字段
+        DistinctStage distinctStage = builder.getDistinctStage();
         List<SFunction<?, ?>> selectColumns = builder.getSelectStage().getSelectColumn();
-        String selectColumnStr = selectColumns.stream().map(f -> LambdaUtil.parseColumn(f, builder)).collect(Collectors.joining(", "));
+        String selectColumnStr = selectColumns.stream().map(f -> {
+            // 函数字段
+            if (f instanceof SQLFunc) {
+                SQLFunc func = (SQLFunc) f;
+                func.addAliasRegister(builder);
+                return func.getValue();
+            }
+            // 普通表字段
+            else {
+                return LambdaUtil.parseColumn(f, builder);
+            }
+        }).collect(Collectors.joining(", "));
         if (selectColumnStr.isEmpty()) {
             selectColumnStr = "*";
         }
-        sql.append("SELECT ").append(selectColumnStr).append(' ');
+        sql.append("SELECT ");
+        if (distinctStage != null && !"*".equals(selectColumnStr)) {
+            sql.append("DISTINCT").append(' ');
+        }
+        sql.append(selectColumnStr).append(' ');
 
         // 2.FORM 表
         FromStage fromStage = builder.getFromStage();

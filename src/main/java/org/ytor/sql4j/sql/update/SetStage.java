@@ -1,7 +1,7 @@
 package org.ytor.sql4j.sql.update;
 
 import org.ytor.sql4j.sql.ConditionExpressionBuilder;
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.sql.SqlInfo;
 
 import java.util.HashMap;

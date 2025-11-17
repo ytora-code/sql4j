@@ -1,6 +1,8 @@
 package org.ytor.sql4j.sql;
 
 import org.ytor.sql4j.enums.SegmentType;
+import org.ytor.sql4j.func.SFunction;
+import org.ytor.sql4j.func.SQLFunc;
 import org.ytor.sql4j.util.LambdaUtil;
 
 import java.util.ArrayList;
@@ -65,7 +67,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder eq(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -77,8 +79,8 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <L, R> ExpressionBuilder eq(SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(leftColumn, register);
-        String right = LambdaUtil.parseColumn(rightColumn, register);
+        String left = parsePlaceholder(leftColumn);
+        String right = parsePlaceholder(rightColumn);
         expression.append(left).append(SPACE).append("=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
         return this;
@@ -89,7 +91,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder ne(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("<>").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -101,8 +103,8 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <L, R> ExpressionBuilder ne(SFunction<L, ?> leftColumn, SFunction<R, ?> rightColumn) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(leftColumn, register);
-        String right = LambdaUtil.parseColumn(rightColumn, register);
+        String left = parsePlaceholder(leftColumn);
+        String right = parsePlaceholder(rightColumn);
         expression.append(left).append(SPACE).append("<>").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
         return this;
@@ -113,7 +115,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder gt(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append(">").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -125,7 +127,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder ge(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append(">=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -137,7 +139,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder lt(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("<").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -149,7 +151,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder le(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("<=").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -161,7 +163,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder like(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("LIKE").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
@@ -173,7 +175,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder isNull(SFunction<T, ?> column) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         expression.append(left).append(SPACE).append("IS NULL");
         lastType = SegmentType.PREDICATE;
         return this;
@@ -184,7 +186,7 @@ public class ExpressionBuilder extends AbsSql {
      */
     public <T> ExpressionBuilder isNotNull(SFunction<T, ?> column) {
         appendPredicateStart();
-        String left = LambdaUtil.parseColumn(column, register);
+        String left = parsePlaceholder(column);
         expression.append(left).append(SPACE).append("IS NOT NULL");
         lastType = SegmentType.PREDICATE;
         return this;
@@ -292,13 +294,26 @@ public class ExpressionBuilder extends AbsSql {
      * 解析并拼接参数
      */
     protected String parsePlaceholder(Object value) {
-        // 不需要拼接占位符
+        // 不需要拼接占位符，直接拼接到 SQL 字符串
         if (value instanceof Wrapper) {
             return ((Wrapper) value).getRealValue();
         }
-        // 需要拼接占位符，并将真实参数记录下来
-        params.add(value);
-        return "?";
+        // 函数，特殊处理，本质也是字符串
+        else if (value instanceof SQLFunc) {
+            SQLFunc func = (SQLFunc) value;
+            func.addAliasRegister(register);
+            return func.getValue();
+        }
+        // 普通字段，例如 SysUser::getName
+        else if (value instanceof SFunction) {
+            return LambdaUtil.parseColumn((SFunction) value, register);
+        }
+        // value 是字面量
+        else {
+            // 需要拼接占位符，并将真实参数记录下来
+            params.add(value);
+            return "?";
+        }
     }
 
 

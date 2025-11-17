@@ -1,4 +1,4 @@
-package org.ytor.sql4j.sql;
+package org.ytor.sql4j.func;
 
 import java.io.Serializable;
 

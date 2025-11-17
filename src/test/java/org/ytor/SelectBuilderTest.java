@@ -5,7 +5,9 @@ import org.ytor.bean.Order;
 import org.ytor.bean.User;
 import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.enums.OrderType;
+import org.ytor.sql4j.func.support.Count;
 import org.ytor.sql4j.sql.SqlInfo;
+import org.ytor.sql4j.sql.Wrapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -109,6 +111,25 @@ public class SelectBuilderTest {
         String expectedSql = "SELECT user_name, user_email FROM user WHERE age > ? AND (user_name = ?)";
         assertEquals(expectedSql, sqlInfo.getSql());
         assertEquals(2, sqlInfo.getOrderedParms().size()); // 两个参数：age > 18 和 user_name LIKE 'John%'
+    }
+
+    // 7. 测试函数、包装wrapper
+    @Test
+    public void testWrapper() {
+        SqlInfo sqlInfo = sqlHelper.select(Count.of(User::getId))
+                .from(User.class)
+                .leftJoin(Order.class, on -> on.eq(User::getId, Order::getUserId))
+                .where(w -> w.gt(User::getAge, Wrapper.of(23))
+                        .and(ww -> ww.eq(User::getUserName, Wrapper.of("John")))
+                )
+                .groupBy(User::getUserName, User::getUserEmail)
+                .having(w -> w.ge(Count.of(User::getUserName), Wrapper.of(100)))
+                .end();
+        System.out.println(sqlInfo);
+        // 预期生成的SQL语句
+        String expectedSql = "SELECT count(u.id) FROM user u LEFT JOIN order o ON u.id = o.user_id WHERE u.age > 23 AND (u.user_name = 'John') GROUP BY u.user_name, u.user_email HAVING count(u.user_name) >= 100";
+        assertEquals(expectedSql, sqlInfo.getSql());
+        assertEquals(0, sqlInfo.getOrderedParms().size());
     }
 
     // 8. 测试复杂JOIN和多个条件

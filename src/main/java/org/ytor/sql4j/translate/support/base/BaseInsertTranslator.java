@@ -2,7 +2,7 @@ package org.ytor.sql4j.translate.support.base;
 
 import org.ytor.sql4j.Sql4JException;
 import org.ytor.sql4j.enums.SqlType;
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.sql.SqlInfo;
 import org.ytor.sql4j.sql.Wrapper;
 import org.ytor.sql4j.sql.insert.InsertBuilder;

@@ -1,6 +1,6 @@
 package org.ytor.sql4j.sql.update;
 
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.func.SFunction;
 
 /**
  * UPDATE 阶段，指定要更新的表

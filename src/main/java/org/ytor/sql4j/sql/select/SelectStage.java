@@ -1,6 +1,6 @@
 package org.ytor.sql4j.sql.select;
 
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.sql.SqlInfo;
 
 import java.util.ArrayList;
@@ -17,24 +17,24 @@ public class SelectStage extends AbsSelect implements SelectEndStage {
      */
     private final List<SFunction<?, ?>> selectColumn = new ArrayList<>();
 
-    public <T> SelectStage(SelectBuilder selectBuilder, SFunction<T, ?> selectColumn) {
+    public <T> SelectStage(SelectBuilder selectBuilder, SFunction<T, ?> selectColumns) {
         setSelectBuilder(selectBuilder);
         selectBuilder.setSelectStage(this);
-        this.selectColumn.add(selectColumn);
+        this.selectColumn.add(selectColumns);
     }
 
-    public SelectStage(SelectBuilder selectBuilder, List<SFunction<?, ?>> selectColumn) {
+    public SelectStage(SelectBuilder selectBuilder, List<SFunction<?, ?>> selectColumns) {
         setSelectBuilder(selectBuilder);
         selectBuilder.setSelectStage(this);
-        this.selectColumn.addAll(selectColumn);
+        this.selectColumn.addAll(selectColumns);
     }
 
     /**
      * SELECT 后可能继续 SELECT
      */
     @SafeVarargs
-    public final <T> SelectStage select(SFunction<T, ?>... column) {
-        Collections.addAll(selectColumn, column);
+    public final <T> SelectStage select(SFunction<T, ?>... columns) {
+        Collections.addAll(selectColumn, columns);
         return this;
     }
 

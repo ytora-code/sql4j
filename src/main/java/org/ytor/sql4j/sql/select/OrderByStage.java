@@ -1,7 +1,7 @@
 package org.ytor.sql4j.sql.select;
 
 import org.ytor.sql4j.sql.OrderItem;
-import org.ytor.sql4j.sql.SFunction;
+import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.enums.OrderType;
 import org.ytor.sql4j.sql.SqlInfo;
 
