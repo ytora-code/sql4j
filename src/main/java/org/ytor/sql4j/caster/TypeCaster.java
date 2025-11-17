@@ -1,9 +1,15 @@
 package org.ytor.sql4j.caster;
 
 import org.ytor.sql4j.caster.support.DateToLocalDateCaster;
+import org.ytor.sql4j.caster.support.TimeToLocalTimeCaster;
+import org.ytor.sql4j.caster.support.TimestampToLocalDateTimeCaster;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * 类型转换器
@@ -12,6 +18,8 @@ public class TypeCaster extends TypeCasterRegister {
 
     {
         register(new TypePair(Date.class, LocalDate.class), new DateToLocalDateCaster());
+        register(new TypePair(Time.class, LocalTime.class), new TimeToLocalTimeCaster());
+        register(new TypePair(Timestamp.class, LocalDateTime.class), new TimestampToLocalDateTimeCaster());
     }
 
     /**
@@ -26,6 +34,7 @@ public class TypeCaster extends TypeCasterRegister {
         if (sourceVal == null) {
             return null;
         }
+
         // 如果目标类型是枚举
         if (targetType.isEnum()) {
             for (T enumConstant : targetType.getEnumConstants()) {
@@ -36,6 +45,7 @@ public class TypeCaster extends TypeCasterRegister {
                 }
             }
         }
+
         // 尝试调用自定义的类型转换器
         TypePair typePair = new TypePair(sourceVal.getClass(), targetType);
         Caster<S, T> caster = getCaster(typePair);
