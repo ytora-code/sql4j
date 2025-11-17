@@ -35,7 +35,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
         // 2.FORM 表
         FromStage fromStage = builder.getFromStage();
         if (fromStage == null) {
-            return new SqlInfo(SqlType.SELECT, sql.toString(), orderedParms);
+            return new SqlInfo(builder, SqlType.SELECT, sql.toString(), orderedParms);
         }
         Class<?> mainTable = fromStage.getMainTable();
         String tableName = TableUtil.parseTableNameFromClass(mainTable);
@@ -133,7 +133,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
             }
         }
 
-        return new SqlInfo(SqlType.SELECT, sql.toString(), orderedParms);
+        return new SqlInfo(builder, SqlType.SELECT, sql.toString(), orderedParms);
     }
 
 }

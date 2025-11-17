@@ -43,6 +43,6 @@ public class BaseDeleteTranslator implements IDeleteTranslator {
             }
         }
 
-        return new SqlInfo(SqlType.DELETE, sql.toString(), orderedParms);
+        return new SqlInfo(builder, SqlType.DELETE, sql.toString(), orderedParms);
     }
 }

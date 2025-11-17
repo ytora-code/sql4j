@@ -8,6 +8,9 @@ import java.util.List;
  * SQL 状态
  */
 public class SqlInfo {
+
+    private final SqlBuilder sqlBuilder;
+
     /**
      * SQL 类型
      */
@@ -23,7 +26,8 @@ public class SqlInfo {
      */
     private final List<Object> orderedParms;
 
-    public SqlInfo(SqlType sqlType, String sql, List<Object> orderedParms) {
+    public SqlInfo(SqlBuilder sqlBuilder, SqlType sqlType, String sql, List<Object> orderedParms) {
+        this.sqlBuilder = sqlBuilder;
         this.sqlType = sqlType;
         this.sql = sql.trim();
         this.orderedParms = orderedParms;

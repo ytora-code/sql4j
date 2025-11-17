@@ -6,6 +6,7 @@ import org.ytor.sql4j.core.IConnectionProvider;
 import org.ytor.sql4j.core.ISqlExecutionEngine;
 import org.ytor.sql4j.core.SQLHelper;
 import org.ytor.sql4j.enums.DatabaseType;
+import org.ytor.sql4j.interceptor.SqlInterceptor;
 import org.ytor.sql4j.sql.SqlInfo;
 
 import java.sql.*;
@@ -37,6 +38,10 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     @Override
     public ExecResult executeQuery(SqlInfo sqlInfo) {
         long startTime = System.currentTimeMillis();
+        if (!before(sqlHelper.getSqlInterceptors(), sqlInfo)) {
+            return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
+        }
+
         try (Connection connection = connectionProvider.getConnection()) {
             // 获取数据库的元数据
             DatabaseMetaData connectionMetaData = connection.getMetaData();
@@ -63,7 +68,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                         sqlHelper.getLogger().debug(" <===\t" + row);
                     }
                     // 创建并返回执行结果
-                    return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, System.currentTimeMillis() - startTime);
+                    ExecResult execResult = createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, System.currentTimeMillis() - startTime, 0);
+                    return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
         } catch (SQLException e) {
@@ -74,6 +80,10 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     @Override
     public ExecResult executeInsert(SqlInfo sqlInfo) {
         long startTime = System.currentTimeMillis();
+        if (!before(sqlHelper.getSqlInterceptors(), sqlInfo)) {
+            return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
+        }
+
         try (Connection connection = connectionProvider.getConnection()) {
             // 获取数据库的元数据
             DatabaseMetaData connectionMetaData = connection.getMetaData();
@@ -92,7 +102,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
                     // 记录 SQL 执行结果
                     sqlHelper.getLogger().debug(" <===\t 新增行数：" + affectedRows);
-                    return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime);
+                    ExecResult execResult = createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime, 0);
+                    return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
         } catch (SQLException e) {
@@ -103,6 +114,10 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     @Override
     public ExecResult executeUpdate(SqlInfo sqlInfo) {
         long startTime = System.currentTimeMillis();
+        if (!before(sqlHelper.getSqlInterceptors(), sqlInfo)) {
+            return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
+        }
+
         try (Connection connection = connectionProvider.getConnection()) {
             // 获取数据库的元数据
             DatabaseMetaData connectionMetaData = connection.getMetaData();
@@ -115,7 +130,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
                 // 记录 SQL 执行结果
                 sqlHelper.getLogger().debug(" <===\t 影响行数" + affectedRows);
-                return createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime);
+                ExecResult execResult = createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime, 0);
+                return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
             }
         } catch (SQLException e) {
             throw new Sql4JException(e);
@@ -146,7 +162,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
      * 创建 ExecResult 对象
      */
     private ExecResult createExecResult(SqlInfo sqlInfo, DatabaseType databaseType, List<Map<String, Object>> resultList,
-                                        Integer effectedRows, List<Object> ids, Long executionTime) {
+                                        Integer effectedRows, List<Object> ids, Long executionTime, Integer status) {
         ExecResult execResult = new ExecResult();
         execResult.setSqlHelper(sqlHelper);
         execResult.setSqlInfo(sqlInfo);
@@ -155,6 +171,27 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
         execResult.setEffectedRows(effectedRows);
         execResult.setIds(ids);
         execResult.setExecutionTime(executionTime);
+        if (status != null) {
+            status = 0;
+        }
+        execResult.setStatus(status);
         return execResult;
+    }
+
+    private Boolean before(List<SqlInterceptor> beforeInterceptors, SqlInfo sqlInfo) {
+        for (SqlInterceptor interceptor : beforeInterceptors) {
+            Boolean before = interceptor.before(sqlInfo);
+            if (!before) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private ExecResult after(List<SqlInterceptor> beforeInterceptors, SqlInfo sqlInfo, ExecResult result) {
+        for (SqlInterceptor interceptor : beforeInterceptors) {
+            result = interceptor.after(sqlInfo, result);
+        }
+        return result;
     }
 }

@@ -37,11 +37,21 @@ public class TypeCaster extends TypeCasterRegister {
 
         // 如果目标类型是枚举
         if (targetType.isEnum()) {
-            for (T enumConstant : targetType.getEnumConstants()) {
-                Enum<?> e = (Enum<?>) enumConstant;
-                if (sourceVal.getClass().equals(String.class) && e.name().equalsIgnoreCase((String) sourceVal)
-                        || sourceVal.getClass().isEnum() && e.equals(sourceVal)) {
-                    return (T) e;
+            T[] enumConstants = targetType.getEnumConstants();
+            // 如果是数字
+            if (sourceVal instanceof Number) {
+                int index = ((Number) sourceVal).intValue();
+                if (index >= 0 && index < enumConstants.length) {
+                    return enumConstants[index];
+                }
+            }
+            // 如果是字符串
+            else if (sourceVal.getClass().equals(String.class)) {
+                for (T enumConstant : enumConstants) {
+                    Enum<?> e = (Enum<?>) enumConstant;
+                    if (e.name().equalsIgnoreCase((String) sourceVal)) {
+                        return (T) e;
+                    }
                 }
             }
         }

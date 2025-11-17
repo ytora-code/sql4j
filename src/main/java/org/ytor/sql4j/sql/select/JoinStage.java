@@ -4,6 +4,7 @@ import org.ytor.sql4j.sql.*;
 import org.ytor.sql4j.enums.JoinType;
 import org.ytor.sql4j.enums.OrderType;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -69,8 +70,9 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
     /**
      * JOIN 后可能是 GROUP BY 子句
      */
-    public <T> GroupByStage groupBy(SFunction<T, ?> groupColumn) {
-        return new GroupByStage(getSelectBuilder(), groupColumn);
+    @SafeVarargs
+    public final <T> GroupByStage groupBy(SFunction<T, ?>... groupColumns) {
+        return new GroupByStage(getSelectBuilder(), Arrays.asList(groupColumns));
     }
 
     /**

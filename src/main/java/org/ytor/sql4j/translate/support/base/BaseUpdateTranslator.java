@@ -62,6 +62,6 @@ public class BaseUpdateTranslator implements IUpdateTranslator {
             orderedParms.addAll(conditionBuilder.getParams());
         }
 
-        return new SqlInfo(SqlType.UPDATE, sql.toString(), orderedParms);
+        return new SqlInfo(builder, SqlType.UPDATE, sql.toString(), orderedParms);
     }
 }

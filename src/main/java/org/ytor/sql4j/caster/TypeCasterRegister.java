@@ -8,14 +8,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TypeCasterRegister {
 
-    private final Map<TypePair, Caster> typeCasterPairs = new ConcurrentHashMap<>();
+    private final Map<TypePair, Caster<?, ?>> typeCasterPairs = new ConcurrentHashMap<>();
 
     /**
      * 注册类型转换器
      * @param pair 原始类型和目标类型对
      * @param caster 原始类型转换为目标类型的转换逻辑
      */
-    public void register(TypePair pair, Caster caster) {
+    public void register(TypePair pair, Caster<?, ?> caster) {
         typeCasterPairs.put(pair, caster);
     }
 
@@ -25,7 +25,7 @@ public class TypeCasterRegister {
      * @return 转换逻辑
      */
     public <S, T> Caster<S, T> getCaster(TypePair pair) {
-        return typeCasterPairs.get(pair);
+        return (Caster<S, T>) typeCasterPairs.get(pair);
     }
 
 }

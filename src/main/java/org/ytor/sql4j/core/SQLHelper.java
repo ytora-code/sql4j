@@ -1,8 +1,11 @@
 package org.ytor.sql4j.core;
 
+import org.ytor.sql4j.caster.Caster;
 import org.ytor.sql4j.caster.TypeCaster;
 import org.ytor.sql4j.caster.TypeCasterRegister;
+import org.ytor.sql4j.caster.TypePair;
 import org.ytor.sql4j.core.support.SqlExecutionEngine;
+import org.ytor.sql4j.interceptor.SqlInterceptor;
 import org.ytor.sql4j.log.ISqlLogger;
 import org.ytor.sql4j.log.support.DefaultSqlLogger;
 import org.ytor.sql4j.sql.SFunction;
@@ -17,7 +20,9 @@ import org.ytor.sql4j.sql.update.UpdateStage;
 import org.ytor.sql4j.translate.ITranslator;
 import org.ytor.sql4j.translate.support.base.BaseTranslator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SQLHelper {
 
@@ -29,7 +34,7 @@ public class SQLHelper {
     /**
      * 类型转换器
      */
-    private TypeCaster typeCaster = new  TypeCaster();
+    private TypeCaster typeCaster = new TypeCaster();
 
     /**
      * 数据库连接提供者
@@ -46,6 +51,11 @@ public class SQLHelper {
      */
     private ISqlLogger logger = new DefaultSqlLogger();
 
+    /**
+     * 拦截器
+     */
+    private final List<SqlInterceptor> sqlInterceptors = new ArrayList<>();
+
     public void registerTranslator(ITranslator translator) {
         this.translator = translator;
     }
@@ -60,6 +70,13 @@ public class SQLHelper {
 
     public TypeCaster getTypeCaster() {
         return typeCaster;
+    }
+
+    /**
+     * 注册类型转换器
+     */
+    public void registerCaster(TypePair pair, Caster<?, ?> caster) {
+        typeCaster.register(pair, caster);
     }
 
     /**
@@ -100,6 +117,19 @@ public class SQLHelper {
 
     public ISqlLogger getLogger() {
         return logger;
+    }
+
+    /**
+     * 添加拦截器
+     */
+    public void addSqlInterceptor(SqlInterceptor interceptor) {
+        if (interceptor != null) {
+            this.sqlInterceptors.add(interceptor);
+        }
+    }
+
+    public List<SqlInterceptor> getSqlInterceptors() {
+        return sqlInterceptors;
     }
 
     @SafeVarargs

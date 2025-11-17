@@ -68,6 +68,6 @@ public class BaseInsertTranslator implements IInsertTranslator {
         }
         sql.append(String.join(", ", valuesExpression));
 
-        return new SqlInfo(SqlType.INSERT, sql.toString(), orderedParms);
+        return new SqlInfo(builder, SqlType.INSERT, sql.toString(), orderedParms);
     }
 }

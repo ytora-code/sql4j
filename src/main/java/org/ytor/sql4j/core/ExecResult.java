@@ -49,6 +49,11 @@ public class ExecResult {
      */
     private Long executionTime;
 
+    /**
+     * 执行状态，0-正常，1-before被拦截，2-执行出错
+     */
+    private Integer status;
+
     public void setSqlHelper(SQLHelper sqlHelper) {
         this.sqlHelper = sqlHelper;
     }
@@ -99,6 +104,14 @@ public class ExecResult {
 
     public void setExecutionTime(Long executionTime) {
         this.executionTime = executionTime;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public <T> List<T> toBeans(Class<T> clazz) {
