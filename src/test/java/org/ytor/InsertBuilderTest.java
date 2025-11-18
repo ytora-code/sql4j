@@ -77,8 +77,8 @@ public class InsertBuilderTest {
     @Test
     public void testSubSelect() {
         SqlInfo sqlInfo = sqlHelper.insert(User.class)
-                .into(User::getUserName, User::getId, User::getAge)
-                .value(sqlHelper.select(User::getUserName, User::getId, User::getAge).from(User.class).where(w -> w.eq(User::getAge, 1)))
+                .into()
+                .values(sqlHelper.select(User::getUserName, User::getId, User::getAge).from(User.class).where(w -> w.eq(User::getAge, 1)))
                 .end();
         System.out.println(sqlInfo);
         // 预期生成的SQL语句
