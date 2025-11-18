@@ -148,4 +148,18 @@ public class SelectBuilderTest {
         assertEquals(expectedSql, sqlInfo.getSql());
         assertEquals(2, sqlInfo.getOrderedParms().size()); // 两个参数：order_amount > 100 和 age > 18
     }
+
+    // 8. 测试子查询
+    @Test
+    public void testSubSelect() {
+        SqlInfo sqlInfo = sqlHelper.select(User::getUserName).select(Order::getOrderAmount)
+                .from(sqlHelper.select(User::getUserName, User::getId, User::getAge).from(User.class).where(w -> w.eq(User::getAge, 1)))
+                .where(w -> w.gt(User::getUserName, "zans"))
+                .end();
+
+        // 预期生成的SQL语句
+        String expectedSql = "SELECT user_name, order_amount FROM (SELECT user_name, id, age FROM user WHERE age = ?) a WHERE user_name > ?";
+        assertEquals(expectedSql, sqlInfo.getSql());
+        assertEquals(2, sqlInfo.getOrderedParms().size());
+    }
 }

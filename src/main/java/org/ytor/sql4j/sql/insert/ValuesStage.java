@@ -1,6 +1,7 @@
 package org.ytor.sql4j.sql.insert;
 
 import org.ytor.sql4j.Sql4JException;
+import org.ytor.sql4j.sql.AbsSql;
 import org.ytor.sql4j.sql.SqlInfo;
 
 import java.util.ArrayList;
@@ -26,6 +27,9 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setValuesStage(this);
         if (insertedData != null && !insertedData.isEmpty()) {
+            for (Object datum : insertedData) {
+                check(datum);
+            }
             this.insertedDataList.add(insertedData);
         }
         this.count = count;
@@ -45,6 +49,9 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
         if (insertedData.size() != count) {
             throw new Sql4JException("插入数据的长度【" + insertedData.size() + "】与指定的字段长度【" + count + "】不匹配");
         }
+        for (Object datum : insertedData) {
+            check(datum);
+        }
         insertedDataList.add(insertedData);
         return this;
     }
@@ -54,6 +61,9 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
      */
     public ValuesStage values(List<List<Object>> insertedDataList) {
         for (List<Object> insertedData : insertedDataList) {
+            for (Object datum : insertedData) {
+                check(datum);
+            }
             this.value(insertedData);
         }
         return this;
@@ -73,5 +83,14 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
     @Override
     public List<Object> submit() {
         return getInsertBuilder().getSQLHelper().getSqlExecutionEngine().executeInsert(getInsertBuilder().getTranslator().translate(getInsertBuilder())).getIds();
+    }
+
+    /**
+     * 由于 ValuesStage 和 SelectValueStage 是两个独立的阶段类，所以 ValuesStage 不允许子查询
+     */
+    private void check(Object v) {
+        if (v instanceof AbsSql) {
+            throw new UnsupportedOperationException("非法的 INSERT 字段，该 INSERT 内部必须全部使用方法引用，当前字段类型【" + v.getClass() + "】");
+        }
     }
 }

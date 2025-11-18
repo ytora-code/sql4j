@@ -49,17 +49,30 @@ public class BaseSelectTranslator implements ISelectTranslator {
         }
         sql.append(selectColumnStr).append(' ');
 
-        // 2.FORM 表
+        // 2.解析 FROM 子句
         FromStage fromStage = builder.getFromStage();
         if (fromStage == null) {
             return new SqlInfo(builder, SqlType.SELECT, sql.toString(), orderedParms);
         }
-        Class<?> mainTable = fromStage.getMainTable();
-        String tableName = TableUtil.parseTableNameFromClass(mainTable);
-        String alias = builder.getAlias(mainTable);
-        sql.append("FROM ").append(tableName).append(' ');
-        if (!builder.single()) {
-            sql.append(alias).append(' ');
+        sql.append("FROM ");
+        Integer tableType = fromStage.getTableType();
+        if (tableType == 1) {
+            // 物理表
+            Class<?> mainTable = fromStage.getMainTable();
+            String tableName = TableUtil.parseTableNameFromClass(mainTable);
+            sql.append(tableName).append(' ');
+            String alias = builder.getAlias(mainTable);
+            if (!builder.single()) {
+                sql.append(alias).append(' ');
+            }
+        } else {
+            // 虚拟表
+            AbsSelect subSelect = fromStage.getSubSelect();
+            sql.append('(');
+            SqlInfo sqlInfo = subSelect.getSelectBuilder().getSQLHelper().getTranslator().translate(subSelect.getSelectBuilder());
+            sql.append(sqlInfo.getSql());
+            orderedParms.addAll(sqlInfo.getOrderedParms());
+            sql.append(')').append(' ').append(builder.getAlias(subSelect)).append(' ');
         }
 
         // 3. JOIN 关联表，JOIN 子句中可能会出现占位符参数

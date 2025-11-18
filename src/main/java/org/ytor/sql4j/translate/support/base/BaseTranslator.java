@@ -32,19 +32,22 @@ public class BaseTranslator implements ITranslator {
         } else {
             throw new Sql4JException("翻译SQL时出错：未知的SqlBuilder类型【" + sqlBuilder.getClass().getName() + "】");
         }
-        // 记录 SQL
-        sqlBuilder.getSQLHelper().getLogger().info(" ===>\t" + sqlInfo.getSql());
-        // 记录参数
-        String orderedParmStr = "[ " +
-                sqlInfo.getOrderedParms().stream().map(i -> {
-                    if (i == null) {
-                        return "NULL( NULL )";
-                    } else {
-                       return i + "(" + i.getClass().getSimpleName() + ")";
-                    }
-                }).collect(Collectors.joining(", ")) +
-                " ]";
-        sqlBuilder.getSQLHelper().getLogger().info(" ===>\t" + orderedParmStr);
+        if (!sqlBuilder.getIsSub()) {
+            // 记录 SQL
+            sqlBuilder.getSQLHelper().getLogger().info(" ===>\t" + sqlInfo.getSql());
+            // 记录参数
+            String orderedParmStr = "[ " +
+                    sqlInfo.getOrderedParms().stream().map(i -> {
+                        if (i == null) {
+                            return "NULL( NULL )";
+                        } else {
+                            return i + "(" + i.getClass().getSimpleName() + ")";
+                        }
+                    }).collect(Collectors.joining(", ")) +
+                    " ]";
+            sqlBuilder.getSQLHelper().getLogger().info(" ===>\t" + orderedParmStr);
+        }
+
         return sqlInfo;
     }
 }

@@ -46,6 +46,14 @@ public class SelectStage extends AbsSelect implements SelectEndStage {
     }
 
     /**
+     * SELECT 后可能进入 FROM 阶段（子查询）
+     */
+    public <T> FromStage from(AbsSelect subSelect) {
+        subSelect.getSelectBuilder().isSub();
+        return new FromStage(getSelectBuilder(), subSelect);
+    }
+
+    /**
      * SELECT 后可能结束
      */
     public SqlInfo end() {

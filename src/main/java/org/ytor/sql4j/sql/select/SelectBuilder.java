@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class SelectBuilder extends SqlBuilder {
 
+    private Boolean isSub = false;
+
     /**
      * DISTINCT 阶段
      */
@@ -69,6 +71,16 @@ public class SelectBuilder extends SqlBuilder {
     @Override
     public ITranslator getTranslator() {
         return sqlHelper.getTranslator();
+    }
+
+    @Override
+    public Boolean getIsSub() {
+        return isSub;
+    }
+
+    @Override
+    public void isSub() {
+        this.isSub = true;
     }
 
     public void setDistinctStage(DistinctStage distinctStage) {

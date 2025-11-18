@@ -9,6 +9,8 @@ import org.ytor.sql4j.translate.ITranslator;
  */
 public class InsertBuilder extends SqlBuilder {
 
+    private Boolean isSub = false;
+
     /**
      * INSERT 阶段，指定表
      */
@@ -24,6 +26,11 @@ public class InsertBuilder extends SqlBuilder {
      */
     private ValuesStage valuesStage;
 
+    /**
+     * SELECT VALUES 阶段，将查询结果集作为插入的数据，与 ValuesStage 阶段相斥
+     */
+    private SelectValueStage selectValueStage;
+
     public InsertBuilder(SQLHelper sqlHelper) {
         this.sqlHelper = sqlHelper;
     }
@@ -31,6 +38,16 @@ public class InsertBuilder extends SqlBuilder {
     @Override
     public ITranslator getTranslator() {
         return sqlHelper.getTranslator();
+    }
+
+    @Override
+    public Boolean getIsSub() {
+        return isSub;
+    }
+
+    @Override
+    public void isSub() {
+        this.isSub = true;
     }
 
     public void setInsertStage(InsertStage insertStage) {
@@ -55,5 +72,13 @@ public class InsertBuilder extends SqlBuilder {
 
     public ValuesStage getValuesStage() {
         return valuesStage;
+    }
+
+    public void setSelectValueStage(SelectValueStage selectValueStage) {
+        this.selectValueStage = selectValueStage;
+    }
+
+    public SelectValueStage getSelectValueStage() {
+        return selectValueStage;
     }
 }

@@ -33,6 +33,10 @@ public class SqlInfo {
         this.orderedParms = orderedParms;
     }
 
+    public SqlBuilder getSqlBuilder() {
+        return sqlBuilder;
+    }
+
     public SqlType getSqlType() {
         return sqlType;
     }

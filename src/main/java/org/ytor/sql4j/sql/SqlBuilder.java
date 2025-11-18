@@ -17,5 +17,18 @@ public abstract class SqlBuilder extends AliasRegister {
         return sqlHelper;
     }
 
+    /**
+     * 获取 SQL 翻译器
+     */
     abstract protected ITranslator getTranslator();
+
+    /**
+     * 是否属于子查询
+     */
+    abstract public Boolean getIsSub();
+
+    /**
+     * 设置子查询
+     */
+    abstract public void isSub();
 }

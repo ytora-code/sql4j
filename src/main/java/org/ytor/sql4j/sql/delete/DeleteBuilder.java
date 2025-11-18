@@ -33,6 +33,16 @@ public class DeleteBuilder extends SqlBuilder {
         return sqlHelper.getTranslator();
     }
 
+    @Override
+    public Boolean getIsSub() {
+        return false;
+    }
+
+    @Override
+    public void isSub() {
+        throw new UnsupportedOperationException("DELETE 不支持设置子查询");
+    }
+
     public void setDeleteStage(DeleteStage deleteStage) {
         this.deleteStage = deleteStage;
     }

@@ -2,9 +2,9 @@ package org.ytor.sql4j.sql.select;
 
 import org.ytor.sql4j.enums.JoinType;
 import org.ytor.sql4j.enums.OrderType;
+import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.sql.ConditionExpressionBuilder;
 import org.ytor.sql4j.sql.OrderItem;
-import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.sql.SqlInfo;
 
 import java.util.List;
@@ -16,15 +16,34 @@ import java.util.function.Consumer;
 public class FromStage extends AbsSelect implements SelectEndStage {
 
     /**
-     * 主表
+     * 表类型：1-物理表 / 2-虚拟表（子查询）
      */
-    private final Class<?> mainTable;
+    private Integer tableType;
+
+    /**
+     * FROM 主表
+     */
+    private Class<?> mainTable;
+
+    /**
+     * FROM 子查询
+     */
+    private AbsSelect subSelect;
 
     public FromStage(SelectBuilder selectBuilder, Class<?> mainTable) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setFromBuilder(this);
         getSelectBuilder().addAlias(mainTable);
         this.mainTable = mainTable;
+        tableType = 1;
+    }
+
+    public FromStage(SelectBuilder selectBuilder, AbsSelect subSelect) {
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().setFromBuilder(this);
+        getSelectBuilder().addAlias(subSelect);
+        this.subSelect = subSelect;
+        tableType = 2;
     }
 
     /**
@@ -83,8 +102,16 @@ public class FromStage extends AbsSelect implements SelectEndStage {
         return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
+    public Integer getTableType() {
+        return tableType;
+    }
+
     public Class<?> getMainTable() {
         return mainTable;
+    }
+
+    public AbsSelect getSubSelect() {
+        return subSelect;
     }
 
     @Override

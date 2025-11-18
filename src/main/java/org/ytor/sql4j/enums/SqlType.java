@@ -1,7 +1,7 @@
 package org.ytor.sql4j.enums;
 
 /**
- * SQL 状态
+ * SQL 类型
  */
 public enum SqlType {
     SELECT,

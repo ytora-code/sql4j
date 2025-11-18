@@ -33,6 +33,16 @@ public class UpdateBuilder extends SqlBuilder {
         return sqlHelper.getTranslator();
     }
 
+    @Override
+    public Boolean getIsSub() {
+        return false;
+    }
+
+    @Override
+    public void isSub() {
+        throw new UnsupportedOperationException("UPDATE 不支持设置子查询");
+    }
+
     public void setUpdateStage(UpdateStage updateStage) {
         this.updateStage = updateStage;
     }

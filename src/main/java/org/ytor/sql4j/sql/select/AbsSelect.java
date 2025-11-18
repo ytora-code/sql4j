@@ -8,7 +8,7 @@ import org.ytor.sql4j.sql.SqlInfo;
  */
 public abstract class AbsSelect extends AbsSql {
 
-    protected SelectBuilder getSelectBuilder() {
+    public SelectBuilder getSelectBuilder() {
         return (SelectBuilder) register;
     }
 

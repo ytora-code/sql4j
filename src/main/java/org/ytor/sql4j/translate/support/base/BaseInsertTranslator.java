@@ -6,6 +6,9 @@ import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.sql.SqlInfo;
 import org.ytor.sql4j.sql.Wrapper;
 import org.ytor.sql4j.sql.insert.InsertBuilder;
+import org.ytor.sql4j.sql.insert.SelectValueStage;
+import org.ytor.sql4j.sql.insert.ValuesStage;
+import org.ytor.sql4j.sql.select.AbsSelect;
 import org.ytor.sql4j.translate.IInsertTranslator;
 import org.ytor.sql4j.util.LambdaUtil;
 import org.ytor.sql4j.util.TableUtil;
@@ -42,31 +45,46 @@ public class BaseInsertTranslator implements IInsertTranslator {
         }
 
         // 3. VALUES 部分
-        sql.append("VALUES ");
-        List<List<Object>> valuesList = builder.getValuesStage().getInsertedDataList();
-        if (valuesList == null || valuesList.isEmpty()) {
-            throw new Sql4JException("翻译SQL时出错：INSERT时必须指定VALUE");
-        }
-        List<String> valuesExpression = new ArrayList<>();
-        for (List<Object> valueList : valuesList) {
-            StringBuilder valueStr = new StringBuilder();
-            valueStr.append("(");
-            List<String> values = new ArrayList<>();
-            for (Object value : valueList) {
-                if (value instanceof Wrapper) {
-                    Wrapper wrapperValue = (Wrapper) value;
-                    String sourceValue = wrapperValue.getRealValue();
-                    values.add(sourceValue);
-                } else {
-                    values.add("?");
-                    orderedParms.add(value);
-                }
+        ValuesStage valuesStage = builder.getValuesStage();
+        SelectValueStage selectValueStage = builder.getSelectValueStage();
+        if (valuesStage != null) {
+            List<List<Object>> valuesList = valuesStage.getInsertedDataList();
+            if (valuesList == null || valuesList.isEmpty()) {
+                throw new Sql4JException("翻译SQL时出错：INSERT时必须指定VALUE");
             }
-            valueStr.append(String.join(", ", values));
-            valueStr.append(")");
-            valuesExpression.add(valueStr.toString());
+            sql.append("VALUES ");
+            List<String> valuesExpression = new ArrayList<>();
+            for (List<Object> valueList : valuesList) {
+                StringBuilder valueStr = new StringBuilder();
+                valueStr.append("(");
+                List<String> values = new ArrayList<>();
+                for (Object value : valueList) {
+                    if (value instanceof Wrapper) {
+                        Wrapper wrapperValue = (Wrapper) value;
+                        String sourceValue = wrapperValue.getRealValue();
+                        values.add(sourceValue);
+                    } else {
+                        values.add("?");
+                        orderedParms.add(value);
+                    }
+                }
+                valueStr.append(String.join(", ", values));
+                valueStr.append(")");
+                valuesExpression.add(valueStr.toString());
+            }
+            sql.append(String.join(", ", valuesExpression));
+        } else if (selectValueStage != null) {
+            AbsSelect subSelect = selectValueStage.getSubSelect();
+            if (subSelect == null) {
+                throw new Sql4JException("翻译SQL时出错：INSERT时子查询不能为空");
+            }
+            sql.append('(');
+            SqlInfo sqlInfo = subSelect.getSelectBuilder().getTranslator().translate(subSelect.getSelectBuilder());
+            sql.append(sqlInfo.getSql());
+            orderedParms.addAll(sqlInfo.getOrderedParms());
+            sql.append(')');
         }
-        sql.append(String.join(", ", valuesExpression));
+
 
         return new SqlInfo(builder, SqlType.INSERT, sql.toString(), orderedParms);
     }

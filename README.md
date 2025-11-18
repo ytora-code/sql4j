@@ -513,7 +513,13 @@ public class Length implements SQLFunc {
 
 
 
-## 3 类型转换器
+## 4 子查询
+
+SQL4J 支持子查询语法（仅适应于 SELECT 和 INSERT）
+
+------
+
+## 5 类型转换器
 
 将数据从数据库读取到程序中的Bean时，可能需要进行类型转换
 
@@ -560,9 +566,9 @@ public class Length implements SQLFunc {
 
 
 
-## 4 条件构造器
+## 6 条件构造器
 
-## 5 拦截器
+## 7 拦截器
 
 将 SQL 真正提交数据库执行前后，有两处扩展点
 
@@ -658,7 +664,7 @@ sqlHelper.addSqlInterceptor(new MySqlInterceptor());
 
 ------
 
-## 6 日志记录
+## 8 日志记录
 
 某些节点需要进行日志打印
 
