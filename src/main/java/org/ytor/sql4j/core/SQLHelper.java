@@ -1,13 +1,16 @@
 package org.ytor.sql4j.core;
 
+import org.ytor.sql4j.Sql4JException;
 import org.ytor.sql4j.caster.Caster;
 import org.ytor.sql4j.caster.TypeCaster;
 import org.ytor.sql4j.caster.TypePair;
 import org.ytor.sql4j.core.support.SqlExecutionEngine;
+import org.ytor.sql4j.enums.SqlType;
 import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.interceptor.SqlInterceptor;
 import org.ytor.sql4j.log.ISqlLogger;
 import org.ytor.sql4j.log.support.DefaultSqlLogger;
+import org.ytor.sql4j.sql.SqlInfo;
 import org.ytor.sql4j.sql.delete.DeleteBuilder;
 import org.ytor.sql4j.sql.delete.DeleteStage;
 import org.ytor.sql4j.sql.insert.InsertBuilder;
@@ -157,4 +160,21 @@ public class SQLHelper {
         DeleteBuilder deleteBuilder = new DeleteBuilder(this);
         return new DeleteStage(deleteBuilder);
     }
+
+    /**
+     * 直接执行 SQL
+     */
+    public ExecResult execDirectly(String sql, Object... parms) {
+        if (sql.startsWith("SELECT") || sql.startsWith("select")) {
+            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms)));
+        } else if (sql.startsWith("INSERT") || sql.startsWith("insert")) {
+            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.INSERT, sql, Arrays.asList(parms)));
+        } else if (sql.startsWith("UPDATE") || sql.startsWith("update")) {
+            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.UPDATE, sql, Arrays.asList(parms)));
+        } else if (sql.startsWith("DELETE") || sql.startsWith("delete")) {
+            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.DELETE, sql, Arrays.asList(parms)));
+        }
+        throw new Sql4JException("未知的 SQL 类型，确保 SQL 字符串以 SELECT、INSERT、UPDATE或DELETE开头");
+    }
+
 }

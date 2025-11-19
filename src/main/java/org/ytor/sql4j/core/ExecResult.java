@@ -160,6 +160,7 @@ public class ExecResult {
                     if (columns.contains(fieldName)) {
                         // 得到数据库中的原始值
                         Object value = row.get(fieldName);
+
                         // 如果该字段类型实现了 SQLReader
                         if (SQLReader.class.isAssignableFrom(field.getType())) {
                             // 如果实现了 SQLReader，则需要回调read方法，获取其自定义的value
@@ -167,8 +168,12 @@ public class ExecResult {
                             value = fieldObj.read(value);
                         }
 
+                        // 如果是空值，直接赋值 NULL
+                        if (value == null) {
+                            method.invoke(bean, (Object) null);
+                        }
                         // 判断是否可以直接将原始值赋给该方法的第一个参数
-                        if (parameterType.isAssignableFrom(value.getClass())) {
+                        else if (parameterType.isAssignableFrom(value.getClass())) {
                             method.invoke(bean, value);
                         }
                         // 如果不能直接赋值，则要类型转换

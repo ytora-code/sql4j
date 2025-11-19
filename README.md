@@ -294,12 +294,12 @@ Bean是一个对象，将Map<String, Object>变成一个Bean对象，本质就�
 
 ### 2.3 @Table
 
-数据库表名称和Bean的类名称的映射规则默认：
+数据库的表名称和Bean的类名称的默认映射规则：
 
 * 表名称是下划线格式：sys_user
 * Bean的类名称是大驼峰：SysUser
 
-如果表名称和类名称无法四默认规则转换
+如果表名称和类名称无法通过默认规则转换
 
 比如，将数据库的表名称改成`sys_user1`，再次运行 SELECT 程序，会报错：Table 'test.sys_user' doesn't exist
 
