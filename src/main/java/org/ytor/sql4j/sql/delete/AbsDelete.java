@@ -11,8 +11,8 @@ public abstract class AbsDelete extends AbsSql {
         return (DeleteBuilder) register;
     }
 
-    protected void setDeleteBuilder(DeleteBuilder DeleteBuilder) {
-        this.register = DeleteBuilder;
+    protected void setDeleteBuilder(DeleteBuilder deleteBuilder) {
+        this.register = deleteBuilder;
     }
 
 }

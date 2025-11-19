@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * SQL执行结果
@@ -136,6 +137,12 @@ public class ExecResult {
     }
 
     public <T> T toBean(Class<T> clazz, Map<String, Object> row) {
+        if (Map.class.isAssignableFrom(clazz)) {
+            return (T) row;
+        }
+        if (String.class.equals(clazz)) {
+            return (T) row.values().stream().map(String::valueOf).collect(Collectors.joining(","));
+        }
         try {
             T bean = clazz.newInstance();
             if (row == null) {
