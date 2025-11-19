@@ -8,6 +8,7 @@ import org.ytor.sql4j.core.support.SqlExecutionEngine;
 import org.ytor.sql4j.enums.SqlType;
 import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.interceptor.SqlInterceptor;
+import org.ytor.sql4j.interceptor.support.PreventFullTableUpdateInterceptor;
 import org.ytor.sql4j.log.ISqlLogger;
 import org.ytor.sql4j.log.support.DefaultSqlLogger;
 import org.ytor.sql4j.sql.SqlInfo;
@@ -58,6 +59,10 @@ public class SQLHelper {
      * 拦截器
      */
     private final List<SqlInterceptor> sqlInterceptors = new ArrayList<>();
+
+    public SQLHelper() {
+        sqlInterceptors.add(new PreventFullTableUpdateInterceptor());
+    }
 
     public void registerTranslator(ITranslator translator) {
         this.translator = translator;

@@ -35,6 +35,8 @@ public class BaseDeleteTranslator implements IDeleteTranslator {
         if (whereStage != null) {
             ConditionExpressionBuilder whereExpressionBuilder = new ConditionExpressionBuilder(builder);
             whereStage.getWhere().accept(whereExpressionBuilder);
+            whereStage.setWhereExpression(whereExpressionBuilder);
+
             String whereExpression = whereExpressionBuilder.build();
             if (!whereExpression.isEmpty()) {
                 sql.append("WHERE ").append(whereExpression).append(' ');

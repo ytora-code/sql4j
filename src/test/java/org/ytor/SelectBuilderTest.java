@@ -19,14 +19,14 @@ public class SelectBuilderTest {
     // 1. 测试SELECT语句：基本查询
     @Test
     public void testSelectBuilder() {
-        SqlInfo sqlInfo = sqlHelper.select(User::getUserName, User::getUserEmail)
+        SqlInfo sqlInfo = sqlHelper.distinct().select(User::getUserName, User::getUserEmail)
                 .from(User.class)
                 .where(w -> w.gt(User::getAge, 18))
                 .orderBy(User::getUserName, OrderType.ASC)
                 .end();
 
         // 预期生成的SQL语句
-        String expectedSql = "SELECT user_name, user_email FROM user WHERE age > ? ORDER BY user_name ASC";
+        String expectedSql = "SELECT DISTINCT user_name, user_email FROM user WHERE age > ? ORDER BY user_name ASC";
         assertEquals(expectedSql, sqlInfo.getSql());
         assertEquals(1, sqlInfo.getOrderedParms().size()); // 一个参数：age > 18
     }

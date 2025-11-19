@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  * 包装参数
- * <p />
+ * <pre />
  * SQL 里面的普通参数最终会被解析成 ‘?’，如果想要原样拼接，则要给参数包一层 Wrapper
  */
 public class Wrapper implements SFunction<Object, Object> {

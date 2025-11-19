@@ -10,7 +10,15 @@ import java.util.function.Consumer;
  */
 public class DeleteWhereStage extends AbsDelete implements DeleteEndStage {
 
+    /**
+     * WHERE 表达式的构建规则
+     */
     private final Consumer<ConditionExpressionBuilder> where;
+
+    /**
+     * WHERE 表达式
+     */
+    private ConditionExpressionBuilder whereExpression;
 
     public DeleteWhereStage(DeleteBuilder deleteBuilder, Consumer<ConditionExpressionBuilder> where) {
         setDeleteBuilder(deleteBuilder);
@@ -27,6 +35,14 @@ public class DeleteWhereStage extends AbsDelete implements DeleteEndStage {
 
     public Consumer<ConditionExpressionBuilder> getWhere() {
         return where;
+    }
+
+    public ConditionExpressionBuilder getWhereExpression() {
+        return whereExpression;
+    }
+
+    public void setWhereExpression(ConditionExpressionBuilder whereExpression) {
+        this.whereExpression = whereExpression;
     }
 
     @Override
