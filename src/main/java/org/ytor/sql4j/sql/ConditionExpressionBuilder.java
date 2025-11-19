@@ -1,6 +1,9 @@
 package org.ytor.sql4j.sql;
 
+import org.ytor.sql4j.Sql4JException;
+import org.ytor.sql4j.enums.SegmentType;
 import org.ytor.sql4j.func.SFunction;
+import org.ytor.sql4j.sql.select.AbsSelect;
 
 import java.util.function.Consumer;
 
@@ -11,6 +14,12 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
 
     public ConditionExpressionBuilder(AliasRegister register) {
         super(register);
+    }
+
+    @Override
+    public ExpressionBuilder not() {
+        super.not();
+        return this;
     }
 
     // 覆盖父类的方法，返回子类类型
@@ -69,6 +78,24 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     }
 
     @Override
+    public <T> ExpressionBuilder in(SFunction<T, ?> column, Object... values) {
+        super.in(column, values);
+        return this;
+    }
+
+    @Override
+    public <T> ExpressionBuilder in(SFunction<T, ?> column, AbsSelect subSelect) {
+        super.in(column, subSelect);
+        return this;
+    }
+
+    @Override
+    public <T> ExpressionBuilder betweenAnd(SFunction<T, ?> column, Object leftValue, Object rightValue) {
+        super.betweenAnd(column, leftValue, rightValue);
+        return this;
+    }
+
+    @Override
     public <T> ConditionExpressionBuilder isNull(SFunction<T, ?> column) {
         super.isNull(column);
         return this;
@@ -105,6 +132,16 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     }
 
     /*=========================== ConditionExpressionBuilder特有的方法 =================================*/
+
+    /**
+     * 取反
+     */
+    public ExpressionBuilder not(boolean condition) {
+        if (condition) {
+            return not();
+        }
+        return this;
+    }
 
     /**
      * 等值匹配：column1 = value
@@ -192,6 +229,36 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     public <T> ExpressionBuilder like(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
             return like(column, value);
+        }
+        return this;
+    }
+
+    /**
+     * 在xx范围：id in (1, 2, 3)
+     */
+    public <T> ExpressionBuilder in(boolean condition, SFunction<T, ?> column, Object... values) {
+        if (condition) {
+            return in(column, values);
+        }
+        return this;
+    }
+
+    /**
+     * IN 子查询
+     */
+    public <T> ExpressionBuilder in(boolean condition, SFunction<T, ?> column, AbsSelect subSelect) {
+        if (condition) {
+            return in(column, subSelect);
+        }
+        return this;
+    }
+
+    /**
+     * 在xx范围：id between 1 and 2
+     */
+    public <T> ExpressionBuilder betweenAnd(boolean condition, SFunction<T, ?> column, Object leftValue, Object rightValue) {
+        if (condition) {
+            return betweenAnd(column, leftValue, rightValue);
         }
         return this;
     }

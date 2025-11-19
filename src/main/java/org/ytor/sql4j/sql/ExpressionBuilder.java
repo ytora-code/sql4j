@@ -1,13 +1,17 @@
 package org.ytor.sql4j.sql;
 
+import org.ytor.sql4j.Sql4JException;
 import org.ytor.sql4j.enums.SegmentType;
 import org.ytor.sql4j.func.SFunction;
 import org.ytor.sql4j.func.SQLFunc;
+import org.ytor.sql4j.sql.select.AbsSelect;
 import org.ytor.sql4j.util.LambdaUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * 带有条件的表达式构造父类（用于 WHERE / HAVING / ON）
@@ -58,6 +62,15 @@ public class ExpressionBuilder extends AbsSql {
      */
     public List<Object> getParams() {
         return params;
+    }
+
+    // ===================== 取反 =====================
+    /**
+     * 取反
+     */
+    public ExpressionBuilder not() {
+        appendLogical("NOT");
+        return this;
     }
 
     // ===================== 条件运算符 =====================
@@ -166,6 +179,51 @@ public class ExpressionBuilder extends AbsSql {
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
         expression.append(left).append(SPACE).append("LIKE").append(SPACE).append(right);
+        lastType = SegmentType.PREDICATE;
+        return this;
+    }
+
+    /**
+     * 在xx范围：id in (1, 2, 3)
+     */
+    public <T> ExpressionBuilder in(SFunction<T, ?> column, Object... values) {
+        appendPredicateStart();
+        String left = parsePlaceholder(column);
+        String right = '(' +
+                Arrays.stream(values).map(this::parsePlaceholder).collect(Collectors.joining(", ")) +
+                ')';
+        expression.append(left).append(SPACE).append("IN").append(SPACE).append(right);
+        lastType = SegmentType.PREDICATE;
+        return this;
+    }
+
+    /**
+     * IN 子查询
+     */
+    public <T> ExpressionBuilder in(SFunction<T, ?> column, AbsSelect subSelect) {
+        int columnCount = subSelect.getSelectBuilder().getSelectStage().getSelectColumn().size();
+        if (columnCount != 1) {
+            throw new Sql4JException("IN 子查询时，查询字段必须为1，目前查询字段：【" + columnCount + "】");
+        }
+        appendPredicateStart();
+        SqlInfo sqlInfo = subSelect.getSelectBuilder().getTranslator().translate(subSelect.getSelectBuilder());
+        params.addAll(sqlInfo.getOrderedParms());
+        String left = parsePlaceholder(column);
+        String right = "(" + sqlInfo.getSql() + ")";
+        expression.append(left).append(SPACE).append("IN").append(SPACE).append(right);
+        lastType = SegmentType.PREDICATE;
+        return this;
+    }
+
+    /**
+     * 在xx范围：id between 1 and 2
+     */
+    public <T> ExpressionBuilder betweenAnd(SFunction<T, ?> column, Object leftValue, Object rightValue) {
+        appendPredicateStart();
+        String c = parsePlaceholder(column);
+        String left = parsePlaceholder(leftValue);
+        String right = parsePlaceholder(rightValue);
+        expression.append(c).append(SPACE).append("BETWEEN").append(SPACE).append(left).append(SPACE).append("AND").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
         return this;
     }

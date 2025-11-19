@@ -519,7 +519,9 @@ SQL4J 支持子查询语法（仅适应于 SELECT 和 INSERT）
 
 ------
 
-## 5 类型转换器
+## 5 类型转换
+
+### 5.1 caster
 
 将数据从数据库读取到程序中的Bean时，可能需要进行类型转换
 
@@ -563,6 +565,77 @@ SQL4J 支持子查询语法（仅适应于 SELECT 和 INSERT）
    ```
 
 现在再次运行 SELECT 代码，发现id成功绑定
+
+------
+
+
+
+### 5.2 reader和writer
+
+caster只支持从数据库读入数据时的类型转换，如果写出数据时也要类型转换，caster就无能为力了
+
+SQLReader和SQLWriter是两个接口，分别表示读入数据和写出数据是的类型转换
+
+```java
+@FunctionalInterface
+public interface SQLReader {
+    /**
+     * 某个字段要自定义数据的读入逻辑，需要重写该方法
+     * @param sourceVal JDBC默认返回的原始数据
+     */
+    Object read(Object sourceVal);
+}
+@FunctionalInterface
+public interface SQLWriter {
+    /**
+     * 某个字段要自定义数据写出逻辑，需要重写该方法，最后进入数据库的数据就是方法返回值
+     */
+    Object write();
+}
+```
+
+Bean里面的某个字段想要
+
+* 自定义读入数据时的类型转换：该字段所属的类要实现 SQLReader 并重写 read，read 的返回值就是实际读入的数据
+* 自定义写出数据时的类型转换：该字段所属的类要实现 SQLWriter 并重写 write，write 的返回值就是实际写出的数据
+
+比如SysUser的s_s_s_s_name字段是一个枚举，读取数据时默认采用了枚举名与字段名作为映射，但是如果想要改变默认行为
+
+```java
+@Data
+public class SysUser {
+    @Column("user_name")
+    private UserName s_s_s_s_name;
+    // 其他字段省略
+}
+```
+
+UserName 实现 SQLReader 和 SQLWriter
+
+```java
+public enum UserName implements SQLReader, SQLWriter {
+    admin, guest
+        
+    @Override
+    public Object read(Object sourceVal) {
+        if ("admin".equals(sourceVal)) {
+            return admin;
+        } else if ("guest".equals(sourceVal)) {
+            return guest;
+        }
+        return null;
+    }
+
+    @Override
+    public Object write() {
+        return this.name();
+    }
+}
+```
+
+SQLReader 和 SQLWriter的优先级比caster更高，此后UserName类型的字段在读入和写出数据时，就会优先使用read和write里面的自定义逻辑
+
+------
 
 
 

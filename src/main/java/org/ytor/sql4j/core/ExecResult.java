@@ -2,6 +2,7 @@ package org.ytor.sql4j.core;
 
 import org.ytor.sql4j.Sql4JException;
 import org.ytor.sql4j.anno.Column;
+import org.ytor.sql4j.caster.SQLReader;
 import org.ytor.sql4j.caster.TypeCaster;
 import org.ytor.sql4j.enums.DatabaseType;
 import org.ytor.sql4j.sql.SqlInfo;
@@ -159,6 +160,13 @@ public class ExecResult {
                     if (columns.contains(fieldName)) {
                         // 得到数据库中的原始值
                         Object value = row.get(fieldName);
+                        // 如果该字段类型实现了 SQLReader
+                        if (SQLReader.class.isAssignableFrom(field.getType())) {
+                            // 如果实现了 SQLReader，则需要回调read方法，获取其自定义的value
+                            SQLReader fieldObj = (SQLReader) field.getType().newInstance();
+                            value = fieldObj.read(value);
+                        }
+
                         // 判断是否可以直接将原始值赋给该方法的第一个参数
                         if (parameterType.isAssignableFrom(value.getClass())) {
                             method.invoke(bean, value);

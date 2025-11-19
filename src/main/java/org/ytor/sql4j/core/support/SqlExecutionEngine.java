@@ -1,6 +1,7 @@
 package org.ytor.sql4j.core.support;
 
 import org.ytor.sql4j.Sql4JException;
+import org.ytor.sql4j.caster.SQLWriter;
 import org.ytor.sql4j.core.ExecResult;
 import org.ytor.sql4j.core.IConnectionProvider;
 import org.ytor.sql4j.core.ISqlExecutionEngine;
@@ -150,7 +151,13 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     private void setParameters(PreparedStatement statement, List<Object> params) {
         try {
             for (int i = 0; i < params.size(); i++) {
-                statement.setObject(i + 1, params.get(i));
+                Object param = params.get(i);
+                // 如果 param 重写了 SQLWriter, 则回调 SQLWriter 的 write 方法作为真实的参数
+                if (param instanceof SQLWriter) {
+                    SQLWriter writer = (SQLWriter) param;
+                    param = writer.write();
+                }
+                statement.setObject(i + 1, param);
             }
         } catch (SQLException e) {
             throw new Sql4JException(e);
