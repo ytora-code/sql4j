@@ -30,6 +30,7 @@ public class TypeCaster extends TypeCasterRegister {
      * @param <T> 原始类型
      * @param <S> 目标类型
      */
+    @SuppressWarnings("unchecked")
     public <T, S> T cast(S sourceVal, Class<T> targetType) {
         if (sourceVal == null) {
             return null;

@@ -24,6 +24,7 @@ public class TypeCasterRegister {
      * @param pair 原始类型和目标类型对
      * @return 转换逻辑
      */
+    @SuppressWarnings("unchecked")
     public <S, T> Caster<S, T> getCaster(TypePair pair) {
         return (Caster<S, T>) typeCasterPairs.get(pair);
     }

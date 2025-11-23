@@ -38,6 +38,11 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>xyz.yangtong</groupId>
+            <artifactId>class-cache</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

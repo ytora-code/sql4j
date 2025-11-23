@@ -116,6 +116,7 @@ public class ExecResult {
         this.status = status;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> List<T> toBeans(Class<T> clazz) {
         if (resultList.isEmpty()) {
             return Collections.emptyList();
@@ -136,6 +137,7 @@ public class ExecResult {
         return toBean(clazz, resultList.isEmpty() ? null : resultList.get(0));
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T toBean(Class<T> clazz, Map<String, Object> row) {
         if (Map.class.isAssignableFrom(clazz)) {
             return (T) row;
