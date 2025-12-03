@@ -40,7 +40,7 @@
 
         <dependency>
             <groupId>xyz.ytora</groupId>
-            <artifactId>class-cache</artifactId>
+            <artifactId>ytool</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

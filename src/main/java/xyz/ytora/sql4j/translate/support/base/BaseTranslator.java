@@ -7,7 +7,6 @@ import xyz.ytora.sql4j.sql.delete.DeleteBuilder;
 import xyz.ytora.sql4j.sql.insert.InsertBuilder;
 import xyz.ytora.sql4j.sql.select.SelectBuilder;
 import xyz.ytora.sql4j.sql.update.UpdateBuilder;
-import xyz.yangtong.sql4j.translate.*;
 import xyz.ytora.sql4j.translate.*;
 
 import java.util.stream.Collectors;

@@ -6,7 +6,6 @@ import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
-import xyz.yangtong.sql4j.sql.select.*;
 import xyz.ytora.sql4j.sql.select.*;
 import xyz.ytora.sql4j.translate.ISelectTranslator;
 import xyz.ytora.sql4j.util.LambdaUtil;
