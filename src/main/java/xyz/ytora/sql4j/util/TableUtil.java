@@ -1,9 +1,10 @@
 package xyz.ytora.sql4j.util;
 
 import xyz.ytora.sql4j.anno.Table;
+import xyz.ytora.ytool.str.Strs;
 
 /**
- * 表工具栏
+ * 表工具类
  */
 public class TableUtil {
 
@@ -22,7 +23,7 @@ public class TableUtil {
                 return value;
             }
         }
-        return StrUtil.toLowerUnderline(table.getSimpleName());
+        return Strs.toUnderline(table.getSimpleName());
     }
 
 }

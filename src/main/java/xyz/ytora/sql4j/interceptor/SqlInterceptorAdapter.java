@@ -1,7 +1,6 @@
-package xyz.ytora.sql4j.interceptor.support;
+package xyz.ytora.sql4j.interceptor;
 
 import xyz.ytora.sql4j.core.ExecResult;
-import xyz.ytora.sql4j.interceptor.SqlInterceptor;
 import xyz.ytora.sql4j.sql.SqlInfo;
 
 /**

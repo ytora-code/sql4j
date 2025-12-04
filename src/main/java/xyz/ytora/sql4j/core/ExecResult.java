@@ -6,7 +6,7 @@ import xyz.ytora.sql4j.caster.SQLReader;
 import xyz.ytora.sql4j.caster.TypeCaster;
 import xyz.ytora.sql4j.enums.DatabaseType;
 import xyz.ytora.sql4j.sql.SqlInfo;
-import xyz.ytora.sql4j.util.StrUtil;
+import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -125,7 +125,7 @@ public class ExecResult {
             return (List<T>) resultList;
         }
 
-        List<T> list = new ArrayList<T>();
+        List<T> list = new ArrayList<>();
         for (Map<String, Object> row : resultList) {
             T bean = toBean(clazz, row);
             list.add(bean);
@@ -146,7 +146,8 @@ public class ExecResult {
             return (T) row.values().stream().map(String::valueOf).collect(Collectors.joining(","));
         }
         try {
-            T bean = clazz.newInstance();
+            // 实例化Bean对象
+            T bean = clazz.getDeclaredConstructor().newInstance();
             if (row == null) {
                 return bean;
             }
@@ -164,7 +165,7 @@ public class ExecResult {
                     if (anno != null && !anno.value().isEmpty()) {
                         fieldName = anno.value();
                     } else {
-                        fieldName = StrUtil.toLowerUnderline(methodName);
+                        fieldName = Strs.toUnderline(methodName);
                     }
                     if (columns.contains(fieldName)) {
                         // 得到数据库中的原始值
@@ -173,7 +174,7 @@ public class ExecResult {
                         // 如果该字段类型实现了 SQLReader
                         if (SQLReader.class.isAssignableFrom(field.getType())) {
                             // 如果实现了 SQLReader，则需要回调read方法，获取其自定义的value
-                            SQLReader fieldObj = (SQLReader) field.getType().newInstance();
+                            SQLReader fieldObj = (SQLReader) field.getType().getDeclaredConstructor().newInstance();
                             value = fieldObj.read(value);
                         }
 
@@ -195,7 +196,8 @@ public class ExecResult {
                 }
             }
             return bean;
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException |
+                 NoSuchMethodException e) {
             throw new Sql4JException(e);
         }
     }

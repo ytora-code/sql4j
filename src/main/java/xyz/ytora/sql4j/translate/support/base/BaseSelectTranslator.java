@@ -9,8 +9,8 @@ import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.sql4j.sql.select.*;
 import xyz.ytora.sql4j.translate.ISelectTranslator;
 import xyz.ytora.sql4j.util.LambdaUtil;
-import xyz.ytora.sql4j.util.StrUtil;
 import xyz.ytora.sql4j.util.TableUtil;
+import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -219,9 +219,9 @@ public class BaseSelectTranslator implements ISelectTranslator {
                         alias.append(builder.getAlias(clazz)).append('.');
                     }
                     if (anno != null && !anno.value().isEmpty()) {
-                        alias.append(StrUtil.toLowerUnderline(anno.value()));
+                        alias.append(Strs.toUnderline(anno.value()));
                     } else {
-                        alias.append(StrUtil.toLowerUnderline(fieldName));
+                        alias.append(Strs.toUnderline(fieldName));
                     }
                     joiner.add(alias.toString());
                 } catch (NoSuchFieldException e) {

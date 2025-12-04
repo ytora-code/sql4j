@@ -4,6 +4,7 @@ import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.sql.AliasRegister;
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.ytool.str.Strs;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
@@ -95,7 +96,7 @@ public class LambdaUtil {
             if (anno != null && !anno.value().isEmpty()) {
                 sb.append(anno.value());
             } else {
-                sb.append(StrUtil.toLowerUnderline(methodName));
+                sb.append(Strs.toUnderline(methodName));
             }
             return sb.toString();
         } catch (NoSuchFieldException e) {

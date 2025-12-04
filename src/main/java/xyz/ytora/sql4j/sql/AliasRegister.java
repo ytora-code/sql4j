@@ -1,7 +1,7 @@
 package xyz.ytora.sql4j.sql;
 
 import xyz.ytora.sql4j.sql.select.AbsSelect;
-import xyz.ytora.sql4j.util.StrUtil;
+import xyz.ytora.ytool.str.Strs;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +38,7 @@ public class AliasRegister {
     }
 
     public String addAlias(Class<?> clazz) {
-        String tableName = StrUtil.toLowerUnderline(clazz.getSimpleName());
+        String tableName = Strs.toUnderline(clazz.getSimpleName());
         String alias = Arrays.stream(tableName.split("_")).map(i -> {
             if (!i.isEmpty()) {
                 return i.substring(0, 1).toLowerCase();

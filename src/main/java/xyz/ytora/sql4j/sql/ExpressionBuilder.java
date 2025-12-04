@@ -357,8 +357,7 @@ public class ExpressionBuilder extends AbsSql {
             return ((Wrapper) value).getRealValue();
         }
         // 函数，特殊处理，本质也是字符串
-        else if (value instanceof SQLFunc) {
-            SQLFunc func = (SQLFunc) value;
+        else if (value instanceof SQLFunc func) {
             func.addAliasRegister(register);
             return func.getValue();
         }

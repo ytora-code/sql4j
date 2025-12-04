@@ -5,6 +5,7 @@ import xyz.ytora.sql4j.sql.select.AbsSelect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ public class IntoStage extends AbsInsert {
 
     private final List<SFunction<?, ?>> insertedColumn = new ArrayList<>();
 
-    public <T> IntoStage(InsertBuilder insertBuilder, List<SFunction<T, ?>> insertedColumn) {
+    public <T> IntoStage(InsertBuilder insertBuilder, Collection<SFunction<T, ?>> insertedColumn) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setIntoStage(this);
         this.insertedColumn.addAll(insertedColumn);
