@@ -11,6 +11,8 @@ public class Min implements SQLFunc {
 
     private String str;
 
+    private String as;
+
     private AliasRegister aliasRegister;
 
     public Min(SFunction<?, ?> column) {
@@ -27,6 +29,17 @@ public class Min implements SQLFunc {
 
     public static Min of(String str) {
         return new Min(str);
+    }
+
+    @Override
+    public SQLFunc as(String as) {
+        this.as = as;
+        return this;
+    }
+
+    @Override
+    public String as() {
+        return as;
     }
 
     @Override

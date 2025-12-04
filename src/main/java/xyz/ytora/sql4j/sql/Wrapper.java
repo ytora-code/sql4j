@@ -10,12 +10,7 @@ import java.util.Date;
  * <pre />
  * SQL 里面的普通参数最终会被解析成 ‘?’，如果想要原样拼接，则要给参数包一层 Wrapper
  */
-public class Wrapper implements SFunction<Object, Object> {
-    private final Object value;
-
-    public Wrapper(Object value) {
-        this.value = value;
-    }
+public record Wrapper(Object value) implements SFunction<Object, Object> {
 
     public String getRealValue() {
         return formatVal(value);

@@ -3,6 +3,7 @@ package xyz.ytora.sql4j.caster;
 import xyz.ytora.sql4j.caster.support.DateToLocalDateCaster;
 import xyz.ytora.sql4j.caster.support.TimeToLocalTimeCaster;
 import xyz.ytora.sql4j.caster.support.TimestampToLocalDateTimeCaster;
+import xyz.ytora.ytool.convert.TypePair;
 
 import java.sql.Date;
 import java.sql.Time;

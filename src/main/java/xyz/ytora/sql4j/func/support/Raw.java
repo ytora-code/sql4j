@@ -3,12 +3,24 @@ package xyz.ytora.sql4j.func.support;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.AliasRegister;
 
-public class Now implements SQLFunc {
+/**
+ * 不是 SQL 中的函数，该类用于将字符串直接拼接到 SQL 中
+ * <pre>
+ *     与 Wrapper 区别：Wrapper 会加单引号，Raw直接拼接
+ * <pre/>
+ */
+public class Raw implements SQLFunc {
+
+    private final String rawStr;
 
     private String as;
 
-    public static Now of() {
-        return new Now();
+    public Raw(String rawStr) {
+        this.rawStr = rawStr;
+    }
+
+    public static Raw of(String rawStr) {
+        return new Raw(rawStr);
     }
 
     @Override
@@ -29,6 +41,6 @@ public class Now implements SQLFunc {
 
     @Override
     public String getValue() {
-        return "now()";
+        return rawStr;
     }
 }

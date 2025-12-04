@@ -12,6 +12,16 @@ public interface SQLFunc extends SFunction<Object, Object> {
     }
 
     /**
+     * 查询字段的as别名
+     */
+    SQLFunc as(String as);
+
+    /**
+     * 获取当前查询字段的as别名
+     */
+    String as();
+
+    /**
      * 指定别名MAP
      */
     void addAliasRegister(AliasRegister aliasRegister);

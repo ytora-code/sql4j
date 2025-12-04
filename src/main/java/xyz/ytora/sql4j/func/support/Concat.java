@@ -17,6 +17,8 @@ public class Concat implements SQLFunc {
 
     private List<SFunction<?, ?>> columns = new ArrayList<>();
 
+    private String as;
+
     private AliasRegister aliasRegister;
 
     public <T> Concat(List<SFunction<T, ?>> columns) {
@@ -26,6 +28,17 @@ public class Concat implements SQLFunc {
     @SafeVarargs
     public static <T> Concat of(SFunction<T, ?>... columns) {
         return new Concat(Arrays.asList(columns));
+    }
+
+    @Override
+    public SQLFunc as(String as) {
+        this.as = as;
+        return this;
+    }
+
+    @Override
+    public String as() {
+        return as;
     }
 
     @Override

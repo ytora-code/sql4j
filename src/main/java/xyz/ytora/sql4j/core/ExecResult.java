@@ -6,6 +6,10 @@ import xyz.ytora.sql4j.caster.SQLReader;
 import xyz.ytora.sql4j.caster.TypeCaster;
 import xyz.ytora.sql4j.enums.DatabaseType;
 import xyz.ytora.sql4j.sql.SqlInfo;
+import xyz.ytora.ytool.classcache.ClassCache;
+import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
+import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
+import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.Field;
@@ -121,7 +125,7 @@ public class ExecResult {
         if (resultList.isEmpty()) {
             return Collections.emptyList();
         }
-        if (Map.class.isAssignableFrom(clazz)) {
+        if (Map.class.isAssignableFrom(clazz) || Object.class.equals(clazz)) {
             return (List<T>) resultList;
         }
 
@@ -139,7 +143,7 @@ public class ExecResult {
 
     @SuppressWarnings("unchecked")
     public <T> T toBean(Class<T> clazz, Map<String, Object> row) {
-        if (Map.class.isAssignableFrom(clazz)) {
+        if (Map.class.isAssignableFrom(clazz) || Object.class.equals(clazz)) {
             return (T) row;
         }
         if (String.class.equals(clazz)) {
@@ -151,52 +155,53 @@ public class ExecResult {
             if (row == null) {
                 return bean;
             }
+            ClassMetadata<T> classMetadata = ClassCache.get(clazz);
             Set<String> columns = row.keySet();
-            for (Method method : clazz.getMethods()) {
-                String methodName = method.getName();
+            // 获取所有 setter 方法
+            List<MethodMetadata> setters = classMetadata.getMethods(m -> m.getName().startsWith("set") && m.parameters().size() == 1);
+            for (MethodMetadata setter : setters) {
+                String methodName = setter.getName();
                 // 调用setter方法（setter方法定义：方法名称以set开头，并且参数个数等于1个）
-                if (methodName.startsWith("set") && method.getParameterCount() == 1) {
-                    methodName = methodName.substring(3);
-                    Class<?> parameterType = method.getParameterTypes()[0];
-                    // 获取字段名称
-                    String fieldName = Character.toLowerCase(methodName.charAt(0)) + methodName.substring(1);
-                    Field field = clazz.getDeclaredField(fieldName);
-                    Column anno = field.getAnnotation(Column.class);
-                    if (anno != null && !anno.value().isEmpty()) {
-                        fieldName = anno.value();
-                    } else {
-                        fieldName = Strs.toUnderline(methodName);
+                methodName = methodName.substring(3);
+                Class<?> parameterType = setter.parameters().get(0).getType();
+                // 获取数据库列名称
+                String columnName;
+                FieldMetadata fieldMetadata = setter.toField();
+                Column anno = fieldMetadata.getAnnotation(Column.class);
+                if (anno != null && !anno.value().isEmpty()) {
+                    columnName = anno.value();
+                } else {
+                    columnName = Strs.toUnderline(fieldMetadata.getName());
+                }
+                if (columns.contains(columnName)) {
+                    // 得到数据库中的原始值
+                    Object value = row.get(columnName);
+
+                    // 如果该字段类型实现了 SQLReader
+                    if (SQLReader.class.isAssignableFrom(fieldMetadata.getSourceField().getType())) {
+                        // 如果实现了 SQLReader，则需要回调read方法，获取其自定义的value
+                        SQLReader fieldObj = (SQLReader) fieldMetadata.getSourceField().getType().getDeclaredConstructor().newInstance();
+                        value = fieldObj.read(value);
                     }
-                    if (columns.contains(fieldName)) {
-                        // 得到数据库中的原始值
-                        Object value = row.get(fieldName);
 
-                        // 如果该字段类型实现了 SQLReader
-                        if (SQLReader.class.isAssignableFrom(field.getType())) {
-                            // 如果实现了 SQLReader，则需要回调read方法，获取其自定义的value
-                            SQLReader fieldObj = (SQLReader) field.getType().getDeclaredConstructor().newInstance();
-                            value = fieldObj.read(value);
-                        }
-
-                        // 如果是空值，直接赋值 NULL
-                        if (value == null) {
-                            method.invoke(bean, (Object) null);
-                        }
-                        // 判断是否可以直接将原始值赋给该方法的第一个参数
-                        else if (parameterType.isAssignableFrom(value.getClass())) {
-                            method.invoke(bean, value);
-                        }
-                        // 如果不能直接赋值，则要类型转换
-                        else {
-                            TypeCaster typeCaster = sqlHelper.getTypeCaster();
-                            value = typeCaster.cast(value, parameterType);
-                            method.invoke(bean, value);
-                        }
+                    // 如果是空值，直接赋值 NULL
+                    if (value == null) {
+                        setter.invoke(bean, (Object) null);
+                    }
+                    // 判断是否可以直接将原始值赋给该方法的第一个参数
+                    else if (parameterType.isAssignableFrom(value.getClass())) {
+                        setter.invoke(bean, value);
+                    }
+                    // 如果不能直接赋值，则要类型转换
+                    else {
+                        TypeCaster typeCaster = sqlHelper.getTypeCaster();
+                        value = typeCaster.cast(value, parameterType);
+                        setter.invoke(bean, value);
                     }
                 }
             }
             return bean;
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchFieldException |
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
             throw new Sql4JException(e);
         }

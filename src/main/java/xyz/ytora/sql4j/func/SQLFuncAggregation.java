@@ -7,6 +7,10 @@ import xyz.ytora.sql4j.func.support.*;
  */
 public class SQLFuncAggregation {
 
+    public static Raw raw(String rawStr) {
+        return Raw.of(rawStr);
+    }
+
     public static <T> Count count(SFunction<T, ?> column) {
         return Count.of(column);
     }
@@ -35,7 +39,7 @@ public class SQLFuncAggregation {
         return Avg.of(column);
     }
 
-    public static <T> Now now() {
+    public static Now now() {
         return Now.of();
     }
 

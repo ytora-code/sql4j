@@ -11,6 +11,8 @@ public class Max implements SQLFunc {
 
     private String str;
 
+    private String as;
+
     private AliasRegister aliasRegister;
 
     public Max(SFunction<?, ?> column) {
@@ -27,6 +29,17 @@ public class Max implements SQLFunc {
 
     public static Max of(String str) {
         return new Max(str);
+    }
+
+    @Override
+    public SQLFunc as(String as) {
+        this.as = as;
+        return this;
+    }
+
+    @Override
+    public String as() {
+        return as;
     }
 
     @Override

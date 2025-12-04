@@ -1,5 +1,7 @@
 package xyz.ytora.sql4j.caster;
 
+import xyz.ytora.ytool.convert.TypePair;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

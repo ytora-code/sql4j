@@ -14,6 +14,8 @@ public class Count implements SQLFunc {
 
     private String str;
 
+    private String as;
+
     private AliasRegister aliasRegister;
 
     public Count(SFunction<?, ?> column) {
@@ -30,6 +32,17 @@ public class Count implements SQLFunc {
 
     public static Count of(String str) {
         return new Count(str);
+    }
+
+    @Override
+    public SQLFunc as(String as) {
+        this.as = as;
+        return this;
+    }
+
+    @Override
+    public String as() {
+        return as;
     }
 
     @Override

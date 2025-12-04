@@ -4,7 +4,7 @@ import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.func.SFunction;
-import xyz.ytora.sql4j.sql.Wrapper;
+import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.sql.update.SetStage;
 import xyz.ytora.sql4j.sql.update.UpdateBuilder;
 import xyz.ytora.sql4j.sql.update.UpdateStage;
@@ -21,6 +21,7 @@ import java.util.*;
  * 抽象实体类
  */
 public class AbsEntity<T> {
+
     /**
      * 主键id
      */
@@ -45,7 +46,7 @@ public class AbsEntity<T> {
             } else {
                 columnName = Strs.toUnderline(fieldMetadata.getName());
             }
-            columnMap.put(mmd, Wrapper.of(columnName));
+            columnMap.put(mmd, Raw.of(columnName));
         }
     }
 
@@ -53,10 +54,16 @@ public class AbsEntity<T> {
         return id;
     }
 
+    @SuppressWarnings("unchecked")
+    public T setId(String id) {
+        this.id = id;
+        return (T) this;
+    }
+
     public List<T> select() {
         return SQLHelper.getInstance()
-                .select(this.getClass())
-                .from(this.getClass())
+                .select(entityClass)
+                .from(entityClass)
                 .where(SQLHelper.getInstance().toWhere(this))
                 .submit(entityClass);
     }
@@ -76,7 +83,7 @@ public class AbsEntity<T> {
                 throw new Sql4JException(e);
             }
         }
-        List<Object> ids = SQLHelper.getInstance().insert(this.getClass()).into(columnMap.values()).value(params).submit();
+        List<Object> ids = SQLHelper.getInstance().insert(entityClass).into(columnMap.values()).value(params).submit();
         if (ids.isEmpty()) {
             throw new Sql4JException("INSERT 异常，插入数据后没有返回ID，请检查");
         }
@@ -114,18 +121,18 @@ public class AbsEntity<T> {
             throw new Sql4JException("UPDATE 时实体对象的字段值不能全为 NULL");
         }
 
-        UpdateStage updateStage = new UpdateStage(new UpdateBuilder(SQLHelper.getInstance()), this.getClass());
+        UpdateStage updateStage = new UpdateStage(new UpdateBuilder(SQLHelper.getInstance()), entityClass);
         SetStage setStage = null;
         for (String key : setMap.keySet()) {
-            setStage = updateStage.set(Wrapper.of(key), setMap.get(key));
+            setStage = updateStage.set(Raw.of(key), setMap.get(key));
         }
 
         if (setStage != null) {
-            setStage.where(w -> w.eq(Wrapper.of("id"), id)).submit();
+            setStage.where(w -> w.eq(Raw.of("id"), id)).submit();
         }
     }
 
     public void delete() {
-        SQLHelper.getInstance().delete().from(this.getClass()).where(SQLHelper.getInstance().toWhere(this)).submit();
+        SQLHelper.getInstance().delete().from(entityClass).where(SQLHelper.getInstance().toWhere(this)).submit();
     }
 }

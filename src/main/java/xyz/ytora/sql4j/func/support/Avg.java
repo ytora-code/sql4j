@@ -11,6 +11,8 @@ public class Avg implements SQLFunc {
 
     private String str;
 
+    private String as;
+
     private AliasRegister aliasRegister;
 
     public Avg(SFunction<?, ?> column) {
@@ -30,6 +32,17 @@ public class Avg implements SQLFunc {
     }
 
     @Override
+    public SQLFunc as(String as) {
+        this.as = as;
+        return this;
+    }
+
+    @Override
+    public String as() {
+        return as;
+    }
+
+    @Override
     public void addAliasRegister(AliasRegister aliasRegister) {
         this.aliasRegister = aliasRegister;
     }
@@ -42,4 +55,5 @@ public class Avg implements SQLFunc {
             return "avg(" + str + ")";
         }
     }
+
 }

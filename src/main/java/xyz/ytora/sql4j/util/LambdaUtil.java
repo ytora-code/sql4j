@@ -4,6 +4,9 @@ import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.sql.AliasRegister;
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.ytool.classcache.ClassCache;
+import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
+import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.invoke.SerializedLambda;
@@ -71,37 +74,27 @@ public class LambdaUtil {
      * 解析出拼接到SQL里面的字段，比如user.user_name
      */
     public static <T> String parseColumn(SFunction<T, ?> fn, AliasRegister register) {
-        try {
-            SerializedLambda sl = serializedLambda(fn);
-            Class<?> clazz = parseClass(sl);
-            StringBuilder sb = new StringBuilder();
-            // 如果不是单表，则要查表别名
-            if (register != null && !register.single()) {
-                String alias = register.getAlias(clazz);
-                sb.append(alias).append('.');
-            }
-
-            // 方法名称
-            String methodName = parseMethodName(sl);
-            // 对应的字段名称
-            String fieldName;
-            if (methodName.startsWith("get")) {
-                methodName = methodName.substring(3);
-            } else if (methodName.startsWith("is")) {
-                methodName = methodName.substring(2);
-            }
-            fieldName = Character.toLowerCase(methodName.charAt(0)) + methodName.substring(1);
-            Field field = clazz.getDeclaredField(fieldName);
-            Column anno = field.getAnnotation(Column.class);
-            if (anno != null && !anno.value().isEmpty()) {
-                sb.append(anno.value());
-            } else {
-                sb.append(Strs.toUnderline(methodName));
-            }
-            return sb.toString();
-        } catch (NoSuchFieldException e) {
-            throw new Sql4JException(e);
+        SerializedLambda sl = serializedLambda(fn);
+        Class<?> clazz = parseClass(sl);
+        StringBuilder sb = new StringBuilder();
+        // 如果不是单表，则要查表别名
+        if (register != null && !register.single()) {
+            String alias = register.getAlias(clazz);
+            sb.append(alias).append('.');
         }
+
+        // 方法
+        String methodName = parseMethodName(sl);
+        MethodMetadata methodMetadata = ClassCache.getMethod(clazz, methodName);
+        // 对应的字段名称
+        FieldMetadata fieldMetadata = methodMetadata.toField();
+        Column anno = fieldMetadata.getAnnotation(Column.class);
+        if (anno != null && !anno.value().isEmpty()) {
+            sb.append(anno.value());
+        } else {
+            sb.append(Strs.toUnderline(fieldMetadata.getName()));
+        }
+        return sb.toString();
     }
 
 }

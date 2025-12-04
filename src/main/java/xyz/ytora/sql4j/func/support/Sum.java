@@ -11,6 +11,8 @@ public class Sum implements SQLFunc {
 
     private String str;
 
+    private String as;
+
     private AliasRegister aliasRegister;
 
     public Sum(SFunction<?, ?> column) {
@@ -27,6 +29,17 @@ public class Sum implements SQLFunc {
 
     public static Sum of(String str) {
         return new Sum(str);
+    }
+
+    @Override
+    public SQLFunc as(String as) {
+        this.as = as;
+        return this;
+    }
+
+    @Override
+    public String as() {
+        return as;
     }
 
     @Override

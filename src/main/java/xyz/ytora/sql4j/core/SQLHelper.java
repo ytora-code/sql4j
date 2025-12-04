@@ -4,10 +4,10 @@ import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.caster.Caster;
 import xyz.ytora.sql4j.caster.TypeCaster;
-import xyz.ytora.sql4j.caster.TypePair;
 import xyz.ytora.sql4j.core.support.SqlExecutionEngine;
 import xyz.ytora.sql4j.enums.SqlType;
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.interceptor.SqlInterceptor;
 import xyz.ytora.sql4j.interceptor.support.PreventFullTableUpdateInterceptor;
 import xyz.ytora.sql4j.log.ISqlLogger;
@@ -30,6 +30,7 @@ import xyz.ytora.ytool.classcache.ClassCache;
 import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
+import xyz.ytora.ytool.convert.TypePair;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.InvocationTargetException;
@@ -238,7 +239,7 @@ public class SQLHelper {
 
         return w -> {
             for (String key : params.keySet()) {
-                w.eq(Wrapper.of(key), params.get(key));
+                w.eq(Raw.of(key), params.get(key));
             }
         };
     }

@@ -10,6 +10,10 @@ import xyz.ytora.sql4j.sql.select.*;
 import xyz.ytora.sql4j.translate.ISelectTranslator;
 import xyz.ytora.sql4j.util.LambdaUtil;
 import xyz.ytora.sql4j.util.TableUtil;
+import xyz.ytora.ytool.classcache.ClassCache;
+import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
+import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
+import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.Field;
@@ -37,10 +41,14 @@ public class BaseSelectTranslator implements ISelectTranslator {
         List<SFunction<?, ?>> selectColumns = builder.getSelectStage().getSelectColumns();
         for (SFunction<?, ?> f : selectColumns) {
             // 函数字段
-            if (f instanceof SQLFunc) {
-                SQLFunc func = (SQLFunc) f;
+            if (f instanceof SQLFunc func) {
                 func.addAliasRegister(builder);
-                joiner.add(func.getValue());
+                String column = func.getValue();
+                String as = func.as();
+                if (Strs.isNotEmpty(as)) {
+                    column = column + " AS " + as;
+                }
+                joiner.add(column);
             }
             // 普通表字段
             else {
@@ -199,35 +207,23 @@ public class BaseSelectTranslator implements ISelectTranslator {
      */
     private StringJoiner parseGetter(Class<?> clazz, SelectBuilder builder) {
         StringJoiner joiner = new StringJoiner(", ");
-        for (Method method : clazz.getDeclaredMethods()) {
-            String methodName = method.getName();
-            // 获取 getter 方法
-            if ((methodName.startsWith("get") || methodName.startsWith("is")) && method.getParameterCount() == 0) {
-                if (methodName.startsWith("get")) {
-                    methodName = methodName.substring(3);
-                } else if (methodName.startsWith("is")) {
-                    methodName = methodName.substring(2);
-                }
-                // 将 getter 方法名称转为对应的字段名称
-                String fieldName = Character.toLowerCase(methodName.charAt(0)) + methodName.substring(1);
-                try {
-                    // 判断最终的字段名称
-                    Field field = clazz.getDeclaredField(fieldName);
-                    Column anno = field.getAnnotation(Column.class);
-                    StringBuilder alias = new StringBuilder();
-                    if (!builder.single()) {
-                        alias.append(builder.getAlias(clazz)).append('.');
-                    }
-                    if (anno != null && !anno.value().isEmpty()) {
-                        alias.append(Strs.toUnderline(anno.value()));
-                    } else {
-                        alias.append(Strs.toUnderline(fieldName));
-                    }
-                    joiner.add(alias.toString());
-                } catch (NoSuchFieldException e) {
-                    builder.getSQLHelper().getLogger().warn(e.getMessage());
-                }
+        ClassMetadata<?> classMetadata = ClassCache.get(clazz);
+        // 获取 getter 方法
+        List<MethodMetadata> mmds = classMetadata.getMethods(m -> (m.getName().startsWith("get") || m.getName().startsWith("is")) && m.parameters().isEmpty());
+        for (MethodMetadata mmd : mmds) {
+            FieldMetadata fieldMetadata = mmd.toField();
+            // 判断最终的字段名称
+            Column anno = fieldMetadata.getAnnotation(Column.class);
+            StringBuilder alias = new StringBuilder();
+            if (!builder.single()) {
+                alias.append(builder.getAlias(clazz)).append('.');
             }
+            if (anno != null && !anno.value().isEmpty()) {
+                alias.append(anno.value());
+            } else {
+                alias.append(Strs.toUnderline(fieldMetadata.getName()));
+            }
+            joiner.add(alias.toString());
         }
         return joiner;
     }

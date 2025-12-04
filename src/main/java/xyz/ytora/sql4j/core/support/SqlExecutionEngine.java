@@ -12,7 +12,7 @@ import xyz.ytora.sql4j.sql.SqlInfo;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +59,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
                     // 处理查询结果
                     while (resultSet.next()) {
-                        Map<String, Object> row = new HashMap<>();
+                        Map<String, Object> row = new LinkedHashMap<>();
                         for (int i = 1; i <= columnCount; i++) {
                             row.put(metaData.getColumnLabel(i), resultSet.getObject(i));
                         }
