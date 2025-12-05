@@ -14,13 +14,18 @@ import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
  * 抽象实体类
  */
-public class AbsEntity<T> {
+public class AbsEntity<T> implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 114514L;
 
     /**
      * 主键id
