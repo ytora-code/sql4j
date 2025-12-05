@@ -635,6 +635,12 @@ public enum UserName implements SQLReader, SQLWriter {
 
 SQLReader 和 SQLWriter的优先级比caster更高，此后UserName类型的字段在读入和写出数据时，就会优先使用read和write里面的自定义逻辑
 
+
+
+为什么有了reader和writer，还需要caster呢？
+
+因为对于一些JDK或者第三方库自带的类型，无法让其实现reader和writer，想要对这些类型进行转换，就必须使用caster
+
 ------
 
 

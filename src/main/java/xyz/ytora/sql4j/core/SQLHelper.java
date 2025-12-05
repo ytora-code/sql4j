@@ -3,7 +3,8 @@ package xyz.ytora.sql4j.core;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.caster.Caster;
-import xyz.ytora.sql4j.caster.TypeCaster;
+import xyz.ytora.sql4j.caster.DefaultTypeCaster;
+import xyz.ytora.sql4j.caster.ITypeCaster;
 import xyz.ytora.sql4j.core.support.SqlExecutionEngine;
 import xyz.ytora.sql4j.enums.SqlType;
 import xyz.ytora.sql4j.func.SFunction;
@@ -14,7 +15,6 @@ import xyz.ytora.sql4j.log.ISqlLogger;
 import xyz.ytora.sql4j.log.support.DefaultSqlLogger;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
-import xyz.ytora.sql4j.sql.Wrapper;
 import xyz.ytora.sql4j.sql.delete.DeleteBuilder;
 import xyz.ytora.sql4j.sql.delete.DeleteStage;
 import xyz.ytora.sql4j.sql.insert.InsertBuilder;
@@ -52,7 +52,7 @@ public class SQLHelper {
     /**
      * 类型转换器
      */
-    private TypeCaster typeCaster = new TypeCaster();
+    private ITypeCaster typeCaster = new DefaultTypeCaster();
 
     /**
      * 数据库连接提供者
@@ -94,19 +94,21 @@ public class SQLHelper {
         return translator;
     }
 
-    public void registerTypeCaster(TypeCaster typeCaster) {
+    public void registerTypeCaster(ITypeCaster typeCaster) {
         this.typeCaster = typeCaster;
     }
 
-    public TypeCaster getTypeCaster() {
+    public ITypeCaster getTypeCaster() {
         return typeCaster;
     }
 
     /**
      * 注册类型转换器
      */
-    public void registerCaster(TypePair pair, Caster<?, ?> caster) {
-        typeCaster.register(pair, caster);
+    public void addCaster(TypePair pair, Caster<?, ?> caster) {
+        if (pair != null && caster != null) {
+            typeCaster.register(pair, caster);
+        }
     }
 
     /**
@@ -161,6 +163,8 @@ public class SQLHelper {
     public List<SqlInterceptor> getSqlInterceptors() {
         return sqlInterceptors;
     }
+
+    /*================================== SQL链式调用起点 =======================================*/
 
     public DistinctStage distinct() {
         SelectBuilder selectBuilder = new SelectBuilder(this);

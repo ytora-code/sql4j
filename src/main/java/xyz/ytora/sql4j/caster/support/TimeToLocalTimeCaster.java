@@ -11,10 +11,20 @@ import java.time.LocalTime;
 public class TimeToLocalTimeCaster implements Caster<Time, LocalTime> {
 
     @Override
-    public LocalTime cast(Time sourceVal, Class<LocalTime> targetType) {
+    public LocalTime cast(Time sourceVal) {
         if (sourceVal == null) {
             return null;
         }
         return sourceVal.toLocalTime();
+    }
+
+    @Override
+    public Class<Time> getSourceType() {
+        return Time.class;
+    }
+
+    @Override
+    public Class<LocalTime> getTargetType() {
+        return LocalTime.class;
     }
 }

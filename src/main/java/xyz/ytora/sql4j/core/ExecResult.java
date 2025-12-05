@@ -2,8 +2,9 @@ package xyz.ytora.sql4j.core;
 
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
+import xyz.ytora.sql4j.caster.ITypeCaster;
 import xyz.ytora.sql4j.caster.SQLReader;
-import xyz.ytora.sql4j.caster.TypeCaster;
+import xyz.ytora.sql4j.caster.DefaultTypeCaster;
 import xyz.ytora.sql4j.enums.DatabaseType;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.ytool.classcache.ClassCache;
@@ -12,9 +13,7 @@ import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -194,7 +193,7 @@ public class ExecResult {
                     }
                     // 如果不能直接赋值，则要类型转换
                     else {
-                        TypeCaster typeCaster = sqlHelper.getTypeCaster();
+                        ITypeCaster typeCaster = sqlHelper.getTypeCaster();
                         value = typeCaster.cast(value, parameterType);
                         setter.invoke(bean, value);
                     }

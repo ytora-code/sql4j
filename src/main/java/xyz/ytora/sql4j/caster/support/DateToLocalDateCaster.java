@@ -11,10 +11,20 @@ import java.time.LocalDate;
 public class DateToLocalDateCaster implements Caster<Date, LocalDate> {
 
     @Override
-    public LocalDate cast(Date sourceVal, Class<LocalDate> targetType) {
+    public LocalDate cast(Date sourceVal) {
         if (sourceVal == null) {
             return null;
         }
         return sourceVal.toLocalDate();
+    }
+
+    @Override
+    public Class<Date> getSourceType() {
+        return Date.class;
+    }
+
+    @Override
+    public Class<LocalDate> getTargetType() {
+        return LocalDate.class;
     }
 }

@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 类型映射注册
  */
-public class TypeCasterRegister {
+public abstract class TypeCasterRegister implements ITypeCaster {
 
     private final Map<TypePair, Caster<?, ?>> typeCasterPairs = new ConcurrentHashMap<>();
 

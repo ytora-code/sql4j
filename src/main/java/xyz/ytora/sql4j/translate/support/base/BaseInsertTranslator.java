@@ -60,8 +60,7 @@ public class BaseInsertTranslator implements IInsertTranslator {
                 valueStr.append("(");
                 List<String> values = new ArrayList<>();
                 for (Object value : valueList) {
-                    if (value instanceof Wrapper) {
-                        Wrapper wrapperValue = (Wrapper) value;
+                    if (value instanceof Wrapper wrapperValue) {
                         String sourceValue = wrapperValue.getRealValue();
                         values.add(sourceValue);
                     } else {
