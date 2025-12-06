@@ -8,20 +8,20 @@ public interface ISqlLogger {
     /**
      * 错误日志
      */
-    void error(Object msg);
+    void error(Object msg, Object... args);
 
     /**
      * 警告日志
      */
-    void warn(Object msg);
+    void warn(Object msg, Object... args);
 
     /**
      * 正常信息日志
      */
-    void info(Object msg);
+    void info(Object msg, Object... args);
 
     /**
      * debug日志
      */
-    void debug(Object msg);
+    void debug(Object msg, Object... args);
 }

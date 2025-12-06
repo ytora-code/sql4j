@@ -39,4 +39,10 @@ public interface ISqlExecutionEngine {
      */
     ExecResult executeDelete(SqlInfo sqlInfo);
 
+    /**
+     * 执行 DDL
+     * @param sqlInfo SQL 信息
+     */
+    void executeDDL(SqlInfo sqlInfo);
+
 }

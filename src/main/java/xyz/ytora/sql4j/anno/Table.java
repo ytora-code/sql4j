@@ -1,5 +1,6 @@
 package xyz.ytora.sql4j.anno;
 
+import xyz.ytora.sql4j.enums.DbType;
 import xyz.ytora.sql4j.enums.IdType;
 
 import java.lang.annotation.ElementType;
@@ -17,12 +18,7 @@ public @interface Table {
     /**
      * 表名称
      */
-    String value();
-
-    /**
-     * 表名称（语义化字段，比value优先级更高）
-     */
-    String name() default "";
+    String value() default "";
 
     /**
      * 主键类型
@@ -35,12 +31,17 @@ public @interface Table {
     boolean createIfNotExist() default false;
 
     /**
-     * 表注释
+     * 该表所属的数据库类型，当 createIfNotExist 为 true，就应该根据实际情况指定数据库类型
      */
-    String comment() default "";
+    DbType dbType() default DbType.MYSQL;
 
     /**
      * 数据源
      */
-    String ds() default "";
+    String ds() default "primary";
+
+    /**
+     * 表注释
+     */
+    String comment() default "";
 }

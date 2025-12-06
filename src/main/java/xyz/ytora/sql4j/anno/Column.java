@@ -18,6 +18,11 @@ public @interface Column {
     String value() default "";
 
     /**
+     * 数据库字段类型
+     */
+    String columnType() default "";
+
+    /**
      * 字段注释
      */
     String comment() default "";

@@ -4,8 +4,7 @@ import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.caster.ITypeCaster;
 import xyz.ytora.sql4j.caster.SQLReader;
-import xyz.ytora.sql4j.caster.DefaultTypeCaster;
-import xyz.ytora.sql4j.enums.DatabaseType;
+import xyz.ytora.sql4j.enums.DbType;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.ytool.classcache.ClassCache;
 import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
@@ -32,7 +31,7 @@ public class ExecResult {
     /**
      * 数据库类型
      */
-    private DatabaseType databaseType;
+    private DbType databaseType;
 
     /**
      * SELECT 执行结果（仅当 SQL 类型是 SELECT 时该字段才有值）
@@ -71,11 +70,11 @@ public class ExecResult {
         this.sqlInfo = sqlInfo;
     }
 
-    public DatabaseType getDatabaseType() {
+    public DbType getDatabaseType() {
         return databaseType;
     }
 
-    public void setDatabaseType(DatabaseType databaseType) {
+    public void setDatabaseType(DbType databaseType) {
         this.databaseType = databaseType;
     }
 

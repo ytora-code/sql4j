@@ -17,7 +17,10 @@ import xyz.ytora.ytool.str.Strs;
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 抽象实体类
@@ -31,28 +34,11 @@ public class AbsEntity<T> implements Serializable {
      * 主键id
      */
     private String id;
-
     private final Class<T> entityClass;
-    private final ClassMetadata<T> classMetadata;
-    private final Map<MethodMetadata, SFunction<Object, ?>> columnMap = new LinkedHashMap<>();
 
     @SuppressWarnings("unchecked")
     public AbsEntity() {
         this.entityClass = (Class<T>) this.getClass();
-        this.classMetadata = ClassCache.get(entityClass);
-        List<MethodMetadata> methodMetadata = classMetadata.getMethods(mmd -> mmd.getName().startsWith("get") || mmd.getName().startsWith("is"));
-
-        for (MethodMetadata mmd : methodMetadata) {
-            FieldMetadata fieldMetadata = mmd.toField();
-            String columnName;
-            Column columnAnno = fieldMetadata.getAnnotation(Column.class);
-            if (columnAnno != null && Strs.isNotEmpty(columnAnno.value())) {
-                columnName = columnAnno.value();
-            } else {
-                columnName = Strs.toUnderline(fieldMetadata.getName());
-            }
-            columnMap.put(mmd, Raw.of(columnName));
-        }
     }
 
     public String getId() {
@@ -77,18 +63,33 @@ public class AbsEntity<T> implements Serializable {
      * 将当前实体类增加到数据库
      */
     public void insert() {
+        ClassMetadata<T> classMetadata = ClassCache.get(entityClass);
         // 获取该对象所有 getter 方法
-        List<MethodMetadata> methodMetadata = classMetadata.getMethods(mmd -> mmd.getName().startsWith("get") || mmd.getName().startsWith("is"));
+        List<MethodMetadata> getters = classMetadata.getMethods(mmd -> mmd.getName().startsWith("get") || mmd.getName().startsWith("is"));
+        List<SFunction<Object, ?>> insertColumns = new ArrayList<>();
         List<Object> params = new ArrayList<>();
-        for (MethodMetadata metadata : methodMetadata) {
+        for (MethodMetadata getter : getters) {
             try {
-                Object val = metadata.invoke(this);
+                // INSERT 字段
+                FieldMetadata fieldMetadata = getter.toField();
+                String columnName;
+                Column columnAnno = fieldMetadata.getAnnotation(Column.class);
+                if (columnAnno != null && Strs.isNotEmpty(columnAnno.value())) {
+                    columnName = columnAnno.value();
+                } else {
+                    columnName = Strs.toUnderline(fieldMetadata.getName());
+                }
+                insertColumns.add(Raw.of(columnName));
+
+                // INSERT 的数据
+                Object val = getter.invoke(this);
                 params.add(val);
             } catch (InvocationTargetException | IllegalAccessException e) {
                 throw new Sql4JException(e);
             }
         }
-        List<Object> ids = SQLHelper.getInstance().insert(entityClass).into(columnMap.values()).value(params).submit();
+
+        List<Object> ids = SQLHelper.getInstance().insert(entityClass).into(insertColumns).value(params).submit();
         if (ids.isEmpty()) {
             throw new Sql4JException("INSERT 异常，插入数据后没有返回ID，请检查");
         }
@@ -102,6 +103,7 @@ public class AbsEntity<T> implements Serializable {
         if (id == null) {
             throw new Sql4JException("UPDATE 时实体对象的 ID 不能为空");
         }
+        ClassMetadata<T> classMetadata = ClassCache.get(entityClass);
         // 获取该对象所有 getter 方法
         List<MethodMetadata> methodMetadata = classMetadata.getMethods(mmd -> mmd.getName().startsWith("get") || mmd.getName().startsWith("is"));
         Map<String, Object> setMap = new HashMap<>();

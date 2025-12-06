@@ -16,6 +16,7 @@
     </properties>
 
     <dependencies>
+        <!-- 单元测试 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -38,6 +39,14 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- 类路径扫描 -->
+        <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>4.8.179</version>
+        </dependency>
+
+        <!-- ytool 工具库 -->
         <dependency>
             <groupId>xyz.ytora</groupId>
             <artifactId>ytool</artifactId>

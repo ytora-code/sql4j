@@ -8,4 +8,5 @@ public enum SqlType {
     INSERT,
     UPDATE,
     DELETE,
+    DDL
 }

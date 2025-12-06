@@ -14,13 +14,9 @@ public class TableUtil {
     public static String parseTableNameFromClass(Class<?> table) {
         Table anno = table.getAnnotation(Table.class);
         if (anno != null) {
-            String name = anno.name();
-            if (!name.isEmpty()) {
-                return name;
-            }
-            String value = anno.value();
-            if (value != null && !value.isEmpty()) {
-                return value;
+            String tableName = anno.value();
+            if (!tableName.isEmpty()) {
+                return tableName;
             }
         }
         return Strs.toUnderline(table.getSimpleName());

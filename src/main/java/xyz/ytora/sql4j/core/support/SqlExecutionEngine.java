@@ -6,7 +6,8 @@ import xyz.ytora.sql4j.core.ExecResult;
 import xyz.ytora.sql4j.core.IConnectionProvider;
 import xyz.ytora.sql4j.core.ISqlExecutionEngine;
 import xyz.ytora.sql4j.core.SQLHelper;
-import xyz.ytora.sql4j.enums.DatabaseType;
+import xyz.ytora.sql4j.enums.DbType;
+import xyz.ytora.sql4j.enums.SqlType;
 import xyz.ytora.sql4j.interceptor.SqlInterceptor;
 import xyz.ytora.sql4j.sql.SqlInfo;
 
@@ -43,7 +44,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
         }
 
-        try (Connection connection = connectionProvider.getConnection()) {
+        Connection connection = connectionProvider.getConnection();
+        try {
             // 获取数据库的元数据
             DatabaseMetaData connectionMetaData = connection.getMetaData();
             String sql = sqlInfo.getSql();
@@ -69,12 +71,14 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                         sqlHelper.getLogger().debug(" <===\t" + row);
                     }
                     // 创建并返回执行结果
-                    ExecResult execResult = createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, System.currentTimeMillis() - startTime, 0);
+                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, System.currentTimeMillis() - startTime, 0);
                     return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
         } catch (SQLException e) {
             throw new Sql4JException(e);
+        } finally {
+            connectionProvider.closeConnection(connection);
         }
     }
 
@@ -85,7 +89,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
         }
 
-        try (Connection connection = connectionProvider.getConnection()) {
+        Connection connection = connectionProvider.getConnection();
+        try {
             // 获取数据库的元数据
             DatabaseMetaData connectionMetaData = connection.getMetaData();
             String sql = sqlInfo.getSql();
@@ -103,12 +108,14 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
                     // 记录 SQL 执行结果
                     sqlHelper.getLogger().debug(" <===\t 新增行数：" + affectedRows);
-                    ExecResult execResult = createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime, 0);
+                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime, 0);
                     return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
         } catch (SQLException e) {
             throw new Sql4JException(e);
+        } finally {
+            connectionProvider.closeConnection(connection);
         }
     }
 
@@ -119,7 +126,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
         }
 
-        try (Connection connection = connectionProvider.getConnection()) {
+        Connection connection = connectionProvider.getConnection();
+        try {
             // 获取数据库的元数据
             DatabaseMetaData connectionMetaData = connection.getMetaData();
             String sql = sqlInfo.getSql();
@@ -131,11 +139,13 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
                 // 记录 SQL 执行结果
                 sqlHelper.getLogger().debug(" <===\t 影响行数" + affectedRows);
-                ExecResult execResult = createExecResult(sqlInfo, DatabaseType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime, 0);
+                ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime, 0);
                 return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
             }
         } catch (SQLException e) {
             throw new Sql4JException(e);
+        } finally {
+            connectionProvider.closeConnection(connection);
         }
     }
 
@@ -143,6 +153,32 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     public ExecResult executeDelete(SqlInfo sqlInfo) {
         // DELETE 和 UPDATE 的处理方式一样
         return executeUpdate(sqlInfo);
+    }
+
+    @Override
+    public void executeDDL(SqlInfo sqlInfo) {
+        if (sqlInfo.getSqlType() != SqlType.DDL) {
+            throw new Sql4JException(sqlInfo.getSqlType() + " 不支持调用 executeDDL");
+        }
+        sqlHelper.getLogger().info(" ==== 即将执行DDL: " + sqlInfo.getSql());
+
+        Connection connection = connectionProvider.getConnection();
+        try {
+            // 获取数据库的元数据
+            DatabaseMetaData connectionMetaData = connection.getMetaData();
+            String sql = sqlInfo.getSql();
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                // 执行 DDL 操作
+                statement.executeUpdate();
+
+                sqlHelper.getLogger().info(" ==== DDL执行成功");
+            }
+        } catch (SQLException e) {
+            sqlHelper.getLogger().info(" ==== DDL执行失败: " + e.getMessage());
+            throw new Sql4JException(e);
+        } finally {
+            connectionProvider.closeConnection(connection);
+        }
     }
 
     /**
@@ -171,7 +207,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     /**
      * 创建 ExecResult 对象
      */
-    private ExecResult createExecResult(SqlInfo sqlInfo, DatabaseType databaseType, List<Map<String, Object>> resultList,
+    private ExecResult createExecResult(SqlInfo sqlInfo, DbType databaseType, List<Map<String, Object>> resultList,
                                         Integer effectedRows, List<Object> ids, Long executionTime, Integer status) {
         ExecResult execResult = new ExecResult();
         execResult.setSqlHelper(sqlHelper);
