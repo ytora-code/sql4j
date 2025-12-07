@@ -8,16 +8,11 @@ import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.sql4j.sql.select.*;
 import xyz.ytora.sql4j.translate.ISelectTranslator;
-import xyz.ytora.sql4j.util.LambdaUtil;
-import xyz.ytora.sql4j.util.TableUtil;
-import xyz.ytora.ytool.classcache.ClassCache;
-import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -52,7 +47,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
             }
             // 普通表字段
             else {
-                joiner.add(LambdaUtil.parseColumn(f, builder));
+                joiner.add(Sql4jUtil.parseColumn(f, builder));
             }
         }
 
@@ -82,7 +77,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
         if (tableType == 1) {
             // 物理表
             Class<?> mainTable = fromStage.getMainTable();
-            String tableName = TableUtil.parseTableNameFromClass(mainTable);
+            String tableName = Sql4jUtil.parseTableNameFromClass(mainTable);
             sql.append(tableName).append(' ');
             String alias = builder.getAlias(mainTable);
             if (!builder.single()) {
@@ -103,7 +98,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
         if (joinStages != null && !joinStages.isEmpty()) {
             for (JoinStage join : joinStages) {
                 Class<?> joinTable = join.getJoinTable();
-                String joinTableName = TableUtil.parseTableNameFromClass(joinTable);
+                String joinTableName = Sql4jUtil.parseTableNameFromClass(joinTable);
                 String joinTableAliasName = builder.getAlias(joinTable);
                 String joinKey = join.getJoinType().getJoinKey();
                 sql.append(joinKey).append(' ').append(joinTableName).append(' ');
@@ -146,7 +141,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
             List<SFunction<?, ?>> groupByColumns = groupByStage.getGroupColumn();
             if (groupByColumns != null && !groupByColumns.isEmpty()) {
                 for (SFunction<?, ?> groupByColumn : groupByColumns) {
-                    String column = LambdaUtil.parseColumn(groupByColumn, builder);
+                    String column = Sql4jUtil.parseColumn(groupByColumn, builder);
                     groupByColumnStr.add(column);
                 }
             }
@@ -181,7 +176,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
         if (orderByStage != null) {
             String orderExpression = orderByStage.getOrderItems().stream()
                     .map(item -> {
-                        String column = LambdaUtil.parseColumn(item.getOrderColumn(), builder);
+                        String column = Sql4jUtil.parseColumn(item.getOrderColumn(), builder);
                         return column + " " + item.getOrderType().name();
                     })
                     .collect(Collectors.joining(", "));
@@ -207,11 +202,10 @@ public class BaseSelectTranslator implements ISelectTranslator {
      */
     private StringJoiner parseGetter(Class<?> clazz, SelectBuilder builder) {
         StringJoiner joiner = new StringJoiner(", ");
-        ClassMetadata<?> classMetadata = ClassCache.get(clazz);
         // 获取 getter 方法
-        List<MethodMetadata> mmds = classMetadata.getMethods(m -> (m.getName().startsWith("get") || m.getName().startsWith("is")) && m.parameters().isEmpty());
-        for (MethodMetadata mmd : mmds) {
-            FieldMetadata fieldMetadata = mmd.toField();
+        List<MethodMetadata> getters = Sql4jUtil.getter(clazz);
+        for (MethodMetadata getter : getters) {
+            FieldMetadata fieldMetadata = getter.toField();
             // 判断最终的字段名称
             Column anno = fieldMetadata.getAnnotation(Column.class);
             StringBuilder alias = new StringBuilder();

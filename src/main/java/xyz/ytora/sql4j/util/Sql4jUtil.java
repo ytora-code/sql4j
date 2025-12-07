@@ -2,22 +2,24 @@ package xyz.ytora.sql4j.util;
 
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
-import xyz.ytora.sql4j.sql.AliasRegister;
+import xyz.ytora.sql4j.anno.Table;
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.sql4j.sql.AliasRegister;
 import xyz.ytora.ytool.classcache.ClassCache;
+import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 /**
- * Lambda 工具类
+ * 工具类
  */
-public class LambdaUtil {
+public class Sql4jUtil {
 
     private final static String methodName = "writeReplace";
 
@@ -97,4 +99,46 @@ public class LambdaUtil {
         return sb.toString();
     }
 
+    /**
+     * 从 CLASS 对象中解析出表名称
+     */
+    public static String parseTableNameFromClass(Class<?> table) {
+        Table anno = table.getAnnotation(Table.class);
+        if (anno != null) {
+            String tableName = anno.value();
+            if (!tableName.isEmpty()) {
+                return tableName;
+            }
+        }
+        return Strs.toUnderline(table.getSimpleName());
+    }
+
+    /**
+     * 从实体类型里面解析出 getter
+     */
+    public static <T> List<MethodMetadata> getter(Class<T> entity) {
+        ClassMetadata<?> classMetadata = ClassCache.get(entity);
+        return classMetadata.getMethods(m -> {
+            String methodName = m.getName();
+            if ((methodName.startsWith("get") || methodName.startsWith("is")) && m.parameters().isEmpty()) {
+                Column columnAnno = m.toField().getAnnotation(Column.class);
+                return columnAnno != null && columnAnno.exist();
+            }
+            return false;
+        });
+    }
+
+    /**
+     * 从实体类型里面解析出 setter
+     */
+    public static <T> List<MethodMetadata> setter(Class<T> entity) {
+        ClassMetadata<?> classMetadata = ClassCache.get(entity);
+        return classMetadata.getMethods(m -> {
+            if (m.getName().startsWith("set") && m.parameters().size() == 1) {
+                Column columnAnno = m.toField().getAnnotation(Column.class);
+                return columnAnno != null && columnAnno.exist();
+            }
+            return false;
+        });
+    }
 }

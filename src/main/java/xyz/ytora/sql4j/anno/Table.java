@@ -31,16 +31,6 @@ public @interface Table {
     boolean createIfNotExist() default false;
 
     /**
-     * 该表所属的数据库类型，当 createIfNotExist 为 true，就应该根据实际情况指定数据库类型
-     */
-    DbType dbType() default DbType.MYSQL;
-
-    /**
-     * 数据源
-     */
-    String ds() default "primary";
-
-    /**
      * 表注释
      */
     String comment() default "";

@@ -8,8 +8,7 @@ import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.sql.update.SetStage;
 import xyz.ytora.sql4j.sql.update.UpdateBuilder;
 import xyz.ytora.sql4j.sql.update.UpdateStage;
-import xyz.ytora.ytool.classcache.ClassCache;
-import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
@@ -34,12 +33,6 @@ public class AbsEntity<T> implements Serializable {
      * 主键id
      */
     private String id;
-    private final Class<T> entityClass;
-
-    @SuppressWarnings("unchecked")
-    public AbsEntity() {
-        this.entityClass = (Class<T>) this.getClass();
-    }
 
     public String getId() {
         return id;
@@ -51,7 +44,9 @@ public class AbsEntity<T> implements Serializable {
         return (T) this;
     }
 
+    @SuppressWarnings("unchecked")
     public List<T> select() {
+        Class<T> entityClass = (Class<T>) this.getClass();
         return SQLHelper.getInstance()
                 .select(entityClass)
                 .from(entityClass)
@@ -62,10 +57,11 @@ public class AbsEntity<T> implements Serializable {
     /**
      * 将当前实体类增加到数据库
      */
+    @SuppressWarnings("unchecked")
     public void insert() {
-        ClassMetadata<T> classMetadata = ClassCache.get(entityClass);
+        Class<T> entityClass = (Class<T>) this.getClass();
         // 获取该对象所有 getter 方法
-        List<MethodMetadata> getters = classMetadata.getMethods(mmd -> mmd.getName().startsWith("get") || mmd.getName().startsWith("is"));
+        List<MethodMetadata> getters = Sql4jUtil.getter(entityClass);
         List<SFunction<Object, ?>> insertColumns = new ArrayList<>();
         List<Object> params = new ArrayList<>();
         for (MethodMetadata getter : getters) {
@@ -99,24 +95,25 @@ public class AbsEntity<T> implements Serializable {
     /**
      * 根据id修改数据
      */
+    @SuppressWarnings("unchecked")
     public void update() {
         if (id == null) {
             throw new Sql4JException("UPDATE 时实体对象的 ID 不能为空");
         }
-        ClassMetadata<T> classMetadata = ClassCache.get(entityClass);
+        Class<T> entityClass = (Class<T>) this.getClass();
         // 获取该对象所有 getter 方法
-        List<MethodMetadata> methodMetadata = classMetadata.getMethods(mmd -> mmd.getName().startsWith("get") || mmd.getName().startsWith("is"));
+        List<MethodMetadata> getters = Sql4jUtil.getter(entityClass);
         Map<String, Object> setMap = new HashMap<>();
-        for (MethodMetadata mmd : methodMetadata) {
+        for (MethodMetadata getter : getters) {
             try {
-                Object val = mmd.invoke(this);
+                Object val = getter.invoke(this);
                 if (val != null) {
-                    Column columnAnno = mmd.getAnnotation(Column.class);
+                    Column columnAnno = getter.getAnnotation(Column.class);
                     String columnName;
                     if (columnAnno != null && Strs.isNotEmpty(columnAnno.value())) {
                         columnName = columnAnno.value();
                     } else {
-                        columnName = Strs.toUnderline(mmd.getName());
+                        columnName = Strs.toUnderline(getter.getName());
                     }
                     setMap.put(columnName, val);
                 }
@@ -139,7 +136,9 @@ public class AbsEntity<T> implements Serializable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void delete() {
+        Class<T> entityClass = (Class<T>) this.getClass();
         SQLHelper.getInstance().delete().from(entityClass).where(SQLHelper.getInstance().toWhere(this)).submit();
     }
 }

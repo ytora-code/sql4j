@@ -3,7 +3,7 @@ package xyz.ytora.sql4j.func.support;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.AliasRegister;
-import xyz.ytora.sql4j.util.LambdaUtil;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 /**
  * count 函数， count(1)、count(*)、count(id)
@@ -53,7 +53,7 @@ public class Count implements SQLFunc {
     @Override
     public String getValue() {
         if (column != null) {
-            return "count(" + LambdaUtil.parseColumn(column, aliasRegister) + ")";
+            return "count(" + Sql4jUtil.parseColumn(column, aliasRegister) + ")";
         } else {
             return "count(" + str + ")";
         }

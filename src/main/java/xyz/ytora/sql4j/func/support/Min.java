@@ -3,7 +3,7 @@ package xyz.ytora.sql4j.func.support;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.AliasRegister;
-import xyz.ytora.sql4j.util.LambdaUtil;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 public class Min implements SQLFunc {
 
@@ -50,7 +50,7 @@ public class Min implements SQLFunc {
     @Override
     public String getValue() {
         if (column != null) {
-            return "min(" + LambdaUtil.parseColumn(column, aliasRegister) + ")";
+            return "min(" + Sql4jUtil.parseColumn(column, aliasRegister) + ")";
         } else {
             return "min(" + str + ")";
         }

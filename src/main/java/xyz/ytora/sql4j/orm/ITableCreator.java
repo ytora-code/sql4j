@@ -22,7 +22,8 @@ public interface ITableCreator {
     /**
      * 根据实体类产生 DDL
      * @param clazz 实体类型
+     * @param connection 连接对象
      */
-    String toDDL(Class<?> clazz);
+    String toDDL(Class<?> clazz, Connection connection);
 
 }

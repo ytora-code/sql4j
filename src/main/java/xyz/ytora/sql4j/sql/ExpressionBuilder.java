@@ -5,7 +5,7 @@ import xyz.ytora.sql4j.enums.SegmentType;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.select.AbsSelect;
-import xyz.ytora.sql4j.util.LambdaUtil;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -363,7 +363,7 @@ public class ExpressionBuilder extends AbsSql {
         }
         // 普通字段，例如 SysUser::getName
         else if (value instanceof SFunction) {
-            return LambdaUtil.parseColumn((SFunction) value, register);
+            return Sql4jUtil.parseColumn((SFunction) value, register);
         }
         // value 是字面量
         else {

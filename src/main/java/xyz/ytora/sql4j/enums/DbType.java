@@ -5,7 +5,23 @@ package xyz.ytora.sql4j.enums;
  */
 public enum DbType {
 
-    MYSQL, MariaDB, PG, ORACLE, SQL_SERVER, SQLite;
+    MYSQL("MySQL"),
+    MARIADB("MariaDB"),
+    POSTGRESQL("PostgreSQL"),
+    ORACLE("Oracle"),
+    SQLSERVER("Microsoft SQL Server"),
+    SQLite("SQLite"),
+    DB2("DB2"),
+    H2("H2"),
+    DERBY("Apache Derby"),
+    SYBASE("Sybase SQL Server"),
+    INFORMIX("Informix Dynamic Server");
+
+    DbType(String productName) {
+        this.productName = productName;
+    }
+
+    private final String productName;
 
     /**
      * 根据数据库产品名称获取对应的枚举值
@@ -18,13 +34,11 @@ public enum DbType {
             throw new IllegalArgumentException("Database product name cannot be null");
         }
 
-        // 根据数据库产品名称返回对应的枚举
-        return switch (databaseProductName.toLowerCase()) {
-            case "mysql" -> MYSQL;
-            case "postgresql", "pg" -> PG;
-            case "oracle" -> ORACLE;
-            case "microsoft sql server", "sql server" -> SQL_SERVER;
-            default -> throw new IllegalArgumentException("未知的数据库: " + databaseProductName);
-        };
+        for (DbType dbType : DbType.values()) {
+            if (dbType.productName.equalsIgnoreCase(databaseProductName)) {
+                return dbType;
+            }
+        }
+        throw new IllegalArgumentException("未知的数据库: " + databaseProductName);
     }
 }

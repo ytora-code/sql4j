@@ -6,8 +6,7 @@ import xyz.ytora.sql4j.caster.ITypeCaster;
 import xyz.ytora.sql4j.caster.SQLReader;
 import xyz.ytora.sql4j.enums.DbType;
 import xyz.ytora.sql4j.sql.SqlInfo;
-import xyz.ytora.ytool.classcache.ClassCache;
-import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.str.Strs;
@@ -153,14 +152,10 @@ public class ExecResult {
             if (row == null) {
                 return bean;
             }
-            ClassMetadata<T> classMetadata = ClassCache.get(clazz);
             Set<String> columns = row.keySet();
             // 获取所有 setter 方法
-            List<MethodMetadata> setters = classMetadata.getMethods(m -> m.getName().startsWith("set") && m.parameters().size() == 1);
+            List<MethodMetadata> setters = Sql4jUtil.setter(clazz);
             for (MethodMetadata setter : setters) {
-                String methodName = setter.getName();
-                // 调用setter方法（setter方法定义：方法名称以set开头，并且参数个数等于1个）
-                methodName = methodName.substring(3);
                 Class<?> parameterType = setter.parameters().get(0).getType();
                 // 获取数据库列名称
                 String columnName;

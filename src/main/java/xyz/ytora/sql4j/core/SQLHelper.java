@@ -17,6 +17,8 @@ import xyz.ytora.sql4j.interceptor.SqlInterceptor;
 import xyz.ytora.sql4j.interceptor.support.PreventFullTableUpdateInterceptor;
 import xyz.ytora.sql4j.log.ISqlLogger;
 import xyz.ytora.sql4j.log.support.DefaultSqlLogger;
+import xyz.ytora.sql4j.meta.IMetaService;
+import xyz.ytora.sql4j.meta.support.DefaultMetaService;
 import xyz.ytora.sql4j.orm.TableCreatorManager;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
@@ -89,9 +91,15 @@ public class SQLHelper {
      */
     private TableCreatorManager tableCreatorManager = new TableCreatorManager();
 
+    /**
+     * 数据库元数据获取服务
+     */
+    private IMetaService metaService;
+
     public SQLHelper() {
         sqlInterceptors.add(new PreventFullTableUpdateInterceptor());
         SQLHelper.instance = this;
+        metaService = new DefaultMetaService(this);
     }
 
     public static SQLHelper getInstance() {
@@ -185,6 +193,14 @@ public class SQLHelper {
 
     public TableCreatorManager getTableCreatorManager() {
         return tableCreatorManager;
+    }
+
+    public void registerMetaService(IMetaService metaService) {
+        this.metaService = metaService;
+    }
+
+    public IMetaService getMetaService() {
+        return metaService;
     }
 
     /**

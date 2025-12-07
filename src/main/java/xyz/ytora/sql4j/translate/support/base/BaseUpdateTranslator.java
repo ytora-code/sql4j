@@ -9,8 +9,7 @@ import xyz.ytora.sql4j.sql.update.SetStage;
 import xyz.ytora.sql4j.sql.update.UpdateBuilder;
 import xyz.ytora.sql4j.sql.update.UpdateWhereStage;
 import xyz.ytora.sql4j.translate.IUpdateTranslator;
-import xyz.ytora.sql4j.util.LambdaUtil;
-import xyz.ytora.sql4j.util.TableUtil;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class BaseUpdateTranslator implements IUpdateTranslator {
         if (table == null) {
             throw new Sql4JException("翻译SQL时出错：DELETE时必须指定TABLE");
         }
-        String tableName = TableUtil.parseTableNameFromClass(table);
+        String tableName = Sql4jUtil.parseTableNameFromClass(table);
         sql.append("UPDATE ").append(tableName).append(' ');
 
         // 1. SET 阶段：构建字段更新部分
@@ -40,7 +39,7 @@ public class BaseUpdateTranslator implements IUpdateTranslator {
         List<String> setClauseList = new ArrayList<>();
         // 遍历字段和值的映射，生成 SET 子句
         for (Map.Entry<SFunction<?, ?>, Object> entry : columnValueMap.entrySet()) {
-            String columnName = LambdaUtil.parseColumn(entry.getKey(), null);
+            String columnName = Sql4jUtil.parseColumn(entry.getKey(), null);
             // 生成 "column = ?" 形式的语句
             setClauseList.add(columnName + " = ?");
             // 记录参数

@@ -10,8 +10,7 @@ import xyz.ytora.sql4j.sql.insert.SelectValueStage;
 import xyz.ytora.sql4j.sql.insert.ValuesStage;
 import xyz.ytora.sql4j.sql.select.AbsSelect;
 import xyz.ytora.sql4j.translate.IInsertTranslator;
-import xyz.ytora.sql4j.util.LambdaUtil;
-import xyz.ytora.sql4j.util.TableUtil;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class BaseInsertTranslator implements IInsertTranslator {
         if (table == null) {
             throw new Sql4JException("翻译SQL时出错：INSERT时必须指定TABLE");
         }
-        String tableName = TableUtil.parseTableNameFromClass(table);
+        String tableName = Sql4jUtil.parseTableNameFromClass(table);
         sql.append("INSERT INTO ").append(tableName).append(' ');
 
         // 需要判断插入类型
@@ -43,7 +42,7 @@ public class BaseInsertTranslator implements IInsertTranslator {
             List<SFunction<?, ?>> columns = builder.getIntoStage().getInsertedColumn();
             if (columns != null && !columns.isEmpty()) {
                 String columnStr = columns.stream()
-                        .map(column -> LambdaUtil.parseColumn(column, null))
+                        .map(column -> Sql4jUtil.parseColumn(column, null))
                         .collect(Collectors.joining(", "));
                 sql.append("(").append(columnStr).append(") ");
             }
@@ -81,7 +80,7 @@ public class BaseInsertTranslator implements IInsertTranslator {
                 throw new Sql4JException("INSERT INTO SELECT 时，必须指定 SELECT 字段");
             }
             String columnStr = columns.stream()
-                    .map(column -> LambdaUtil.parseColumn(column, null))
+                    .map(column -> Sql4jUtil.parseColumn(column, null))
                     .collect(Collectors.joining(", "));
             sql.append("(").append(columnStr).append(") ");
 

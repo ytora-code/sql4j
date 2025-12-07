@@ -4,7 +4,7 @@ import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.AliasRegister;
 import xyz.ytora.sql4j.sql.Wrapper;
-import xyz.ytora.sql4j.util.LambdaUtil;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class Concat implements SQLFunc {
             if (col instanceof Wrapper) {
                 sb.append(((Wrapper) col).getRealValue());
             } else {
-                sb.append(LambdaUtil.parseColumn(col, aliasRegister));
+                sb.append(Sql4jUtil.parseColumn(col, aliasRegister));
             }
         }
         sb.append(")");
