@@ -22,8 +22,8 @@ public class DefaultMetaService implements IMetaService {
 
     IConnectionProvider connectionProvider;
 
-    public DefaultMetaService(SQLHelper sqlHelper) {
-        connectionProvider = sqlHelper.getConnectionProvider();
+    public DefaultMetaService(IConnectionProvider connectionProvider) {
+        this.connectionProvider = connectionProvider;
     }
 
     @Override

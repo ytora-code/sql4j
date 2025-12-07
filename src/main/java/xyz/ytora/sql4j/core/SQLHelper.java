@@ -99,7 +99,6 @@ public class SQLHelper {
     public SQLHelper() {
         sqlInterceptors.add(new PreventFullTableUpdateInterceptor());
         SQLHelper.instance = this;
-        metaService = new DefaultMetaService(this);
     }
 
     public static SQLHelper getInstance() {
@@ -139,6 +138,7 @@ public class SQLHelper {
      */
     public void registerConnectionProvider(IConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
+        metaService = new DefaultMetaService(connectionProvider);
         initSqlExecutionEngine();
     }
 

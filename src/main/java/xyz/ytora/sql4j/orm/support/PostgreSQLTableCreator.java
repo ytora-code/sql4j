@@ -17,7 +17,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * PostgreSQL 数据库
@@ -38,10 +41,6 @@ public class PostgreSQLTableCreator implements ITableCreator {
     public <T> boolean exist(Connection connection, String tableName) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         if (sqlHelper == null) {
-            return false;
-        }
-        IConnectionProvider connectionProvider = sqlHelper.getConnectionProvider();
-        if (connectionProvider == null) {
             return false;
         }
 
@@ -96,11 +95,11 @@ public class PostgreSQLTableCreator implements ITableCreator {
         // 处理主键字段
         createTableSQL.append("id ")
                 .append(primaryKeyType)
-                .append(" PRIMARY KEY")
-                .append(" COMMENT '").append("主键ID").append("'");
+                .append(" PRIMARY KEY");
 
         // 通过 getter 方法来确定数据库字段类型
         List<MethodMetadata> getters = Sql4jUtil.getter(entity);
+        Map<String, String> commentList = new LinkedHashMap<>();
         for (MethodMetadata getter : getters) {
             FieldMetadata fieldMetadata = getter.toField();
             String name = fieldMetadata.getName();
@@ -137,16 +136,22 @@ public class PostgreSQLTableCreator implements ITableCreator {
 
             // 如果字段有注释
             if (comment != null) {
-                createTableSQL.append(" COMMENT '").append(comment).append("'");
+                commentList.put(columnName, comment);
             }
         }
+
+        createTableSQL.append("\n);");
 
         // 如果表注解有注释，添加表注释
         String tableComment = tableAnno.comment();
         if (Strs.isNotEmpty(tableComment)) {
-            createTableSQL.append("\n) COMMENT '").append(tableComment).append("';");
-        } else {
-            createTableSQL.append("\n);");
+            createTableSQL.append("\n");
+            createTableSQL.append(Strs.format("COMMENT ON TABLE {}.{} IS '{}';\n", schema, tableName, tableComment));
+        }
+
+        // 字段注释
+        for (String comment : commentList.keySet()) {
+            createTableSQL.append(Strs.format("COMMENT ON COLUMN {}.{}.id IS '{}';\n", schema, tableName, comment));
         }
 
         return createTableSQL.toString();

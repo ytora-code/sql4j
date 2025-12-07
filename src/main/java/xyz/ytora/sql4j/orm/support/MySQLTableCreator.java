@@ -40,10 +40,6 @@ public class MySQLTableCreator implements ITableCreator {
         if (sqlHelper == null) {
             return false;
         }
-        IConnectionProvider connectionProvider = sqlHelper.getConnectionProvider();
-        if (connectionProvider == null) {
-            return false;
-        }
 
         try {
             String schema = connection.getCatalog();

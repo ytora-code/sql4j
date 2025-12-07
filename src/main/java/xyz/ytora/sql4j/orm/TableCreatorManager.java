@@ -67,7 +67,7 @@ public class TableCreatorManager {
             if (!tableCreator.exist(connection, tableName)) {
                 // 只有表不存在，才会进入这里
                 String ddl = tableCreator.toDDL(clazz, connection);
-                sqlHelper.getSqlExecutionEngine().executeDDL(new SqlInfo(null, SqlType.DDL, ddl, null));
+                 sqlHelper.getSqlExecutionEngine().executeDDL(new SqlInfo(null, SqlType.DDL, ddl, null));
             }
         } catch (SQLException e) {
             throw new Sql4JException(e);
