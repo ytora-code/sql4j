@@ -23,6 +23,11 @@ public @interface Column {
     String columnType() default "";
 
     /**
+     * 字段是否非空
+     */
+    boolean notNull() default false;
+
+    /**
      * 字段注释
      */
     String comment() default "";

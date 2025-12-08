@@ -100,6 +100,7 @@ public class PostgreSQLTableCreator implements ITableCreator {
         // 通过 getter 方法来确定数据库字段类型
         List<MethodMetadata> getters = Sql4jUtil.getter(entity);
         Map<String, String> commentList = new LinkedHashMap<>();
+        commentList.put("id", "主键ID");
         for (MethodMetadata getter : getters) {
             FieldMetadata fieldMetadata = getter.toField();
             String name = fieldMetadata.getName();
@@ -132,7 +133,11 @@ public class PostgreSQLTableCreator implements ITableCreator {
                 comment = columnAnno.comment();
             }
 
-            createTableSQL.append(",\n\t").append(columnName).append(" ").append(columnType);
+            createTableSQL.append(",\n\t")
+                    .append(columnName).append(" ").append(columnType);
+            if (columnAnno != null && columnAnno.notNull()) {
+                createTableSQL.append(" NOT NULL");
+            }
 
             // 如果字段有注释
             if (comment != null) {
@@ -150,8 +155,9 @@ public class PostgreSQLTableCreator implements ITableCreator {
         }
 
         // 字段注释
-        for (String comment : commentList.keySet()) {
-            createTableSQL.append(Strs.format("COMMENT ON COLUMN {}.{}.id IS '{}';\n", schema, tableName, comment));
+        for (String column : commentList.keySet()) {
+            String comment = commentList.get(column);
+            createTableSQL.append(Strs.format("COMMENT ON COLUMN {}.{}.{} IS '{}';\n", schema, tableName, column, comment));
         }
 
         return createTableSQL.toString();
