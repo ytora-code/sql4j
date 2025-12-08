@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * 抽象实体类
  */
-public class AbsEntity<T> implements Serializable {
+public class Entity<T> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 114514L;

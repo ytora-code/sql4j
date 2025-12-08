@@ -35,7 +35,7 @@ public class TableCreatorManager {
     }
 
     public <T> void createTableIfNotExist(SQLHelper sqlHelper, Class<?> clazz) {
-        if (clazz == null || !AbsEntity.class.isAssignableFrom(clazz)) {
+        if (clazz == null || !Entity.class.isAssignableFrom(clazz)) {
             return;
         }
         Table tableAnno = clazz.getAnnotation(Table.class);

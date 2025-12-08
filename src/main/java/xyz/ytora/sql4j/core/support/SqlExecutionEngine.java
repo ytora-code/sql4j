@@ -39,6 +39,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
     @Override
     public ExecResult executeQuery(SqlInfo sqlInfo) {
+        check(sqlInfo);
         long startTime = System.currentTimeMillis();
         if (!before(sqlHelper.getSqlInterceptors(), sqlInfo)) {
             return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
@@ -84,6 +85,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
     @Override
     public ExecResult executeInsert(SqlInfo sqlInfo) {
+        check(sqlInfo);
         long startTime = System.currentTimeMillis();
         if (!before(sqlHelper.getSqlInterceptors(), sqlInfo)) {
             return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
@@ -121,6 +123,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
     @Override
     public ExecResult executeUpdate(SqlInfo sqlInfo) {
+        check(sqlInfo);
         long startTime = System.currentTimeMillis();
         if (!before(sqlHelper.getSqlInterceptors(), sqlInfo)) {
             return createExecResult(sqlInfo, null, new ArrayList<>(), null, null, System.currentTimeMillis() - startTime, 1);
@@ -160,12 +163,12 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
         if (sqlInfo.getSqlType() != SqlType.DDL) {
             throw new Sql4JException(sqlInfo.getSqlType() + " 不支持调用 executeDDL");
         }
+        check(sqlInfo);
         sqlHelper.getLogger().info(" ==== 即将执行DDL: " + sqlInfo.getSql());
 
         Connection connection = connectionProvider.getConnection();
         try {
             // 获取数据库的元数据
-            DatabaseMetaData connectionMetaData = connection.getMetaData();
             String sql = sqlInfo.getSql();
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 // 执行 DDL 操作
@@ -239,5 +242,25 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             result = interceptor.after(sqlInfo, result);
         }
         return result;
+    }
+
+    /**
+     * 检查即将执行的 SQL 有没有 DROP、TRUNCATE 这种危险语句
+     * @param sqlInfo
+     */
+    private void check(SqlInfo sqlInfo) {
+        String sqls = sqlInfo.getSql();
+        String[] sqlArr = sqls.split(";");
+        for (String sql : sqlArr) {
+            String[] segments = sql.split(" ");
+            for (String segment : segments) {
+                if ("DROP".equalsIgnoreCase(segment)) {
+                    throw new Sql4JException("危险!!!即将执行的SQL中包含关键字[DROP]，已被拦截。如果你是故意这样做，请更换ORM框架：[" + sql + "]");
+                }
+                if ("TRUNCATE".equalsIgnoreCase(segment)) {
+                    throw new Sql4JException("危险!!!即将执行的SQL中包含关键字[TRUNCATE]，已被拦截。如果你是故意这样做，请更换ORM框架：[" + sql + "]");
+                }
+            }
+        }
     }
 }

@@ -1,13 +1,13 @@
 package xyz.ytora.bean;
 
 import xyz.ytora.sql4j.anno.Column;
-import xyz.ytora.sql4j.orm.AbsEntity;
+import xyz.ytora.sql4j.orm.Entity;
 
 /**
  * created by YT on 2025/12/4 19:36:20
  * <br/>
  */
-public class Bean extends AbsEntity<Bean> {
+public class Bean extends Entity<Bean> {
 
     private String name;
 

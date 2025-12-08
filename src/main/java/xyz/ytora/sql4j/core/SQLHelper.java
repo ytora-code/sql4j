@@ -1,9 +1,5 @@
 package xyz.ytora.sql4j.core;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ScanResult;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.caster.Caster;
@@ -201,47 +197,6 @@ public class SQLHelper {
 
     public IMetaService getMetaService() {
         return metaService;
-    }
-
-    /**
-     * 扫描所有 AbsEntity 子类，并判断是否应该创建数据库表
-     */
-    public void createTableIfNotExist(String pkgToScan) {
-        // 一次运行期间只能扫描一次
-        if (!scanFlag) {
-            SQLHelper sqlHelper = SQLHelper.getInstance();
-            long start = System.currentTimeMillis();
-            long classCount = 0;
-
-            scanFlag = true;
-
-            // AbsEntity 实体类和 Table 注解的全类名
-            String entityPath = "xyz.ytora.sql4j.orm.AbsEntity";
-            String tableAnnoPath = "xyz.ytora.sql4j.anno.Table";
-
-            // 开始扫描
-            try (ScanResult scanResult = new ClassGraph()
-                    .enableClassInfo()      // 启用类信息扫描（继承关系）
-                    .enableAnnotationInfo() // 启用注解信息扫描
-                    .acceptPackages(pkgToScan) // 指定扫描路径
-                    .scan()) {
-                // 1. 获取所有继承了 AbsEntity 的实体类
-                ClassInfoList candidates = scanResult.getSubclasses(entityPath);
-
-                for (ClassInfo classInfo : candidates) {
-                    // 2. 判断实体类是否有 @Table 注解
-                    if (classInfo.hasAnnotation(tableAnnoPath)) {
-                        // 触发类加载
-                        Class<?> clazz = classInfo.loadClass();
-
-                        sqlHelper.getLogger().info("扫描到实体类：" + clazz.getName());
-                        tableCreatorManager.createTableIfNotExist(sqlHelper, clazz);
-                        classCount++;
-                    }
-                }
-            }
-            sqlHelper.getLogger().info("扫描完毕，共扫描到实体类个数：" + classCount + " ，耗时" + (System.currentTimeMillis() - start));
-        }
     }
 
     /*================================== SQL链式调用起点 =======================================*/
