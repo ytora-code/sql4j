@@ -26,12 +26,17 @@ public @interface Table {
     IdType idType() default IdType.NONE;
 
     /**
+     * 表注释
+     */
+    String comment() default "";
+
+    /**
      * 如果该表不存在，就创建
      */
     boolean createIfNotExist() default false;
 
     /**
-     * 表注释
+     * 是否在删除数据前进行备份
      */
-    String comment() default "";
+    boolean backupOnDelete() default false;
 }

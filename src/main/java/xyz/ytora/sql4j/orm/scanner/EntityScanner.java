@@ -67,7 +67,7 @@ public class EntityScanner {
                 }
             }
         }
-        sqlHelper.getLogger().info("扫描完毕，共扫描到实体类个数：" + classCount + "，共为" + handledCount + "个实体类建表，耗时" + (System.currentTimeMillis() - start));
+        sqlHelper.getLogger().info("扫描完毕，共扫描到实体类个数：" + classCount + "，建表个数：" + handledCount + "，耗时" + (System.currentTimeMillis() - start));
     }
 
 }
