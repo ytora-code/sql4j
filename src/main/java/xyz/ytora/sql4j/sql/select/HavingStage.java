@@ -7,6 +7,7 @@ import xyz.ytora.sql4j.sql.OrderItem;
 import xyz.ytora.sql4j.sql.SqlInfo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -50,5 +51,10 @@ public class HavingStage extends AbsSelect implements SelectEndStage {
     @Override
     public <T> List<T> submit(Class<T> clazz) {
         return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
+
+    @Override
+    public List<Map<String, Object>> submit() {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans();
     }
 }

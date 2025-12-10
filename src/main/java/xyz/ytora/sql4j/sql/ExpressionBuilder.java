@@ -9,9 +9,11 @@ import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 带有条件的表达式构造父类（用于 WHERE / HAVING / ON）
@@ -189,8 +191,15 @@ public class ExpressionBuilder extends AbsSql {
     public <T> ExpressionBuilder in(SFunction<T, ?> column, Object... values) {
         appendPredicateStart();
         String left = parsePlaceholder(column);
+        List<Object> valueList = Arrays.stream(values).flatMap(v -> {
+            if (v instanceof Collection<?> coll) {
+                return coll.stream();
+            } else {
+                return Stream.of(v);
+            }
+        }).toList();
         String right = '(' +
-                Arrays.stream(values).map(this::parsePlaceholder).collect(Collectors.joining(", ")) +
+                valueList.stream().map(this::parsePlaceholder).collect(Collectors.joining(", ")) +
                 ')';
         expression.append(left).append(SPACE).append("IN").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;

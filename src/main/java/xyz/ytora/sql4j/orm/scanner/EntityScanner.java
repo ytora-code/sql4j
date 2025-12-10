@@ -40,6 +40,7 @@ public class EntityScanner {
 
         long start = System.currentTimeMillis();
         long classCount = 0;
+        long handledCount = 0;
 
         scanFlag = true;
 
@@ -59,12 +60,14 @@ public class EntityScanner {
                     Class<?> clazz = classInfo.loadClass();
 
                     sqlHelper.getLogger().info("扫描到实体类：" + clazz.getName());
-                    sqlHelper.getTableCreatorManager().createTableIfNotExist(sqlHelper, clazz);
+                    if (sqlHelper.getTableCreatorManager().createTableIfNotExist(sqlHelper, clazz)) {
+                        handledCount++;
+                    }
                     classCount++;
                 }
             }
         }
-        sqlHelper.getLogger().info("扫描完毕，共扫描到实体类个数：" + classCount + " ，耗时" + (System.currentTimeMillis() - start));
+        sqlHelper.getLogger().info("扫描完毕，共扫描到实体类个数：" + classCount + "，共为" + handledCount + "个实体类建表，耗时" + (System.currentTimeMillis() - start));
     }
 
 }

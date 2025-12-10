@@ -1,13 +1,16 @@
 package xyz.ytora.sql4j.sql.select;
 
+import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.enums.JoinType;
 import xyz.ytora.sql4j.enums.OrderType;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.OrderItem;
 import xyz.ytora.sql4j.sql.SqlInfo;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -16,7 +19,7 @@ import java.util.function.Consumer;
 public class FromStage extends AbsSelect implements SelectEndStage {
 
     /**
-     * 表类型：1-物理表 / 2-虚拟表（子查询）
+     * 表类型：1-物理表(class实体类) / 2-物理表(字符串直接指定表名称) / 3-虚拟表（子查询）
      */
     private final Integer tableType;
 
@@ -24,6 +27,11 @@ public class FromStage extends AbsSelect implements SelectEndStage {
      * FROM 主表
      */
     private Class<?> mainTable;
+
+    /**
+     * FROM 主表
+     */
+    private String mainTableStr;
 
     /**
      * FROM 子查询
@@ -38,12 +46,19 @@ public class FromStage extends AbsSelect implements SelectEndStage {
         tableType = 1;
     }
 
+    public FromStage(SelectBuilder selectBuilder, String mainTableStr) {
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().setFromBuilder(this);
+        this.mainTableStr = mainTableStr;
+        tableType = 2;
+    }
+
     public FromStage(SelectBuilder selectBuilder, AbsSelect subSelect) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setFromBuilder(this);
         getSelectBuilder().addAlias(subSelect);
         this.subSelect = subSelect;
-        tableType = 2;
+        tableType = 3;
     }
 
     /**
@@ -113,8 +128,29 @@ public class FromStage extends AbsSelect implements SelectEndStage {
         return tableType;
     }
 
-    public Class<?> getMainTable() {
-        return mainTable;
+    public String getFromTableSql(List<Object> orderedParms) {
+        StringBuilder sql = new StringBuilder();
+        if (tableType == 1) {
+            String tableName = Sql4jUtil.parseTableNameFromClass(mainTable);
+            sql.append(tableName).append(' ');
+            String alias = getSelectBuilder().getAlias(mainTable);
+            if (!getSelectBuilder().single()) {
+                sql.append(alias).append(' ');
+            }
+            return sql.toString();
+        } else if (tableType == 2) {
+            return mainTableStr + ' ';
+        }
+        if (tableType == 3) {
+            // 虚拟表
+            AbsSelect subSelect = this.getSubSelect();
+            sql.append('(');
+            SqlInfo sqlInfo = subSelect.getSelectBuilder().getSQLHelper().getTranslator().translate(subSelect.getSelectBuilder());
+            sql.append(sqlInfo.getSql());
+            orderedParms.addAll(sqlInfo.getOrderedParms());
+            sql.append(')').append(' ').append(getSelectBuilder().getAlias(subSelect)).append(' ');
+        }
+        throw new Sql4JException("未知的 FROM TABLE 类型: " + tableType);
     }
 
     public AbsSelect getSubSelect() {
@@ -125,4 +161,10 @@ public class FromStage extends AbsSelect implements SelectEndStage {
     public <T> List<T> submit(Class<T> clazz) {
         return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
     }
+
+    @Override
+    public List<Map<String, Object>> submit() {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans();
+    }
+
 }

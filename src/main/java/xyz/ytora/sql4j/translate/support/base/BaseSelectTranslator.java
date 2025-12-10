@@ -72,26 +72,8 @@ public class BaseSelectTranslator implements ISelectTranslator {
         if (fromStage == null) {
             return new SqlInfo(builder, SqlType.SELECT, sql.toString(), orderedParms);
         }
-        sql.append("FROM ");
-        Integer tableType = fromStage.getTableType();
-        if (tableType == 1) {
-            // 物理表
-            Class<?> mainTable = fromStage.getMainTable();
-            String tableName = Sql4jUtil.parseTableNameFromClass(mainTable);
-            sql.append(tableName).append(' ');
-            String alias = builder.getAlias(mainTable);
-            if (!builder.single()) {
-                sql.append(alias).append(' ');
-            }
-        } else {
-            // 虚拟表
-            AbsSelect subSelect = fromStage.getSubSelect();
-            sql.append('(');
-            SqlInfo sqlInfo = subSelect.getSelectBuilder().getSQLHelper().getTranslator().translate(subSelect.getSelectBuilder());
-            sql.append(sqlInfo.getSql());
-            orderedParms.addAll(sqlInfo.getOrderedParms());
-            sql.append(')').append(' ').append(builder.getAlias(subSelect)).append(' ');
-        }
+        sql.append("FROM ")
+                .append(fromStage.getFromTableSql(orderedParms));
 
         // 3. JOIN 关联表，JOIN 子句中可能会出现占位符参数
         List<JoinStage> joinStages = builder.getJoinStages();

@@ -9,6 +9,7 @@ import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
+import xyz.ytora.ytool.coll.Colls;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.InvocationTargetException;
@@ -117,9 +118,16 @@ public class ExecResult {
         this.status = status;
     }
 
+    public List<Map<String, Object>> toBeans() {
+        if (Colls.isEmpty(resultList)) {
+            return Collections.emptyList();
+        }
+        return resultList;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> List<T> toBeans(Class<T> clazz) {
-        if (resultList.isEmpty()) {
+        if (Colls.isEmpty(resultList)) {
             return Collections.emptyList();
         }
         if (Map.class.isAssignableFrom(clazz) || Object.class.equals(clazz)) {
@@ -135,7 +143,7 @@ public class ExecResult {
     }
 
     public <T> T toBean(Class<T> clazz) {
-        return toBean(clazz, resultList.isEmpty() ? null : resultList.get(0));
+        return toBean(clazz, Colls.isEmpty(resultList) ? null : resultList.get(0));
     }
 
     @SuppressWarnings("unchecked")

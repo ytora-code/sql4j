@@ -3,6 +3,7 @@ package xyz.ytora.sql4j.sql.select;
 import xyz.ytora.sql4j.sql.SqlInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * LIMIT 阶段
@@ -38,5 +39,10 @@ public class LimitStage extends AbsSelect implements SelectEndStage {
     @Override
     public <T> List<T> submit(Class<T> clazz) {
         return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans(clazz);
+    }
+
+    @Override
+    public List<Map<String, Object>> submit() {
+        return getSelectBuilder().getSQLHelper().getSqlExecutionEngine().executeQuery(getSelectBuilder().getTranslator().translate(getSelectBuilder())).toBeans();
     }
 }

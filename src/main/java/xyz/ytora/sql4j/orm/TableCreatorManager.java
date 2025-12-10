@@ -34,18 +34,18 @@ public class TableCreatorManager {
         tableCreatorMap.put(tableCreator.getDbType(), tableCreator);
     }
 
-    public <T> void createTableIfNotExist(SQLHelper sqlHelper, Class<?> clazz) {
+    public <T> Boolean createTableIfNotExist(SQLHelper sqlHelper, Class<?> clazz) {
         if (clazz == null || !Entity.class.isAssignableFrom(clazz)) {
-            return;
+            return false;
         }
         Table tableAnno = clazz.getAnnotation(Table.class);
         if (tableAnno == null || !tableAnno.createIfNotExist()) {
-            return;
+            return false;
         }
 
         IConnectionProvider connectionProvider = sqlHelper.getConnectionProvider();
         if (connectionProvider == null) {
-            return;
+            return false;
         }
 
         Connection connection = null;
@@ -55,7 +55,7 @@ public class TableCreatorManager {
             ITableCreator tableCreator = tableCreatorMap.get(dbType);
             if (tableCreator == null) {
                 sqlHelper.getLogger().warn("暂不支持对数据库: {} 的自动建表功能", dbType.name());
-                return;
+                return false;
             }
 
             String tableName;
@@ -67,13 +67,14 @@ public class TableCreatorManager {
             if (!tableCreator.exist(connection, tableName)) {
                 // 只有表不存在，才会进入这里
                 String ddl = tableCreator.toDDL(clazz, connection);
-                 sqlHelper.getSqlExecutionEngine().executeDDL(new SqlInfo(null, SqlType.DDL, ddl, null));
+                sqlHelper.getSqlExecutionEngine().executeDDL(new SqlInfo(null, SqlType.DDL, ddl, null));
+                return true;
             }
+            return false;
         } catch (SQLException e) {
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
         }
-
     }
 }
