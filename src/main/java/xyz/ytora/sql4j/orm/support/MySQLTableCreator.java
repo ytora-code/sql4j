@@ -3,10 +3,11 @@ package xyz.ytora.sql4j.orm.support;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.anno.Table;
-import xyz.ytora.sql4j.core.IConnectionProvider;
 import xyz.ytora.sql4j.core.SQLHelper;
+import xyz.ytora.sql4j.enums.ColumnType;
 import xyz.ytora.sql4j.enums.DbType;
 import xyz.ytora.sql4j.enums.IdType;
+import xyz.ytora.sql4j.enums.PostgreSQLColumnType;
 import xyz.ytora.sql4j.orm.ITableCreator;
 import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
@@ -98,10 +99,12 @@ public class MySQLTableCreator implements ITableCreator {
 
             // 字段类型
             String columnType;
-            if (columnAnno != null && Strs.isNotEmpty(columnAnno.columnType())) {
-                columnType = columnAnno.columnType();
+            if (columnAnno != null && columnAnno.type() != ColumnType.NONE) {
+                ColumnType type = columnAnno.type();
+                columnType = PostgreSQLColumnType.getColumnTypeName(type.name());
             } else {
-                columnType = getColumnType(fieldMetadata.getType());
+                String columnTypeName = ColumnType.getColumnTypeName(fieldMetadata.getType());
+                columnType = PostgreSQLColumnType.getColumnTypeName(columnTypeName);
             }
 
             // 字段名称

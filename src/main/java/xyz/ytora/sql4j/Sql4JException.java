@@ -4,6 +4,7 @@ package xyz.ytora.sql4j;
  * 异常类
  */
 public class Sql4JException extends RuntimeException {
+    private static final int code = 11;
     private final String message;
 
     public Sql4JException(String msg) {
@@ -24,5 +25,9 @@ public class Sql4JException extends RuntimeException {
     @Override
     public String getMessage() {
         return message;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

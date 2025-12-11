@@ -14,7 +14,7 @@ public class FromStage extends AbsDelete implements DeleteEndStage {
     /**
      * 表类型：1-物理表(class实体类) / 2-物理表(字符串直接指定表名称)
      */
-    private Integer tableType;
+    private final Integer tableType;
 
     private Class<?> table;
 
@@ -57,6 +57,13 @@ public class FromStage extends AbsDelete implements DeleteEndStage {
             return Sql4jUtil.parseTableNameFromClass(table);
         }
         return tableStr;
+    }
+
+    /**
+     * 获取要被删除数据的目标表的CLASS
+     */
+    public Class<?> getTableClass() {
+        return table;
     }
 
     @Override

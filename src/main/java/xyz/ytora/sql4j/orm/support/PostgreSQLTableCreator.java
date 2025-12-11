@@ -3,10 +3,11 @@ package xyz.ytora.sql4j.orm.support;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.anno.Table;
-import xyz.ytora.sql4j.core.IConnectionProvider;
 import xyz.ytora.sql4j.core.SQLHelper;
+import xyz.ytora.sql4j.enums.ColumnType;
 import xyz.ytora.sql4j.enums.DbType;
 import xyz.ytora.sql4j.enums.IdType;
+import xyz.ytora.sql4j.enums.PostgreSQLColumnType;
 import xyz.ytora.sql4j.orm.ITableCreator;
 import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
@@ -17,7 +18,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,10 +113,12 @@ public class PostgreSQLTableCreator implements ITableCreator {
 
             // 字段类型
             String columnType;
-            if (columnAnno != null && Strs.isNotEmpty(columnAnno.columnType())) {
-                columnType = columnAnno.columnType();
+            if (columnAnno != null && columnAnno.type() != ColumnType.NONE) {
+                ColumnType type = columnAnno.type();
+                columnType = PostgreSQLColumnType.getColumnTypeName(type.name());
             } else {
-                columnType = getColumnType(fieldMetadata.getType());
+                String columnTypeName = ColumnType.getColumnTypeName(fieldMetadata.getType());
+                columnType = PostgreSQLColumnType.getColumnTypeName(columnTypeName);
             }
 
             // 字段名称
@@ -174,36 +176,4 @@ public class PostgreSQLTableCreator implements ITableCreator {
         };
     }
 
-    // 根据字段类型获取对应的数据库字段类型
-    private String getColumnType(Class<?> fieldType) {
-        if (fieldType == Byte.class || fieldType == byte.class) {
-            return "SMALLINT";
-        } else if (fieldType == Short.class || fieldType == short.class) {
-            return "SMALLINT";
-        } else if (fieldType == Integer.class || fieldType == int.class) {
-            return "INTEGER";
-        } else if (fieldType == Long.class || fieldType == long.class) {
-            return "BIGINT";
-        } else if (fieldType == Float.class || fieldType == float.class) {
-            return "REAL";
-        } else if (fieldType == Double.class || fieldType == double.class) {
-            return "DOUBLE PRECISION";
-        } else if (fieldType == Boolean.class || fieldType == boolean.class) {
-            return "BOOLEAN";
-        } else if (fieldType == String.class) {
-            return "VARCHAR(255)";
-        } else if (fieldType == byte[].class) {
-            return "BYTEA";
-        } else if (fieldType == java.util.Date.class || fieldType == java.sql.Date.class) {
-            return "DATE";
-        } else if (fieldType == java.time.LocalDate.class) {
-            return "DATE";
-        } else if (fieldType == java.time.LocalDateTime.class) {
-            return "TIMESTAMP";
-        } else if (fieldType.isEnum()) {
-            return "VARCHAR(255)";
-        } else {
-            return "TEXT";  // 默认使用 TEXT 类型
-        }
-    }
 }

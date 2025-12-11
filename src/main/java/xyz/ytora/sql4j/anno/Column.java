@@ -1,5 +1,7 @@
 package xyz.ytora.sql4j.anno;
 
+import xyz.ytora.sql4j.enums.ColumnType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,7 +22,7 @@ public @interface Column {
     /**
      * 数据库字段类型
      */
-    String columnType() default "";
+    ColumnType type() default ColumnType.NONE;
 
     /**
      * 字段是否非空
