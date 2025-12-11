@@ -13,7 +13,7 @@ public interface ISqlExecutionEngine {
      * @param sqlInfo SQL 信息（包含 SQL 语句和参数）
      * @return 查询结果
      */
-    ExecResult executeQuery(SqlInfo sqlInfo);
+    ExecResult executeSelect(SqlInfo sqlInfo);
 
     /**
      * 执行 INSERT

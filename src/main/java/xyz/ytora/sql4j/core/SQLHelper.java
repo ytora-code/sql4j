@@ -235,15 +235,23 @@ public class SQLHelper {
     /**
      * 直接执行 SQL
      */
-    public ExecResult execDirectly(String sql, Object... parms) {
+    public ExecResult submitSQL(String sql, Object... parms) {
         if (sql.startsWith("SELECT") || sql.startsWith("select")) {
-            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms)));
+            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            sqlInfo.setInterceptorEnabled(false);
+            return sqlExecutionEngine.executeSelect(sqlInfo);
         } else if (sql.startsWith("INSERT") || sql.startsWith("insert")) {
-            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.INSERT, sql, Arrays.asList(parms)));
+            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            sqlInfo.setInterceptorEnabled(false);
+            return sqlExecutionEngine.executeInsert(sqlInfo);
         } else if (sql.startsWith("UPDATE") || sql.startsWith("update")) {
-            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.UPDATE, sql, Arrays.asList(parms)));
+            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            sqlInfo.setInterceptorEnabled(false);
+            return sqlExecutionEngine.executeUpdate(sqlInfo);
         } else if (sql.startsWith("DELETE") || sql.startsWith("delete")) {
-            return sqlExecutionEngine.executeQuery(new SqlInfo(null, SqlType.DELETE, sql, Arrays.asList(parms)));
+            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            sqlInfo.setInterceptorEnabled(false);
+            return sqlExecutionEngine.executeDelete(sqlInfo);
         }
         throw new Sql4JException("未知的 SQL 类型，确保 SQL 字符串以 SELECT、INSERT、UPDATE或DELETE开头");
     }

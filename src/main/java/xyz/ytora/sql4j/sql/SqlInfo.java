@@ -2,13 +2,23 @@ package xyz.ytora.sql4j.sql;
 
 import xyz.ytora.sql4j.enums.SqlType;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * SQL 状态
  */
 public class SqlInfo {
 
+    /**
+     * 拦截器是否启用
+     */
+    private Boolean interceptorEnabled = true;
+
+    /**
+     * SQL 的构建器对象
+     */
     private final SqlBuilder sqlBuilder;
 
     /**
@@ -46,7 +56,20 @@ public class SqlInfo {
     }
 
     public List<Object> getOrderedParms() {
-        return orderedParms;
+        return orderedParms.stream().flatMap(param -> {
+            if (param instanceof Collection<?> collectionParam) {
+                return collectionParam.stream();
+            }
+            return Stream.of(param);
+        }).toList();
+    }
+
+    public void setInterceptorEnabled(Boolean interceptorEnabled) {
+        this.interceptorEnabled = interceptorEnabled;
+    }
+
+    public Boolean getInterceptorEnabled() {
+        return interceptorEnabled;
     }
 
     @Override

@@ -18,4 +18,11 @@ public class DeleteStage extends AbsDelete {
     public FromStage from(Class<?> table) {
         return new FromStage(getDeleteBuilder(), table);
     }
+
+    /**
+     * DELETE 后面一定是 FROM 阶段
+     */
+    public FromStage from(String tableStr) {
+        return new FromStage(getDeleteBuilder(), tableStr);
+    }
 }

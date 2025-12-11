@@ -1,13 +1,11 @@
 package xyz.ytora.sql4j.translate.support.base;
 
-import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.enums.SqlType;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.sql4j.sql.delete.DeleteBuilder;
 import xyz.ytora.sql4j.sql.delete.DeleteWhereStage;
 import xyz.ytora.sql4j.translate.IDeleteTranslator;
-import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +21,7 @@ public class BaseDeleteTranslator implements IDeleteTranslator {
         List<Object> orderedParms = new ArrayList<>();
 
         // 1. 目标表
-        Class<?> table = builder.getFromStage().getTable();
-        if (table == null) {
-            throw new Sql4JException("翻译SQL时出错：DELETE时必须指定TABLE");
-        }
-        String tableName = Sql4jUtil.parseTableNameFromClass(table);
+        String tableName = builder.getFromStage().getTableName();
         sql.append(tableName).append(' ');
 
         // 2. 删除条件

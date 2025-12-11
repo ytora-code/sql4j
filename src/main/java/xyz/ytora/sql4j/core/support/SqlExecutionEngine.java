@@ -1,5 +1,7 @@
 package xyz.ytora.sql4j.core.support;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.caster.SQLWriter;
 import xyz.ytora.sql4j.core.ExecResult;
@@ -22,6 +24,7 @@ import java.util.Map;
  */
 public class SqlExecutionEngine implements ISqlExecutionEngine {
 
+    private static final Logger log = LoggerFactory.getLogger(SqlExecutionEngine.class);
     /**
      * SQLHelper
      */
@@ -38,7 +41,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     }
 
     @Override
-    public ExecResult executeQuery(SqlInfo sqlInfo) {
+    public ExecResult executeSelect(SqlInfo sqlInfo) {
         check(sqlInfo);
         long startTime = System.currentTimeMillis();
         if (!before(sqlHelper.getSqlInterceptors(), sqlInfo)) {
@@ -77,6 +80,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 }
             }
         } catch (SQLException e) {
+            sqlHelper.getLogger().error(e.getMessage());
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
@@ -115,6 +119,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 }
             }
         } catch (SQLException e) {
+            sqlHelper.getLogger().error(e.getMessage());
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
@@ -146,6 +151,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
             }
         } catch (SQLException e) {
+            sqlHelper.getLogger().error(e.getMessage());
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
@@ -202,6 +208,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 statement.setObject(i + 1, param);
             }
         } catch (SQLException e) {
+            sqlHelper.getLogger().error(e.getMessage());
             throw new Sql4JException(e);
         }
 
@@ -228,6 +235,9 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     }
 
     private Boolean before(List<SqlInterceptor> beforeInterceptors, SqlInfo sqlInfo) {
+        if (!sqlInfo.getInterceptorEnabled()) {
+            return true;
+        }
         for (SqlInterceptor interceptor : beforeInterceptors) {
             Boolean before = interceptor.before(sqlInfo);
             if (!before) {
@@ -238,6 +248,9 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
     }
 
     private ExecResult after(List<SqlInterceptor> beforeInterceptors, SqlInfo sqlInfo, ExecResult result) {
+        if (!sqlInfo.getInterceptorEnabled()) {
+            return result;
+        }
         for (SqlInterceptor interceptor : beforeInterceptors) {
             result = interceptor.after(sqlInfo, result);
         }
