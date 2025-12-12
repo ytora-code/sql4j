@@ -823,3 +823,25 @@ sqlHelper.registerLogger(new MySqlLogger());
 
 
 再次运行程序，控制台的日志就会使用MySqlLogger进行打印
+
+
+
+## 9 ORM操作
+
+除了链式调用，SQL4J也支持以面向对象的方式操作数据
+
+### 9.1 增删改查
+
+
+
+### 9.2 自动建表
+
+
+
+### 9.3 备份数据
+
+
+
+
+
+## 10 DSL

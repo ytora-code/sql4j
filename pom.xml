@@ -46,6 +46,13 @@
             <version>4.8.179</version>
         </dependency>
 
+        <!-- 字节码生成 -->
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.14.15</version>
+        </dependency>
+
         <!-- ytool 工具库 -->
         <dependency>
             <groupId>xyz.ytora</groupId>

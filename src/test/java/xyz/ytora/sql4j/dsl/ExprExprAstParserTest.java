@@ -32,7 +32,7 @@ public class ExprExprAstParserTest {
                 .put("person", person)
                 .put("age", List.of(1, 2, 3, 4, 5))
                 .put("title", "测试分张三为氛围二位分为");
-        testEval("fwefewfw ?? ffff ?? fwefwef ?? 12312 + 2", context);
+        testEval("fwefewfw ?? ffff ?? person.hobby.3 ?? 12312 + 2", context);
     }
 
     @Test

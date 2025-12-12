@@ -3,6 +3,12 @@ package xyz.ytora.sql4j.orm.scanner;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ScanResult;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.modifier.Visibility;
+import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
+import net.bytebuddy.implementation.MethodDelegation;
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.orm.BaseRepo;
 
@@ -13,12 +19,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static net.bytebuddy.matcher.ElementMatchers.*;
+import static net.bytebuddy.matcher.ElementMatchers.isBridge;
+import static net.bytebuddy.matcher.ElementMatchers.isSynthetic;
+import static net.bytebuddy.matcher.ElementMatchers.not;
+
 /**
  * Repo 接口扫描
  */
 public class RepoScanner {
 
+    /**
+     * BaseRepo 接口的路径
+     */
     private static final String REPO_PATH = BaseRepo.class.getName();
+
+    /**
+     * 仓储代理类后缀
+     */
+    private static final String proxySuffix = "$$sql4JRepoProxy";
 
     /**
      * 只能扫描一次
@@ -76,11 +95,51 @@ public class RepoScanner {
                         // 获取BaseRepo的泛型类型参数
                         Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
                         sqlHelper.getLogger().info("Generic type: " + actualTypeArgument.getTypeName());
+
+                        // 生成代理类
+                        Class<?> implType = generateSubclass(repoClazz);
                     }
                 }
             }
         }
         return proxyRepos;
+    }
+
+    /**
+     * 用 ByteBuddy 生成子类, 实现抽象方法
+     */
+    private Class<?> generateSubclass(Class<?> superType) {
+        DynamicType.Builder<?> b;
+        // 如果是接口
+        if (superType.isInterface()) {
+            b = new ByteBuddy()
+                    .subclass(Object.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
+                    .implement(superType)
+                    .name(superType.getName() + proxySuffix)
+                    .modifiers(Visibility.PUBLIC);
+        }
+        // 如果是非接口
+        else {
+            b = new ByteBuddy()
+                    .subclass(superType, ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
+                    .name(superType.getName() + proxySuffix)
+                    .modifiers(Visibility.PUBLIC);
+        }
+
+        // 只代理抽象方法
+        b = b.method(isAbstract()
+                        // 跳过 toString/hashCode 等Object里面定义的方法
+                        .and(not(isDeclaredBy(Object.class)))
+                        // 规避编译器合成方法（泛型桥接等）
+                        .and(not(isSynthetic()))
+                        .and(not(isBridge())))
+                .intercept(MethodDelegation.to(new RepoProxyInterceptor()));
+
+        try (DynamicType.Unloaded<?> unloaded = b.make()) {
+            return unloaded
+                    .load(superType.getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
+        }
     }
 
 }
