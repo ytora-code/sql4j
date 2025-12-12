@@ -1,14 +1,11 @@
-package xyz.ytora;
+package xyz.ytora.sql4j;
 
 import org.junit.jupiter.api.Test;
-import xyz.ytora.bean.Bean;
+import xyz.ytora.sql4j.bean.Bean;
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.func.support.Raw;
 
 import java.util.List;
-
-import static xyz.ytora.sql4j.func.SQLFuncAggregation.*;
-import static xyz.ytora.sql4j.func.SQLFuncAggregation.now;
 
 /**
  * created by YT on 2025/12/4 19:35:55

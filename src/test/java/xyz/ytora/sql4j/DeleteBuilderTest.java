@@ -1,7 +1,7 @@
-package xyz.ytora;
+package xyz.ytora.sql4j;
 
 import org.junit.jupiter.api.Test;
-import xyz.ytora.bean.User;
+import xyz.ytora.sql4j.bean.User;
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.sql.SqlInfo;
 

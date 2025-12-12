@@ -1,4 +1,4 @@
-package xyz.ytora.bean;
+package xyz.ytora.sql4j.bean;
 
 public class User {
     private String userName;

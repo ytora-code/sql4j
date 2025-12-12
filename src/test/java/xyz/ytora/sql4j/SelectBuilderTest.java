@@ -1,8 +1,8 @@
-package xyz.ytora;
+package xyz.ytora.sql4j;
 
 import org.junit.jupiter.api.Test;
-import xyz.ytora.bean.Order;
-import xyz.ytora.bean.User;
+import xyz.ytora.sql4j.bean.Order;
+import xyz.ytora.sql4j.bean.User;
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.enums.OrderType;
 import xyz.ytora.sql4j.func.support.Concat;

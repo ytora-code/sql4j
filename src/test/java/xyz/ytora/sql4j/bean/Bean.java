@@ -1,4 +1,4 @@
-package xyz.ytora.bean;
+package xyz.ytora.sql4j.bean;
 
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.orm.Entity;

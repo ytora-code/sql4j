@@ -1,4 +1,4 @@
-package xyz.ytora.bean;
+package xyz.ytora.sql4j.bean;
 
 public class Order {
     private Long id;
