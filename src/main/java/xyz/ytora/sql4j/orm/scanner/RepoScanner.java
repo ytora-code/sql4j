@@ -56,8 +56,8 @@ public class RepoScanner {
     /**
      * 开始扫描指定路径下面所有实体类，如果实体类对应的表不存在，则创建
      */
-    public List<Object> createProxyRepo() {
-        List<Object> proxyRepos = new ArrayList<>();
+    public List<Class<?>> createProxyRepo() {
+        List<Class<?>> proxyRepos = new ArrayList<>();
         // 一次运行期间只能扫描一次
         if (scanFlag) {
             return proxyRepos;
@@ -97,7 +97,8 @@ public class RepoScanner {
                         sqlHelper.getLogger().info("Generic type: " + actualTypeArgument.getTypeName());
 
                         // 生成代理类
-                        Class<?> implType = generateSubclass(repoClazz);
+                        Class<?> implType = generateSubclass(repoClazz, actualTypeArgument);
+                        proxyRepos.add(implType);
                     }
                 }
             }
@@ -108,15 +109,16 @@ public class RepoScanner {
     /**
      * 用 ByteBuddy 生成子类, 实现抽象方法
      */
-    private Class<?> generateSubclass(Class<?> superType) {
+    private Class<?> generateSubclass(Class<?> superType, Type actualTypeArgument) {
         DynamicType.Builder<?> b;
         // 如果是接口
         if (superType.isInterface()) {
             b = new ByteBuddy()
-                    .subclass(Object.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
+                    .subclass(Object.class, ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
                     .implement(superType)
                     .name(superType.getName() + proxySuffix)
-                    .modifiers(Visibility.PUBLIC);
+                    .modifiers(Visibility.PUBLIC)
+                    ;
         }
         // 如果是非接口
         else {
@@ -133,7 +135,7 @@ public class RepoScanner {
                         // 规避编译器合成方法（泛型桥接等）
                         .and(not(isSynthetic()))
                         .and(not(isBridge())))
-                .intercept(MethodDelegation.to(new RepoProxyInterceptor()));
+                .intercept(MethodDelegation.to(new RepoProxyInterceptor(actualTypeArgument)));
 
         try (DynamicType.Unloaded<?> unloaded = b.make()) {
             return unloaded
