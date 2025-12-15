@@ -26,13 +26,6 @@ public class UpdateWhereStage extends AbsUpdate implements UpdateEndStage {
         this.where = where;
     }
 
-    /**
-     * WHERE 后可能结束
-     */
-    public SqlInfo end() {
-        return getUpdateBuilder().getTranslator().translate(getUpdateBuilder());
-    }
-
     public Consumer<ConditionExpressionBuilder> getWhere() {
         return where;
     }
@@ -43,6 +36,11 @@ public class UpdateWhereStage extends AbsUpdate implements UpdateEndStage {
 
     public void setWhereExpression(ConditionExpressionBuilder whereExpression) {
         this.whereExpression = whereExpression;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getUpdateBuilder().getTranslator().translate(getUpdateBuilder());
     }
 
     @Override

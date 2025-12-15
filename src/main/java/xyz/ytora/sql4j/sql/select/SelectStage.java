@@ -80,19 +80,17 @@ public class SelectStage extends AbsSelect implements SelectEndStage {
         return new FromStage(getSelectBuilder(), subSelect);
     }
 
-    /**
-     * SELECT 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public List<SFunction<?, ?>> getSelectColumns() {
         return selectColumns;
     }
 
     public List<Class<?>> getTableColumns() {
         return tableColumns;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override

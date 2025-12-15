@@ -117,13 +117,6 @@ public class FromStage extends AbsSelect implements SelectEndStage {
         return new LimitStage(getSelectBuilder(), limit);
     }
 
-    /**
-     * FROM 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public Integer getTableType() {
         return tableType;
     }
@@ -155,6 +148,11 @@ public class FromStage extends AbsSelect implements SelectEndStage {
 
     public AbsSelect getSubSelect() {
         return subSelect;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override

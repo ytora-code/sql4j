@@ -1,4 +1,4 @@
-package xyz.ytora.sql4j.orm.support;
+package xyz.ytora.sql4j.orm.creator.support;
 
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
@@ -8,7 +8,7 @@ import xyz.ytora.sql4j.enums.ColumnType;
 import xyz.ytora.sql4j.enums.DbType;
 import xyz.ytora.sql4j.enums.IdType;
 import xyz.ytora.sql4j.enums.PostgreSQLColumnType;
-import xyz.ytora.sql4j.orm.ITableCreator;
+import xyz.ytora.sql4j.orm.creator.ITableCreator;
 import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;

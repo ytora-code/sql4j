@@ -15,7 +15,7 @@ import xyz.ytora.sql4j.log.ISqlLogger;
 import xyz.ytora.sql4j.log.support.DefaultSqlLogger;
 import xyz.ytora.sql4j.meta.IMetaService;
 import xyz.ytora.sql4j.meta.support.DefaultMetaService;
-import xyz.ytora.sql4j.orm.TableCreatorManager;
+import xyz.ytora.sql4j.orm.creator.TableCreatorManager;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.sql4j.sql.delete.DeleteBuilder;

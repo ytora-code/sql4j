@@ -69,15 +69,13 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
         return this;
     }
 
-    /**
-     * VALUES 后可能结束
-     */
-    public SqlInfo end() {
-        return getInsertBuilder().getTranslator().translate(getInsertBuilder());
-    }
-
     public List<List<Object>> getInsertedDataList() {
         return insertedDataList;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getInsertBuilder().getTranslator().translate(getInsertBuilder());
     }
 
     @Override

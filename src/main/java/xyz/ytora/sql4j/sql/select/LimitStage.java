@@ -25,15 +25,13 @@ public class LimitStage extends AbsSelect implements SelectEndStage {
         return new OffsetStage(getSelectBuilder(), offset);
     }
 
-    /**
-     * LIMIT 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public Integer getLimit() {
         return limit;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override

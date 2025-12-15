@@ -100,13 +100,6 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
         return new LimitStage(getSelectBuilder(), limit);
     }
 
-    /**
-     * JOIN 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public JoinType getJoinType() {
         return joinType;
     }
@@ -117,6 +110,11 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
 
     public Consumer<ConditionExpressionBuilder> getOn() {
         return on;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override

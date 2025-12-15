@@ -43,13 +43,6 @@ public class FromStage extends AbsDelete implements DeleteEndStage {
     }
 
     /**
-     * FROM 后可能结束
-     */
-    public SqlInfo end() {
-        return getDeleteBuilder().getTranslator().translate(getDeleteBuilder());
-    }
-
-    /**
      * 获取要被删除数据的目标表名称
      */
     public String getTableName() {
@@ -64,6 +57,11 @@ public class FromStage extends AbsDelete implements DeleteEndStage {
      */
     public Class<?> getTableClass() {
         return table;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getDeleteBuilder().getTranslator().translate(getDeleteBuilder());
     }
 
     @Override

@@ -10,7 +10,7 @@ import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import xyz.ytora.sql4j.core.SQLHelper;
-import xyz.ytora.sql4j.orm.BaseRepo;
+import xyz.ytora.sql4j.orm.IRepo;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -32,7 +32,7 @@ public class RepoScanner {
     /**
      * BaseRepo 接口的路径
      */
-    private static final String REPO_PATH = BaseRepo.class.getName();
+    private static final String REPO_PATH = IRepo.class.getName();
 
     /**
      * 仓储代理类后缀
@@ -72,7 +72,7 @@ public class RepoScanner {
                 .enableClassInfo() // 启用类信息
                 .scan()) {
             // 获取实现了 BaseRepo<T> 的所有类或接口
-            List<ClassInfo> classInfos = scanResult.getClassesImplementing(BaseRepo.class.getName());
+            List<ClassInfo> classInfos = scanResult.getClassesImplementing(IRepo.class.getName());
             for (ClassInfo classInfo : classInfos) {
                 // 加载Repo
                 Class<?> repoClazz = classInfo.loadClass();
@@ -80,16 +80,16 @@ public class RepoScanner {
                 // 获取所有实现的接口
                 Type[] genericInterfaces = repoClazz.getGenericInterfaces();
                 Optional<Type> typeOp = Arrays.stream(genericInterfaces).filter(i -> {
-                    if (i.equals(BaseRepo.class)) {
+                    if (i.equals(IRepo.class)) {
                         return true;
                     } else if (i instanceof ParameterizedType parameterizedType) {
-                        return parameterizedType.getRawType().equals(BaseRepo.class);
+                        return parameterizedType.getRawType().equals(IRepo.class);
                     }
                     return false;
                 }).findAny();
                 if (typeOp.isPresent()) {
                     Type genericInterface = typeOp.get();
-                    if (genericInterface.equals(BaseRepo.class)) {
+                    if (genericInterface.equals(IRepo.class)) {
                         sqlHelper.getLogger().warn("类型：{} 未定义 BaseRepo 接口的泛型，跳过", repoClazz.getName());
                     } else if (genericInterface instanceof ParameterizedType parameterizedType) {
                         // 获取BaseRepo的泛型类型参数

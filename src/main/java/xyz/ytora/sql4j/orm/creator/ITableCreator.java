@@ -1,4 +1,4 @@
-package xyz.ytora.sql4j.orm;
+package xyz.ytora.sql4j.orm.creator;
 
 import xyz.ytora.sql4j.enums.DbType;
 

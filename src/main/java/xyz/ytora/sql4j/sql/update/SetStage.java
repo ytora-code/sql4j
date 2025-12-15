@@ -38,15 +38,13 @@ public class SetStage extends AbsUpdate implements UpdateEndStage {
         return new UpdateWhereStage(getUpdateBuilder(), where);
     }
 
-    /**
-     * SET 后可能结束
-     */
-    public SqlInfo end() {
-        return getUpdateBuilder().getTranslator().translate(getUpdateBuilder());
-    }
-
     public Map<SFunction<?, ?>, Object> getUpdatedColumnValueMapper() {
         return updatedColumnValueMapper;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getUpdateBuilder().getTranslator().translate(getUpdateBuilder());
     }
 
     @Override

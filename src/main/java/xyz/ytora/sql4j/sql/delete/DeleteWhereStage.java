@@ -26,13 +26,6 @@ public class DeleteWhereStage extends AbsDelete implements DeleteEndStage {
         this.where = where;
     }
 
-    /**
-     * WHERE 后可能结束
-     */
-    public SqlInfo end() {
-        return getDeleteBuilder().getTranslator().translate(getDeleteBuilder());
-    }
-
     public Consumer<ConditionExpressionBuilder> getWhere() {
         return where;
     }
@@ -43,6 +36,11 @@ public class DeleteWhereStage extends AbsDelete implements DeleteEndStage {
 
     public void setWhereExpression(ConditionExpressionBuilder whereExpression) {
         this.whereExpression = whereExpression;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getDeleteBuilder().getTranslator().translate(getDeleteBuilder());
     }
 
     @Override

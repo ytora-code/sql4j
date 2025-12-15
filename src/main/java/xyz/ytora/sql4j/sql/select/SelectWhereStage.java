@@ -53,15 +53,13 @@ public class SelectWhereStage extends AbsSelect implements SelectEndStage {
         return new LimitStage(getSelectBuilder(), limit);
     }
 
-    /**
-     * WHERE 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public Consumer<ConditionExpressionBuilder> getWhere() {
         return where;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override

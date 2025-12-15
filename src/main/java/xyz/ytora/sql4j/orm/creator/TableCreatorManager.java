@@ -1,4 +1,4 @@
-package xyz.ytora.sql4j.orm;
+package xyz.ytora.sql4j.orm.creator;
 
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Table;
@@ -6,8 +6,9 @@ import xyz.ytora.sql4j.core.IConnectionProvider;
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.enums.DbType;
 import xyz.ytora.sql4j.enums.SqlType;
-import xyz.ytora.sql4j.orm.support.MySQLTableCreator;
-import xyz.ytora.sql4j.orm.support.PostgreSQLTableCreator;
+import xyz.ytora.sql4j.orm.Entity;
+import xyz.ytora.sql4j.orm.creator.support.MySQLTableCreator;
+import xyz.ytora.sql4j.orm.creator.support.PostgreSQLTableCreator;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.ytool.str.Strs;
 

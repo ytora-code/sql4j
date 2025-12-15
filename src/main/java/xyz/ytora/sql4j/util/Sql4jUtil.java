@@ -4,6 +4,7 @@ import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.anno.Table;
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.AliasRegister;
 import xyz.ytora.ytool.classcache.ClassCache;
 import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
@@ -76,6 +77,9 @@ public class Sql4jUtil {
      * 解析出拼接到SQL里面的字段，比如user.user_name
      */
     public static <T> String parseColumn(SFunction<T, ?> fn, AliasRegister register) {
+        if (fn instanceof SQLFunc sqlFunc) {
+            return sqlFunc.getValue();
+        }
         SerializedLambda sl = serializedLambda(fn);
         Class<?> clazz = parseClass(sl);
         StringBuilder sb = new StringBuilder();

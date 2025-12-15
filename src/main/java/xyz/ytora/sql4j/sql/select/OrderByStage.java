@@ -50,15 +50,13 @@ public class OrderByStage extends AbsSelect implements SelectEndStage {
         return new LimitStage(getSelectBuilder(), limit);
     }
 
-    /**
-     * ORDER BY 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public List<OrderItem> getOrderItems() {
         return orderItems;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override

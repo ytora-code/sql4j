@@ -197,13 +197,15 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
         try {
             for (int i = 0; i < params.size(); i++) {
                 Object param = params.get(i);
-                // 如果 param 重写了 SQLWriter, 则回调 SQLWriter 的 write 方法作为真实的参数
-                if (param instanceof SQLWriter writer) {
-                    param = writer.write();
-                }
-                // 如果是枚举，则转为字符串
-                else if (param.getClass().isEnum()) {
-                    param = ((Enum<?>) param).name();
+                if (param != null) {
+                    // 如果 param 重写了 SQLWriter, 则回调 SQLWriter 的 write 方法作为真实的参数
+                    if (param instanceof SQLWriter writer) {
+                        param = writer.write();
+                    }
+                    // 如果是枚举，则转为字符串
+                    else if (param.getClass().isEnum()) {
+                        param = ((Enum<?>) param).name();
+                    }
                 }
                 statement.setObject(i + 1, param);
             }

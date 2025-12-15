@@ -21,15 +21,13 @@ public class SelectValueStage extends AbsInsert implements InsertEndStage {
         this.subSelect = subSelect;
     }
 
-    /**
-     * VALUES 后可能结束
-     */
-    public SqlInfo end() {
-        return getInsertBuilder().getTranslator().translate(getInsertBuilder());
-    }
-
     public AbsSelect getSubSelect() {
         return subSelect;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getInsertBuilder().getTranslator().translate(getInsertBuilder());
     }
 
     @Override

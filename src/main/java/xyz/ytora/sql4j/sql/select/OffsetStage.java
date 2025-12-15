@@ -18,15 +18,13 @@ public class OffsetStage extends AbsSelect implements SelectEndStage {
         this.offset = offset;
     }
 
-    /**
-     * OFFSET 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public Integer getOffset() {
         return offset;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override

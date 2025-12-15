@@ -5,19 +5,24 @@ import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Segment;
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.func.support.Raw;
+import xyz.ytora.sql4j.orm.Entity;
+import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.select.SelectWhereStage;
+import xyz.ytora.sql4j.util.OrmUtil;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 抽象方法拦截器
  */
 public class RepoProxyInterceptor {
-    private Class<?> sourceClass;
+    private final Class<?> sourceClass;
 
     public RepoProxyInterceptor(Type sourceClass) {
         this.sourceClass = (Class<?>) sourceClass;
@@ -86,9 +91,65 @@ public class RepoProxyInterceptor {
 
 
             } else {
-                throw new Sql4JException("暂时只支持以 select 开头的方法: " + name);
+                // throw new Sql4JException("暂时只支持以 select 开头的方法: " + name);
+                return delegateMethod(targetMethod, args);
             }
         }
+        return null;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Object delegateMethod(Method targetMethod, Object[] args) {
+        String methodName = targetMethod.getName();
+        if (args.length == 1) {
+            Object arg1 = args[0];
+            if (methodName.equals("one") && arg1 instanceof Consumer) {
+                Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
+                return OrmUtil.one((Class) sourceClass, where);
+            } else if (methodName.equals("one") && arg1 instanceof Entity) {
+                return OrmUtil.count((Class) sourceClass, (Entity) arg1);
+            } else if (methodName.equals("count") && arg1 instanceof Consumer) {
+                Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
+                return OrmUtil.count((Class) sourceClass, where);
+            } else if (methodName.equals("count") && arg1 instanceof Entity) {
+                return OrmUtil.count((Class) sourceClass, (Entity) arg1);
+            } else if (methodName.equals("list") && arg1 instanceof Consumer) {
+                Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
+                return OrmUtil.list((Class) sourceClass, where);
+            } else if (methodName.equals("list") && arg1 instanceof Entity) {
+                return OrmUtil.list((Class) sourceClass, (Entity) arg1);
+            } else if (methodName.equals("insert") && arg1 instanceof List) {
+                OrmUtil.insert((Class) sourceClass, (List) arg1);
+                return null;
+            } else if (methodName.equals("insert") && arg1 instanceof Entity) {
+                OrmUtil.insert((Class) sourceClass, (Entity) arg1);
+                return null;
+            } else if (methodName.equals("delete") && arg1 instanceof Consumer) {
+                Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
+                OrmUtil.delete((Class) sourceClass, where);
+                return null;
+            } else if (methodName.equals("delete") && arg1 instanceof Entity) {
+                OrmUtil.delete((Class) sourceClass, (Entity) arg1);
+                return null;
+            }
+        } else if (args.length == 2) {
+            Object arg1 = args[0];
+            Object arg2 = args[1];
+            if (methodName.equals("update") && arg1 instanceof Entity && arg2 instanceof Consumer) {
+                OrmUtil.update((Class) sourceClass, (Entity) arg1, (Consumer<ConditionExpressionBuilder>) arg2);
+                return null;
+            }
+        } else if (args.length == 3) {
+            Object arg1 = args[0];
+            Object arg2 = args[1];
+            Object arg3 = args[2];
+            if (methodName.equals("page") && arg1 instanceof Integer && arg2 instanceof Integer && arg3 instanceof Consumer) {
+                return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (Consumer<ConditionExpressionBuilder>) arg3);
+            } else if (methodName.equals("page") && arg1 instanceof Integer && arg2 instanceof Integer && arg3 instanceof Entity) {
+                return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (Entity) arg3);
+            }
+        }
+
         return null;
     }
 }

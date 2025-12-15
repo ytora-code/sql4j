@@ -1,5 +1,7 @@
 package xyz.ytora.sql4j.sql.insert;
 
+import xyz.ytora.sql4j.sql.SqlInfo;
+
 import java.util.List;
 
 /**
@@ -7,9 +9,11 @@ import java.util.List;
  */
 public interface InsertEndStage {
 
+    SqlInfo end();
+
     /**
      * 新增数据的ID
      */
-    public List<Object> submit();
+    List<Object> submit();
 
 }

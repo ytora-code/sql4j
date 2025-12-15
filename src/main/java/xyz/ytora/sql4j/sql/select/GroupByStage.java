@@ -74,19 +74,17 @@ public class GroupByStage extends AbsSelect implements SelectEndStage {
         return new LimitStage(getSelectBuilder(), limit);
     }
 
-    /**
-     * GROUP BY 后可能结束
-     */
-    public SqlInfo end() {
-        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
-    }
-
     public List<SFunction<?, ?>> getGroupColumn() {
         return groupColumn;
     }
 
     public List<Class<?>> getGroupClasses() {
         return groupClasses;
+    }
+
+    @Override
+    public SqlInfo end() {
+        return getSelectBuilder().getTranslator().translate(getSelectBuilder());
     }
 
     @Override
