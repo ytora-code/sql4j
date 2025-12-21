@@ -101,7 +101,11 @@ public class RepoProxyInterceptor {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private Object delegateMethod(Method targetMethod, Object[] args) {
         String methodName = targetMethod.getName();
-        if (args.length == 1) {
+        if (args.length == 0) {
+            if (methodName.equals("sqlHelper") && targetMethod.getReturnType().equals(SQLHelper.class)) {
+                return SQLHelper.getInstance();
+            }
+        } else if (args.length == 1) {
             Object arg1 = args[0];
             if (methodName.equals("one") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;

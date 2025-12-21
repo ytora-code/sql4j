@@ -9,7 +9,6 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
-import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.orm.IRepo;
 
 import java.lang.reflect.ParameterizedType;
@@ -17,15 +16,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static net.bytebuddy.matcher.ElementMatchers.*;
-import static net.bytebuddy.matcher.ElementMatchers.isBridge;
-import static net.bytebuddy.matcher.ElementMatchers.isSynthetic;
-import static net.bytebuddy.matcher.ElementMatchers.not;
 
 /**
- * Repo 接口扫描
+ * IRepo 接口扫描
  */
 public class RepoScanner {
 
@@ -39,71 +34,50 @@ public class RepoScanner {
      */
     private static final String proxySuffix = "$$sql4JRepoProxy";
 
-    /**
-     * 只能扫描一次
-     */
-    private volatile boolean scanFlag;
-
-    private final SQLHelper sqlHelper;
     private final String pkgToScan;
 
-    public RepoScanner(SQLHelper sqlHelper, String pkgToScan) {
-        scanFlag = false;
-        this.sqlHelper = sqlHelper;
+    public RepoScanner(String pkgToScan) {
         this.pkgToScan = pkgToScan;
     }
 
     /**
-     * 开始扫描指定路径下面所有实体类，如果实体类对应的表不存在，则创建
+     * 扫描实现或继承IRepo接口的所有实现类或子接口，返回其class
      */
-    public List<Class<?>> createProxyRepo() {
-        List<Class<?>> proxyRepos = new ArrayList<>();
-        // 一次运行期间只能扫描一次
-        if (scanFlag) {
-            return proxyRepos;
-        }
-        long start = System.currentTimeMillis();
-        long classCount = 0;
-
-        scanFlag = true;
-
+    public List<Class<?>> scanRepoInterfaces() {
+        List<Class<?>> repoInterfaces = new ArrayList<>();
         try (ScanResult scanResult = new ClassGraph()
-                .acceptPackages(pkgToScan) // 设置扫描包路径
-                .enableClassInfo() // 启用类信息
+                .acceptPackages(pkgToScan)
+                .enableClassInfo()
                 .scan()) {
-            // 获取实现了 BaseRepo<T> 的所有类或接口
-            List<ClassInfo> classInfos = scanResult.getClassesImplementing(IRepo.class.getName());
+            List<ClassInfo> classInfos = scanResult.getClassesImplementing(REPO_PATH);
             for (ClassInfo classInfo : classInfos) {
-                // 加载Repo
-                Class<?> repoClazz = classInfo.loadClass();
-
-                // 获取所有实现的接口
-                Type[] genericInterfaces = repoClazz.getGenericInterfaces();
-                Optional<Type> typeOp = Arrays.stream(genericInterfaces).filter(i -> {
-                    if (i.equals(IRepo.class)) {
-                        return true;
-                    } else if (i instanceof ParameterizedType parameterizedType) {
-                        return parameterizedType.getRawType().equals(IRepo.class);
-                    }
-                    return false;
-                }).findAny();
-                if (typeOp.isPresent()) {
-                    Type genericInterface = typeOp.get();
-                    if (genericInterface.equals(IRepo.class)) {
-                        sqlHelper.getLogger().warn("类型：{} 未定义 BaseRepo 接口的泛型，跳过", repoClazz.getName());
-                    } else if (genericInterface instanceof ParameterizedType parameterizedType) {
-                        // 获取BaseRepo的泛型类型参数
-                        Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-                        sqlHelper.getLogger().info("Generic type: " + actualTypeArgument.getTypeName());
-
-                        // 生成代理类
-                        Class<?> implType = generateSubclass(repoClazz, actualTypeArgument);
-                        proxyRepos.add(implType);
-                    }
-                }
+                repoInterfaces.add(classInfo.loadClass());
             }
         }
-        return proxyRepos;
+        return repoInterfaces;
+    }
+
+    /**
+     * 生成指定IRepo类的代理类
+     */
+    public Class<?> getOrCreateProxyClass(Class<?> repoClazz) {
+        // 1. 提取泛型参数 T
+        Type actualTypeArgument = extractGenericType(repoClazz);
+
+        // 2. 调用你原本的 ByteBuddy 逻辑生成子类
+        return generateSubclass(repoClazz, actualTypeArgument);
+    }
+
+    /**
+     * 提取 IRepo<T> 中的 T
+     */
+    private Type extractGenericType(Class<?> repoClazz) {
+        Type[] genericInterfaces = repoClazz.getGenericInterfaces();
+        return Arrays.stream(genericInterfaces)
+                .filter(i -> i instanceof ParameterizedType pt && pt.getRawType().equals(IRepo.class))
+                .map(i -> ((ParameterizedType) i).getActualTypeArguments()[0])
+                .findFirst()
+                .orElse(Object.class); // 默认 Object
     }
 
     /**
@@ -118,7 +92,7 @@ public class RepoScanner {
                     .implement(superType)
                     .name(superType.getName() + proxySuffix)
                     .modifiers(Visibility.PUBLIC)
-                    ;
+            ;
         }
         // 如果是非接口
         else {

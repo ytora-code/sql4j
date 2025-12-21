@@ -1,5 +1,6 @@
 package xyz.ytora.sql4j.orm;
 
+import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.function.Consumer;
  * 持久层接口
  */
 public interface IRepo<T extends Entity<T>> {
+
+    SQLHelper sqlHelper();
 
     /**
      * 查询符合条件的唯一数据
