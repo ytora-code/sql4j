@@ -126,7 +126,11 @@ public class Sql4jUtil {
             String methodName = m.getName();
             if ((methodName.startsWith("get") || methodName.startsWith("is")) && m.parameters().isEmpty()) {
                 Column columnAnno = m.toField().getAnnotation(Column.class);
-                return columnAnno != null && columnAnno.exist();
+                if (columnAnno != null) {
+                    return columnAnno.exist();
+                } else {
+                    return true;
+                }
             }
             return false;
         });
@@ -140,7 +144,11 @@ public class Sql4jUtil {
         return classMetadata.getMethods(m -> {
             if (m.getName().startsWith("set") && m.parameters().size() == 1) {
                 Column columnAnno = m.toField().getAnnotation(Column.class);
-                return columnAnno != null && columnAnno.exist();
+                if (columnAnno != null) {
+                    return columnAnno.exist();
+                } else {
+                    return true;
+                }
             }
             return false;
         });
