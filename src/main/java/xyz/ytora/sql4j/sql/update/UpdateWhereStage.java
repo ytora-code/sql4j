@@ -13,29 +13,32 @@ public class UpdateWhereStage extends AbsUpdate implements UpdateEndStage {
     /**
      * WHERE 表达式的构建规则
      */
-    private final Consumer<ConditionExpressionBuilder> where;
+    private Consumer<ConditionExpressionBuilder> whereExpr;
 
-    /**
-     * WHERE 表达式
-     */
-    private ConditionExpressionBuilder whereExpression;
+    private ConditionExpressionBuilder where;
 
-    public UpdateWhereStage(UpdateBuilder updateBuilder, Consumer<ConditionExpressionBuilder> where) {
+    public UpdateWhereStage(UpdateBuilder updateBuilder, Consumer<ConditionExpressionBuilder> whereExpr) {
+        setUpdateBuilder(updateBuilder);
+        getUpdateBuilder().setWhereStage(this);
+        this.whereExpr = whereExpr;
+    }
+
+    public UpdateWhereStage(UpdateBuilder updateBuilder, ConditionExpressionBuilder where) {
         setUpdateBuilder(updateBuilder);
         getUpdateBuilder().setWhereStage(this);
         this.where = where;
     }
 
-    public Consumer<ConditionExpressionBuilder> getWhere() {
-        return where;
-    }
-
-    public ConditionExpressionBuilder getWhereExpression() {
-        return whereExpression;
-    }
-
-    public void setWhereExpression(ConditionExpressionBuilder whereExpression) {
-        this.whereExpression = whereExpression;
+    public ConditionExpressionBuilder getWhere() {
+        if (where != null) {
+            return where;
+        }
+        if (whereExpr != null) {
+            ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(getUpdateBuilder());
+            whereExpr.accept(expressionBuilder);
+            return expressionBuilder;
+        }
+        return null;
     }
 
     @Override

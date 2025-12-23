@@ -38,6 +38,10 @@ public class SetStage extends AbsUpdate implements UpdateEndStage {
         return new UpdateWhereStage(getUpdateBuilder(), where);
     }
 
+    public final UpdateWhereStage where(ConditionExpressionBuilder where) {
+        return new UpdateWhereStage(getUpdateBuilder(), where);
+    }
+
     public Map<SFunction<?, ?>, Object> getUpdatedColumnValueMapper() {
         return updatedColumnValueMapper;
     }

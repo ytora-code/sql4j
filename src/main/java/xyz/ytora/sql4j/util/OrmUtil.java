@@ -33,6 +33,15 @@ public class OrmUtil {
      * 查询符合条件的唯一数据
      */
     public static <T extends Entity<T>> T one(Class<T> clazz, Consumer<ConditionExpressionBuilder> where) {
+        ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(null);
+        where.accept(expressionBuilder);
+        return one(clazz, expressionBuilder);
+    }
+
+    /**
+     * 查询符合条件的唯一数据
+     */
+    public static <T extends Entity<T>> T one(Class<T> clazz, ConditionExpressionBuilder where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         SqlInfo sqlInfo = sqlHelper.select(clazz).from(clazz).where(where).end();
         ExecResult execResult = sqlHelper.getSqlExecutionEngine().executeSelect(sqlInfo);
@@ -58,6 +67,15 @@ public class OrmUtil {
      * 查询符合条件的数据总条数
      */
     public static <T extends Entity<T>> long count(Class<T> clazz, Consumer<ConditionExpressionBuilder> where) {
+        ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(null);
+        where.accept(expressionBuilder);
+        return count(clazz, expressionBuilder);
+    }
+
+    /**
+     * 查询符合条件的数据总条数
+     */
+    public static <T extends Entity<T>> long count(Class<T> clazz, ConditionExpressionBuilder where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         SqlInfo sqlInfo = sqlHelper.select(Count.of("1").as("count")).from(clazz).where(where).end();
         ExecResult execResult = sqlHelper.getSqlExecutionEngine().executeSelect(sqlInfo);
@@ -83,6 +101,14 @@ public class OrmUtil {
     /**
      * 查询符合条件的数据列表
      */
+    public static <T extends Entity<T>> List<T> list(Class<T> clazz, ConditionExpressionBuilder where) {
+        SQLHelper sqlHelper = SQLHelper.getInstance();
+        return sqlHelper.select(clazz).from(clazz).where(where).submit(clazz);
+    }
+
+    /**
+     * 查询符合条件的数据列表
+     */
     public static <T extends Entity<T>> List<T> list(Class<T> clazz, T where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         return list(clazz, sqlHelper.toWhere(where));
@@ -92,6 +118,15 @@ public class OrmUtil {
      * 分页查询符合条件的数据列表
      */
     public static <T extends Entity<T>> Page<T> page(Class<T> clazz, Integer pageNo, Integer pageSize, Consumer<ConditionExpressionBuilder> where) {
+        ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(null);
+        where.accept(expressionBuilder);
+        return page(clazz, pageNo, pageSize, expressionBuilder);
+    }
+
+    /**
+     * 分页查询符合条件的数据列表
+     */
+    public static <T extends Entity<T>> Page<T> page(Class<T> clazz, Integer pageNo, Integer pageSize, ConditionExpressionBuilder where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         // 1.查询符合条件的总数据量
         long total = count(clazz, where);
@@ -186,6 +221,15 @@ public class OrmUtil {
      * 根据指定条件修改数据
      */
     public static <T extends Entity<T>> void update(Class<T> clazz, T entity, Consumer<ConditionExpressionBuilder> where) {
+        ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(null);
+        where.accept(expressionBuilder);
+        update(clazz, entity, expressionBuilder);
+    }
+
+    /**
+     * 根据指定条件修改数据
+     */
+    public static <T extends Entity<T>> void update(Class<T> clazz, T entity, ConditionExpressionBuilder where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         List<MethodMetadata> getters = Sql4jUtil.getter(clazz);
         Map<String, Object> setMap = new HashMap<>();
@@ -224,6 +268,14 @@ public class OrmUtil {
      * 根据指定条件删除数据
      */
     public static <T extends Entity<T>> void delete(Class<T> clazz, Consumer<ConditionExpressionBuilder> where) {
+        SQLHelper sqlHelper = SQLHelper.getInstance();
+        sqlHelper.delete().from(clazz).where(where).submit();
+    }
+
+    /**
+     * 根据指定条件删除数据
+     */
+    public static <T extends Entity<T>> void delete(Class<T> clazz, ConditionExpressionBuilder where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         sqlHelper.delete().from(clazz).where(where).submit();
     }

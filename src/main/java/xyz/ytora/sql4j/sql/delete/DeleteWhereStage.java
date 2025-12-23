@@ -13,29 +13,35 @@ public class DeleteWhereStage extends AbsDelete implements DeleteEndStage {
     /**
      * WHERE 表达式的构建规则
      */
-    private final Consumer<ConditionExpressionBuilder> where;
+    private Consumer<ConditionExpressionBuilder> whereExpr;
 
     /**
      * WHERE 表达式
      */
-    private ConditionExpressionBuilder whereExpression;
+    private ConditionExpressionBuilder where;
 
-    public DeleteWhereStage(DeleteBuilder deleteBuilder, Consumer<ConditionExpressionBuilder> where) {
+    public DeleteWhereStage(DeleteBuilder deleteBuilder, Consumer<ConditionExpressionBuilder> whereExpr) {
+        setDeleteBuilder(deleteBuilder);
+        getDeleteBuilder().setWhereStage(this);
+        this.whereExpr = whereExpr;
+    }
+
+    public DeleteWhereStage(DeleteBuilder deleteBuilder, ConditionExpressionBuilder where) {
         setDeleteBuilder(deleteBuilder);
         getDeleteBuilder().setWhereStage(this);
         this.where = where;
     }
 
-    public Consumer<ConditionExpressionBuilder> getWhere() {
-        return where;
-    }
-
-    public ConditionExpressionBuilder getWhereExpression() {
-        return whereExpression;
-    }
-
-    public void setWhereExpression(ConditionExpressionBuilder whereExpression) {
-        this.whereExpression = whereExpression;
+    public ConditionExpressionBuilder getWhere() {
+        if (where != null) {
+            return where;
+        }
+        if (whereExpr != null) {
+            ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(getDeleteBuilder());
+            whereExpr.accept(expressionBuilder);
+            return expressionBuilder;
+        }
+        return null;
     }
 
     @Override

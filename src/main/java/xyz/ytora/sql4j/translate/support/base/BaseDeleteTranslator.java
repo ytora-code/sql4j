@@ -27,15 +27,14 @@ public class BaseDeleteTranslator implements IDeleteTranslator {
         // 2. 删除条件
         DeleteWhereStage whereStage = builder.getWhereStage();
         if (whereStage != null) {
-            ConditionExpressionBuilder whereExpressionBuilder = new ConditionExpressionBuilder(builder);
-            whereStage.getWhere().accept(whereExpressionBuilder);
-            whereStage.setWhereExpression(whereExpressionBuilder);
-
-            String whereExpression = whereExpressionBuilder.build();
-            if (!whereExpression.isEmpty()) {
-                sql.append("WHERE ").append(whereExpression).append(' ');
-                // 收集 WHERE 子句的参数
-                orderedParms.addAll(whereExpressionBuilder.getParams());
+            ConditionExpressionBuilder whereExpressionBuilder = whereStage.getWhere();
+            if (whereExpressionBuilder != null) {
+                String whereExpression = whereExpressionBuilder.build();
+                if (!whereExpression.isEmpty()) {
+                    sql.append("WHERE ").append(whereExpression).append(' ');
+                    // 收集 WHERE 子句的参数
+                    orderedParms.addAll(whereExpressionBuilder.getParams());
+                }
             }
         }
 

@@ -15,7 +15,7 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     }
 
     @Override
-    public ExpressionBuilder not() {
+    public ConditionExpressionBuilder not() {
         super.not();
         return this;
     }
@@ -70,25 +70,25 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     }
 
     @Override
-    public <T> ExpressionBuilder like(SFunction<T, ?> column, Object value) {
+    public <T> ConditionExpressionBuilder like(SFunction<T, ?> column, Object value) {
         super.like(column, value);
         return this;
     }
 
     @Override
-    public <T> ExpressionBuilder in(SFunction<T, ?> column, Object... values) {
+    public <T> ConditionExpressionBuilder in(SFunction<T, ?> column, Object... values) {
         super.in(column, values);
         return this;
     }
 
     @Override
-    public <T> ExpressionBuilder in(SFunction<T, ?> column, AbsSelect subSelect) {
+    public <T> ConditionExpressionBuilder in(SFunction<T, ?> column, AbsSelect subSelect) {
         super.in(column, subSelect);
         return this;
     }
 
     @Override
-    public <T> ExpressionBuilder betweenAnd(SFunction<T, ?> column, Object leftValue, Object rightValue) {
+    public <T> ConditionExpressionBuilder betweenAnd(SFunction<T, ?> column, Object leftValue, Object rightValue) {
         super.betweenAnd(column, leftValue, rightValue);
         return this;
     }

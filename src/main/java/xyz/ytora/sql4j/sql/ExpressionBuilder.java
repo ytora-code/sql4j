@@ -180,7 +180,7 @@ public class ExpressionBuilder extends AbsSql {
         appendPredicateStart();
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
-        expression.append(left).append(SPACE).append("LIKE").append(SPACE).append(right);
+        expression.append(left).append(SPACE).append("LIKE").append(SPACE).append("'%").append(right).append("%'");
         lastType = SegmentType.PREDICATE;
         return this;
     }

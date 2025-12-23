@@ -16,7 +16,6 @@ import xyz.ytora.ytool.str.Strs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -104,14 +103,14 @@ public class BaseSelectTranslator implements ISelectTranslator {
         // 4. WHERE 子句，WHERE 子句中可能会出现占位符参数
         SelectWhereStage selectWhereStage = builder.getWhereStage();
         if (selectWhereStage != null) {
-            Consumer<ConditionExpressionBuilder> where = selectWhereStage.getWhere();
-            ConditionExpressionBuilder whereExpressionBuilder = new ConditionExpressionBuilder(builder);
-            where.accept(whereExpressionBuilder);
-            String whereExpression = whereExpressionBuilder.build();
-            if (!whereExpression.isEmpty()) {
-                sql.append("WHERE ").append(whereExpression).append(' ');
-                // 收集 WHERE 子句的参数
-                orderedParms.addAll(whereExpressionBuilder.getParams());
+            ConditionExpressionBuilder whereExpressionBuilder = selectWhereStage.getWhere();
+            if (whereExpressionBuilder != null) {
+                String whereExpression = whereExpressionBuilder.build();
+                if (!whereExpression.isEmpty()) {
+                    sql.append("WHERE ").append(whereExpression).append(' ');
+                    // 收集 WHERE 子句的参数
+                    orderedParms.addAll(whereExpressionBuilder.getParams());
+                }
             }
         }
 

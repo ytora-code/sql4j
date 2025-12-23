@@ -18,12 +18,16 @@ public interface IRepo<T extends Entity<T>> {
      */
     T one(Consumer<ConditionExpressionBuilder> where);
 
+    T one(ConditionExpressionBuilder where);
+
     T one(T where);
 
     /**
      * 查询符合条件的数据总条数
      */
     Long count(Consumer<ConditionExpressionBuilder> where);
+
+    Long count(ConditionExpressionBuilder where);
 
     Long count(T where);
 
@@ -32,12 +36,19 @@ public interface IRepo<T extends Entity<T>> {
      */
     List<T> list(Consumer<ConditionExpressionBuilder> where);
 
+    List<T> list(ConditionExpressionBuilder where);
+
     List<T> list(T where);
 
     /**
      * 分页查询符合条件的数据列表
      */
     Page<T> page(Integer pageNo, Integer pageSize, Consumer<ConditionExpressionBuilder> where);
+
+    /**
+     * 分页查询符合条件的数据列表
+     */
+    Page<T> page(Integer pageNo, Integer pageSize, ConditionExpressionBuilder where);
 
     Page<T> page(Integer pageNo, Integer pageSize, T where);
 
@@ -56,10 +67,14 @@ public interface IRepo<T extends Entity<T>> {
      */
     void update(T entity, Consumer<ConditionExpressionBuilder> where);
 
+    void update(T entity, ConditionExpressionBuilder where);
+
     /**
      * 根据指定条件删除数据
      */
     void delete(Consumer<ConditionExpressionBuilder> where);
+
+    void delete(ConditionExpressionBuilder where);
 
     void delete(T where);
 

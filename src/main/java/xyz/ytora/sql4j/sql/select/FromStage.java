@@ -90,6 +90,13 @@ public class FromStage extends AbsSelect implements SelectEndStage {
     }
 
     /**
+     * FROM 后可能是 WHERE 子句
+     */
+    public SelectWhereStage where(ConditionExpressionBuilder whereExpr) {
+        return new SelectWhereStage(getSelectBuilder(), whereExpr);
+    }
+
+    /**
      * WHERE 后可能是 GROUP BY 子句
      */
     public <T> GroupByStage groupBy(SFunction<T, ?> groupColumn) {

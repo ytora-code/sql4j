@@ -1,7 +1,7 @@
 package xyz.ytora.sql4j.sql.select;
 
-import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.enums.OrderType;
+import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.OrderItem;
 import xyz.ytora.sql4j.sql.SqlInfo;
@@ -16,9 +16,16 @@ import java.util.function.Consumer;
  */
 public class SelectWhereStage extends AbsSelect implements SelectEndStage {
 
-    private final Consumer<ConditionExpressionBuilder> where;
+    private Consumer<ConditionExpressionBuilder> whereExpr;
+    private ConditionExpressionBuilder where;
 
-    public SelectWhereStage(SelectBuilder selectBuilder, Consumer<ConditionExpressionBuilder> where) {
+    public SelectWhereStage(SelectBuilder selectBuilder, Consumer<ConditionExpressionBuilder> whereExpr) {
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().setWhereStage(this);
+        this.whereExpr = whereExpr;
+    }
+
+    public SelectWhereStage(SelectBuilder selectBuilder, ConditionExpressionBuilder where) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setWhereStage(this);
         this.where = where;
@@ -53,8 +60,16 @@ public class SelectWhereStage extends AbsSelect implements SelectEndStage {
         return new LimitStage(getSelectBuilder(), limit);
     }
 
-    public Consumer<ConditionExpressionBuilder> getWhere() {
-        return where;
+    public ConditionExpressionBuilder getWhere() {
+        if (where != null) {
+            return where;
+        }
+        if (whereExpr != null) {
+            ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(getSelectBuilder());
+            whereExpr.accept(expressionBuilder);
+            return expressionBuilder;
+        }
+        return null;
     }
 
     @Override

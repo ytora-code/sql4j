@@ -54,9 +54,7 @@ public class BaseUpdateTranslator implements IUpdateTranslator {
         UpdateWhereStage whereStage = builder.getWhereStage();
         if (whereStage != null) {
             // 使用 ConditionExpressionBuilder 构建 WHERE 子句
-            ConditionExpressionBuilder conditionBuilder = new ConditionExpressionBuilder(builder);
-            whereStage.getWhere().accept(conditionBuilder);
-            whereStage.setWhereExpression(conditionBuilder);
+            ConditionExpressionBuilder conditionBuilder = whereStage.getWhere();
 
             sql.append("WHERE ").append(conditionBuilder.build());
             orderedParms.addAll(conditionBuilder.getParams());

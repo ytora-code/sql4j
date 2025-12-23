@@ -110,16 +110,22 @@ public class RepoProxyInterceptor {
             if (methodName.equals("one") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 return OrmUtil.one((Class) sourceClass, where);
+            } else if (methodName.equals("one") && arg1 instanceof ConditionExpressionBuilder) {
+                return OrmUtil.count((Class) sourceClass, (ConditionExpressionBuilder) arg1);
             } else if (methodName.equals("one") && arg1 instanceof Entity) {
                 return OrmUtil.count((Class) sourceClass, (Entity) arg1);
             } else if (methodName.equals("count") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 return OrmUtil.count((Class) sourceClass, where);
+            } else if (methodName.equals("count") && arg1 instanceof ConditionExpressionBuilder) {
+                return OrmUtil.count((Class) sourceClass, (ConditionExpressionBuilder) arg1);
             } else if (methodName.equals("count") && arg1 instanceof Entity) {
                 return OrmUtil.count((Class) sourceClass, (Entity) arg1);
             } else if (methodName.equals("list") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 return OrmUtil.list((Class) sourceClass, where);
+            } else if (methodName.equals("list") && arg1 instanceof ConditionExpressionBuilder) {
+                return OrmUtil.list((Class) sourceClass, (ConditionExpressionBuilder) arg1);
             } else if (methodName.equals("list") && arg1 instanceof Entity) {
                 return OrmUtil.list((Class) sourceClass, (Entity) arg1);
             } else if (methodName.equals("insert") && arg1 instanceof List) {
@@ -132,7 +138,12 @@ public class RepoProxyInterceptor {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 OrmUtil.delete((Class) sourceClass, where);
                 return null;
-            } else if (methodName.equals("delete") && arg1 instanceof Entity) {
+            }
+            else if (methodName.equals("delete") && arg1 instanceof ConditionExpressionBuilder) {
+                OrmUtil.delete((Class) sourceClass, (ConditionExpressionBuilder) arg1);
+                return null;
+            }
+            else if (methodName.equals("delete") && arg1 instanceof Entity) {
                 OrmUtil.delete((Class) sourceClass, (Entity) arg1);
                 return null;
             }
@@ -149,6 +160,8 @@ public class RepoProxyInterceptor {
             Object arg3 = args[2];
             if (methodName.equals("page") && arg1 instanceof Integer && arg2 instanceof Integer && arg3 instanceof Consumer) {
                 return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (Consumer<ConditionExpressionBuilder>) arg3);
+            } else if (methodName.equals("page") && arg1 instanceof Integer && arg2 instanceof Integer && arg3 instanceof ConditionExpressionBuilder) {
+                return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (ConditionExpressionBuilder) arg3);
             } else if (methodName.equals("page") && arg1 instanceof Integer && arg2 instanceof Integer && arg3 instanceof Entity) {
                 return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (Entity) arg3);
             }

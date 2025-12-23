@@ -42,6 +42,10 @@ public class FromStage extends AbsDelete implements DeleteEndStage {
         return new DeleteWhereStage(getDeleteBuilder(), where);
     }
 
+    public DeleteWhereStage where(ConditionExpressionBuilder where) {
+        return new DeleteWhereStage(getDeleteBuilder(), where);
+    }
+
     /**
      * 获取要被删除数据的目标表名称
      */

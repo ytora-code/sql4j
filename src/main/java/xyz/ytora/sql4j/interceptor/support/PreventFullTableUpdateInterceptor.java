@@ -18,9 +18,9 @@ public class PreventFullTableUpdateInterceptor extends SqlInterceptorAdapter {
         SqlBuilder sqlBuilder = sqlInfo.getSqlBuilder();
         ConditionExpressionBuilder whereExpression;
         if (sqlBuilder instanceof UpdateBuilder builder) {
-            whereExpression = builder.getWhereStage().getWhereExpression();
+            whereExpression = builder.getWhereStage().getWhere();
         } else if (sqlBuilder instanceof DeleteBuilder builder) {
-            whereExpression = builder.getWhereStage().getWhereExpression();
+            whereExpression = builder.getWhereStage().getWhere();
         } else {
             return true;
         }
