@@ -14,6 +14,11 @@ import xyz.ytora.ytool.str.Strs;
 public class PreventFullTableUpdateInterceptor extends SqlInterceptorAdapter {
 
     @Override
+    public Integer order() {
+        return Integer.MIN_VALUE;
+    }
+
+    @Override
     public Boolean before(SqlInfo sqlInfo) {
         SqlBuilder sqlBuilder = sqlInfo.getSqlBuilder();
         ConditionExpressionBuilder whereExpression;

@@ -10,6 +10,7 @@ import xyz.ytora.sql4j.enums.SqlType;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.interceptor.SqlInterceptor;
+import xyz.ytora.sql4j.interceptor.support.LoggerInterceptor;
 import xyz.ytora.sql4j.interceptor.support.PreventFullTableUpdateInterceptor;
 import xyz.ytora.sql4j.log.ISqlLogger;
 import xyz.ytora.sql4j.log.support.DefaultSqlLogger;
@@ -38,6 +39,7 @@ import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class SQLHelper {
@@ -80,7 +82,7 @@ public class SQLHelper {
     /**
      * 拦截器
      */
-    private final List<SqlInterceptor> sqlInterceptors = new ArrayList<>();
+    private final List<SqlInterceptor> sqlInterceptors = new CopyOnWriteArrayList<>();
 
     /**
      * TableCreator 管理器
@@ -93,7 +95,8 @@ public class SQLHelper {
     private IMetaService metaService;
 
     public SQLHelper() {
-        sqlInterceptors.add(new PreventFullTableUpdateInterceptor());
+        addSqlInterceptor(new PreventFullTableUpdateInterceptor());
+        addSqlInterceptor(new LoggerInterceptor());
         SQLHelper.instance = this;
     }
 
@@ -176,6 +179,7 @@ public class SQLHelper {
     public void addSqlInterceptor(SqlInterceptor interceptor) {
         if (interceptor != null) {
             this.sqlInterceptors.add(interceptor);
+            this.sqlInterceptors.sort(Comparator.comparingInt(SqlInterceptor::order));
         }
     }
 

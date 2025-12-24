@@ -9,6 +9,11 @@ import xyz.ytora.sql4j.sql.SqlInfo;
 public class SqlInterceptorAdapter implements SqlInterceptor {
 
     @Override
+    public Integer order() {
+        return 0;
+    }
+
+    @Override
     public Boolean before(SqlInfo sqlInfo) {
         return true;
     }
@@ -16,5 +21,10 @@ public class SqlInterceptorAdapter implements SqlInterceptor {
     @Override
     public ExecResult after(SqlInfo sqlInfo, ExecResult result) {
         return result;
+    }
+
+    @Override
+    public void fail(SqlInfo sqlInfo, Exception e) {
+
     }
 }

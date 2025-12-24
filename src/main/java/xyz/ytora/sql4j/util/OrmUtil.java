@@ -79,7 +79,12 @@ public class OrmUtil {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         SqlInfo sqlInfo = sqlHelper.select(Count.of("1").as("count")).from(clazz).where(where).end();
         ExecResult execResult = sqlHelper.getSqlExecutionEngine().executeSelect(sqlInfo);
-        return execResult.getResultList().size();
+        List<Map<String, Object>> result = execResult.getResultList();
+        if (!result.isEmpty()) {
+            Map<String, Object> countMap = result.get(0);
+            return (Long) countMap.getOrDefault("count", 0L);
+        }
+        return 0;
     }
 
     /**

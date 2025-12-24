@@ -45,9 +45,6 @@ public interface IRepo<T extends Entity<T>> {
      */
     Page<T> page(Integer pageNo, Integer pageSize, Consumer<ConditionExpressionBuilder> where);
 
-    /**
-     * 分页查询符合条件的数据列表
-     */
     Page<T> page(Integer pageNo, Integer pageSize, ConditionExpressionBuilder where);
 
     Page<T> page(Integer pageNo, Integer pageSize, T where);

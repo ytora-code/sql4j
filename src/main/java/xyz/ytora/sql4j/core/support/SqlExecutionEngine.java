@@ -1,7 +1,5 @@
 package xyz.ytora.sql4j.core.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.caster.SQLWriter;
 import xyz.ytora.sql4j.core.ExecResult;
@@ -24,7 +22,6 @@ import java.util.Map;
  */
 public class SqlExecutionEngine implements ISqlExecutionEngine {
 
-    private static final Logger log = LoggerFactory.getLogger(SqlExecutionEngine.class);
     /**
      * SQLHelper
      */
@@ -70,9 +67,6 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                             row.put(metaData.getColumnLabel(i), resultSet.getObject(i));
                         }
                         resultList.add(row);
-
-                        // 记录 SQL 执行结果
-                        sqlHelper.getLogger().debug(" <===\t" + row);
                     }
                     // 创建并返回执行结果
                     ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, System.currentTimeMillis() - startTime, 0);
@@ -80,7 +74,6 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 }
             }
         } catch (SQLException e) {
-            sqlHelper.getLogger().error(e.getMessage());
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
@@ -112,14 +105,11 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                         ids.add(generatedKeys.getObject(1));
                     }
 
-                    // 记录 SQL 执行结果
-                    sqlHelper.getLogger().debug(" <===\t 新增行数：" + affectedRows);
                     ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime, 0);
                     return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
         } catch (SQLException e) {
-            sqlHelper.getLogger().error(e.getMessage());
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
@@ -145,13 +135,11 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 setParameters(statement, params);
                 int affectedRows = statement.executeUpdate();
 
-                // 记录 SQL 执行结果
-                sqlHelper.getLogger().debug(" <===\t 影响行数" + affectedRows);
+
                 ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime, 0);
                 return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
             }
         } catch (SQLException e) {
-            sqlHelper.getLogger().error(e.getMessage());
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
@@ -170,7 +158,6 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             throw new Sql4JException(sqlInfo.getSqlType() + " 不支持调用 executeDDL");
         }
         check(sqlInfo);
-        sqlHelper.getLogger().info(" ==== 即将执行DDL: " + sqlInfo.getSql());
 
         Connection connection = connectionProvider.getConnection();
         try {
@@ -179,11 +166,8 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 // 执行 DDL 操作
                 statement.executeUpdate();
-
-                sqlHelper.getLogger().info(" ==== DDL执行成功");
             }
         } catch (SQLException e) {
-            sqlHelper.getLogger().info(" ==== DDL执行失败: " + e.getMessage());
             throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);

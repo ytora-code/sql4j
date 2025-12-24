@@ -7,6 +7,9 @@ import xyz.ytora.sql4j.sql.SqlInfo;
  * 拦截器
  */
 public interface SqlInterceptor {
+
+    Integer order();
+
     /**
      * SQL 提交数据库之前进行拦截
      * @param sqlInfo 即将执行的 SQL 信息
@@ -21,4 +24,10 @@ public interface SqlInterceptor {
      * @return 真正返给客户端的执行结果
      */
     ExecResult after(SqlInfo sqlInfo, ExecResult result);
+
+    /**
+     * SQL 执行失败后
+     * @param sqlInfo 执行的 SQL 信息
+     */
+    void fail(SqlInfo sqlInfo, Exception e);
 }
