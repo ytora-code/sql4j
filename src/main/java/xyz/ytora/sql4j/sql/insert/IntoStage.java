@@ -2,6 +2,7 @@ package xyz.ytora.sql4j.sql.insert;
 
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.sql.select.AbsSelect;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,33 +14,49 @@ import java.util.List;
  */
 public class IntoStage extends AbsInsert {
 
+    /**
+     * 即将被新增的字段
+     */
     private final List<SFunction<?, ?>> insertedColumn = new ArrayList<>();
+
+    /**
+     * id列索引下标
+     */
+    private Integer idIndex = -1;
 
     public <T> IntoStage(InsertBuilder insertBuilder, Collection<SFunction<T, ?>> insertedColumn) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setIntoStage(this);
         this.insertedColumn.addAll(insertedColumn);
+        for (int i = 0; i < this.insertedColumn.size(); i++) {
+            SFunction<?, ?> col = this.insertedColumn.get(i);
+            String colName = Sql4jUtil.parseColumn(col, null);
+            if (colName.equalsIgnoreCase("id")) {
+                idIndex = i;
+                break;
+            }
+        }
     }
 
     /**
      * INTO 后面是 VALUE
      */
     public ValuesStage value(Object... insertedData) {
-        return new ValuesStage(getInsertBuilder(), Arrays.asList(insertedData), insertedColumn.size());
+        return new ValuesStage(getInsertBuilder(), Arrays.asList(insertedData), idIndex, insertedColumn.size());
     }
 
     /**
      * INTO 后面是 VALUE
      */
     public ValuesStage value(List<Object> insertedData) {
-        return new ValuesStage(getInsertBuilder(), insertedData, insertedColumn.size());
+        return new ValuesStage(getInsertBuilder(), insertedData, idIndex, insertedColumn.size());
     }
 
     /**
      * INTO 后面是 VALUE
      */
     public ValuesStage values(List<List<Object>> insertedDataList) {
-        return new ValuesStage(getInsertBuilder(), new ArrayList<>(), insertedColumn.size()).values(insertedDataList);
+        return new ValuesStage(getInsertBuilder(), new ArrayList<>(), idIndex, insertedColumn.size()).values(insertedDataList);
     }
 
     /**

@@ -1,8 +1,12 @@
 package xyz.ytora.sql4j.sql.insert;
 
 import xyz.ytora.sql4j.Sql4JException;
+import xyz.ytora.sql4j.anno.Table;
+import xyz.ytora.sql4j.enums.IdType;
 import xyz.ytora.sql4j.sql.AbsSql;
 import xyz.ytora.sql4j.sql.SqlInfo;
+import xyz.ytora.ytool.id.IdGenerator;
+import xyz.ytora.ytool.id.Ids;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,11 +23,16 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
     private final List<List<Object>> insertedDataList = new ArrayList<>();
 
     /**
+     * ID字段索引
+     */
+    private final Integer idIndex;
+
+    /**
      * 字段数量
      */
     private final Integer count;
 
-    public ValuesStage(InsertBuilder insertBuilder, List<Object> insertedData, Integer count) {
+    public ValuesStage(InsertBuilder insertBuilder, List<Object> insertedData, Integer idIndex, Integer count) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setValuesStage(this);
         if (insertedData != null && !insertedData.isEmpty()) {
@@ -32,6 +41,7 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
             }
             this.insertedDataList.add(insertedData);
         }
+        this.idIndex = idIndex;
         this.count = count;
     }
 
@@ -70,6 +80,30 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
     }
 
     public List<List<Object>> getInsertedDataList() {
+        // 如果新增的id字段值为空，则根据默认id策略，赋予值
+        Class<?> table = getInsertBuilder().getInsertStage().getTable();
+        Table tableAnno = table.getAnnotation(Table.class);
+        IdGenerator<?> idGenerator = null;
+        if (idIndex > -1 && tableAnno != null && tableAnno.idType() != null) {
+            if (tableAnno.idType().equals(IdType.UUID)) {
+                idGenerator = Ids.getUuid();
+            } else if (tableAnno.idType().equals(IdType.UCID)) {
+                idGenerator = Ids.getUlid();
+            } else if (tableAnno.idType().equals(IdType.SNOWFLAKE)) {
+                idGenerator = Ids.getSnowflakeId();
+            }
+        }
+        if (idGenerator != null) {
+            for (List<Object> list : insertedDataList) {
+                if (idIndex < list.size()) {
+                    Object id = list.get(idIndex);
+                    if (id == null) {
+                        list.set(idIndex, idGenerator.nextId());
+                    }
+                }
+            }
+        }
+
         return insertedDataList;
     }
 
