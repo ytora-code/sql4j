@@ -242,12 +242,13 @@ public class OrmUtil {
             try {
                 Object val = getter.invoke(entity);
                 if (val != null) {
-                    Column columnAnno = getter.getAnnotation(Column.class);
+                    FieldMetadata field = getter.toField();
+                    Column columnAnno = field.getAnnotation(Column.class);
                     String columnName;
                     if (columnAnno != null && Strs.isNotEmpty(columnAnno.value())) {
                         columnName = columnAnno.value();
                     } else {
-                        columnName = Strs.toUnderline(getter.getName());
+                        columnName = Strs.toUnderline(field.getName());
                     }
                     setMap.put(columnName, val);
                 }
@@ -261,7 +262,12 @@ public class OrmUtil {
         UpdateStage updateStage = sqlHelper.update(clazz);
         SetStage setStage = null;
         for (String key : setMap.keySet()) {
-            setStage = updateStage.set(Raw.of(key), setMap.get(key));
+            if (setStage == null) {
+                setStage = updateStage.set(Raw.of(key), setMap.get(key));
+            } else {
+                setStage.set(Raw.of(key), setMap.get(key));
+            }
+
         }
 
         if (setStage != null) {

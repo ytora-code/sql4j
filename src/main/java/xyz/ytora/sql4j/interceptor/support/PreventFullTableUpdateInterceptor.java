@@ -1,5 +1,6 @@
 package xyz.ytora.sql4j.interceptor.support;
 
+import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.interceptor.SqlInterceptorAdapter;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlBuilder;
@@ -32,7 +33,8 @@ public class PreventFullTableUpdateInterceptor extends SqlInterceptorAdapter {
 
         if (Strs.isEmpty(whereExpression.build())) {
             sqlBuilder.getSQLHelper().getLogger().error(sqlInfo.getSqlType().name() + "操作时 WHERE 子句不能为空");
-            return false;
+
+            throw new Sql4JException(sqlInfo.getSqlType().name() + "操作时 WHERE 子句不能为空");
         }
         return true;
     }
