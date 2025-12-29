@@ -3,6 +3,7 @@ package xyz.ytora.sql4j.sql.insert;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Table;
 import xyz.ytora.sql4j.enums.IdType;
+import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.orm.autofill.ColumnFiller;
 import xyz.ytora.sql4j.sql.AbsSql;
 import xyz.ytora.sql4j.sql.SqlInfo;
@@ -87,7 +88,7 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
         Class<?> table = getInsertBuilder().getInsertStage().getTable();
         Table tableAnno = table.getAnnotation(Table.class);
         IdGenerator<?> idGenerator = null;
-        if (idIndex > -1 && tableAnno != null && tableAnno.idType() != null) {
+        if (tableAnno != null && tableAnno.idType() != null) {
             if (tableAnno.idType().equals(IdType.UUID)) {
                 idGenerator = Ids.getUuid();
             } else if (tableAnno.idType().equals(IdType.UCID)) {
@@ -97,11 +98,20 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
             }
         }
         if (idGenerator != null) {
-            for (List<Object> list : insertedDataList) {
-                if (idIndex < list.size()) {
-                    Object id = list.get(idIndex);
-                    if (id == null) {
-                        list.set(idIndex, idGenerator.nextId());
+            // 要插入的字段中没有id，则添加一个id
+            if (idIndex < 0) {
+                for (List<Object> list : insertedDataList) {
+                    list.add(0, idGenerator.nextId());
+                }
+            }
+            // 如果有id字段，并且id对应的插入字段为空，生成一个id
+            else {
+                for (List<Object> list : insertedDataList) {
+                    if (idIndex < list.size()) {
+                        Object id = list.get(idIndex);
+                        if (id == null) {
+                            list.set(idIndex, idGenerator.nextId());
+                        }
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package xyz.ytora.sql4j.sql.insert;
 
+import xyz.ytora.sql4j.anno.Table;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.orm.autofill.ColumnFiller;
@@ -14,6 +15,11 @@ import java.util.stream.Collectors;
  * INTO 阶段，指定要插入的字段
  */
 public class IntoStage extends AbsInsert {
+
+    /**
+     * 即将被新增的字段（原始）
+     */
+    private final List<SFunction<?, ?>> sourceInsertedColumn = new ArrayList<>();
 
     /**
      * 即将被新增的字段
@@ -38,6 +44,7 @@ public class IntoStage extends AbsInsert {
     public <T> IntoStage(InsertBuilder insertBuilder, Collection<SFunction<T, ?>> insertedColumn) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setIntoStage(this);
+        this.sourceInsertedColumn.addAll(insertedColumn);
         this.insertedColumn.addAll(insertedColumn);
         // 解析自动填充列
         Map<String, Class<? extends ColumnFiller>> mapper = Sql4jUtil.parseAutoFillColMapper(getInsertBuilder().getInsertStage().getTable());
@@ -62,6 +69,13 @@ public class IntoStage extends AbsInsert {
             }
         }
 
+        // 如果目标插入表的主键有填充策略，并且主键在插入字段中不存在，则手动在插入字段列表中添加一个主键列
+        Class<?> table = getInsertBuilder().getInsertStage().getTable();
+        Table tableAnno = table.getAnnotation(Table.class);
+        if (idIndex < 0 && tableAnno != null && tableAnno.idType() != null) {
+            this.insertedColumn.add(0, Raw.of("id"));
+        }
+
         // mapper里面剩下的数据都是此次 insert 没有涉及的字段，但依然要自动填充
         for (String colName : mapper.keySet()) {
             this.insertedColumn.add(Raw.of(colName));
@@ -73,7 +87,14 @@ public class IntoStage extends AbsInsert {
      * INTO 后面是 VALUE
      */
     public ValuesStage value(Object... insertedData) {
-        return new ValuesStage(getInsertBuilder(), Arrays.asList(insertedData), idIndex, insertedColumn.size());
+        List<Object> values;
+        if (insertedData == null || insertedData.length == 0) {
+            values = new ArrayList<>();
+        } else {
+            values = new ArrayList<>(insertedData.length);
+            values.addAll(Arrays.asList(insertedData));
+        }
+        return new ValuesStage(getInsertBuilder(), values, idIndex, insertedColumn.size());
     }
 
     /**
@@ -91,9 +112,12 @@ public class IntoStage extends AbsInsert {
     }
 
     /**
-     * 将 SELECT 的查询结果集作为插入的数据
+     * 将 SELECT 的查询结果集作为插入的数据，需要忽略主键策略和自动填充策略
      */
     public SelectValueStage values(AbsSelect subSelect) {
+        // 回滚原始插入字段
+        insertedColumn.clear();
+        insertedColumn.addAll(sourceInsertedColumn);
         subSelect.getSelectBuilder().isSub();
         return new SelectValueStage(getInsertBuilder(), subSelect);
     }
