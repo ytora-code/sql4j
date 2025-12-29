@@ -4,7 +4,6 @@ import xyz.ytora.sql4j.func.SFunction;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * INSERT 阶段，指定要插入的表

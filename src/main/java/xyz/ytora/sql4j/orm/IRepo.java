@@ -2,6 +2,7 @@ package xyz.ytora.sql4j.orm;
 
 import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
+import xyz.ytora.sql4j.sql.select.SelectBuilder;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -16,6 +17,8 @@ public interface IRepo<T extends Entity<T>> {
     /**
      * 查询符合条件的唯一数据
      */
+    T one(SelectBuilder selectBuilder);
+
     T one(Consumer<ConditionExpressionBuilder> where);
 
     T one(ConditionExpressionBuilder where);
@@ -25,6 +28,8 @@ public interface IRepo<T extends Entity<T>> {
     /**
      * 查询符合条件的数据总条数
      */
+    Long count(SelectBuilder selectBuilder);
+
     Long count(Consumer<ConditionExpressionBuilder> where);
 
     Long count(ConditionExpressionBuilder where);
@@ -34,6 +39,8 @@ public interface IRepo<T extends Entity<T>> {
     /**
      * 查询符合条件的数据列表
      */
+    List<T> list(SelectBuilder selectBuilder);
+
     List<T> list(Consumer<ConditionExpressionBuilder> where);
 
     List<T> list(ConditionExpressionBuilder where);
@@ -43,6 +50,8 @@ public interface IRepo<T extends Entity<T>> {
     /**
      * 分页查询符合条件的数据列表
      */
+    Page<T> page(Integer pageNo, Integer pageSize, SelectBuilder selectBuilder);
+
     Page<T> page(Integer pageNo, Integer pageSize, Consumer<ConditionExpressionBuilder> where);
 
     Page<T> page(Integer pageNo, Integer pageSize, ConditionExpressionBuilder where);

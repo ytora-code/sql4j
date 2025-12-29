@@ -5,17 +5,23 @@ import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.anno.Table;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
+import xyz.ytora.sql4j.orm.autofill.ColumnFiller;
+import xyz.ytora.sql4j.orm.autofill.ColumnFillerAdapter;
 import xyz.ytora.sql4j.sql.AliasRegister;
 import xyz.ytora.ytool.classcache.ClassCache;
 import xyz.ytora.ytool.classcache.classmeta.ClassMetadata;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
+import xyz.ytora.ytool.invoke.Reflects;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 工具类
@@ -23,6 +29,16 @@ import java.util.List;
 public class Sql4jUtil {
 
     private final static String methodName = "writeReplace";
+
+    /**
+     * 实体类中标有自动填充注解的列的映射
+     */
+    private final static Map<Class<?>, Map<String, Class<? extends ColumnFiller>>> fillerMapper = new ConcurrentHashMap<>();
+
+    /**
+     * ColumnFiller.class 于 ColumnFiller 对象的映射
+     */
+    private final static Map<Class<?>, ColumnFiller> fillerObjMapper = new ConcurrentHashMap<>();
 
     /**
      * 根据方法引用对象解析出SerializedLambda
@@ -152,5 +168,44 @@ public class Sql4jUtil {
             }
             return false;
         });
+    }
+
+    /**
+     * 解析自动填充列与其对应填充类的映射
+     */
+    public static Map<String, Class<? extends ColumnFiller>> parseAutoFillColMapper(Class<?> entityClass) {
+        Map<String, Class<? extends ColumnFiller>> mapper = fillerMapper.get(entityClass);
+        if (mapper != null) {
+            return new HashMap<>(mapper);
+        }
+
+        ClassMetadata<?> classMetadata = ClassCache.get(entityClass);
+        mapper = new HashMap<>();
+        for (FieldMetadata fmd : classMetadata.getFields()) {
+            Column colAnno = fmd.getAnnotation(Column.class);
+            if (colAnno != null && !colAnno.fill().equals(ColumnFillerAdapter.class)) {
+                Class<? extends ColumnFiller> fill = colAnno.fill();
+                mapper.put(Strs.toUnderline(fmd.getName()), fill);
+            }
+        }
+        fillerMapper.put(entityClass, mapper);
+        return new HashMap<>(mapper);
+    }
+
+    /**
+     * 根据 ColumnFiller.class 获取对应的对象
+     */
+    public static ColumnFiller getAutoFiller(Class<? extends ColumnFiller> entityClass) {
+        ColumnFiller columnFiller = fillerObjMapper.get(entityClass);
+        if (columnFiller != null) {
+            return columnFiller;
+        }
+        try {
+            columnFiller = Reflects.newInstance(entityClass);
+            fillerObjMapper.put(entityClass, columnFiller);
+            return columnFiller;
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new Sql4JException(e);
+        }
     }
 }

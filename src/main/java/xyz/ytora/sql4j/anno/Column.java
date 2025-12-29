@@ -1,6 +1,8 @@
 package xyz.ytora.sql4j.anno;
 
 import xyz.ytora.sql4j.enums.ColumnType;
+import xyz.ytora.sql4j.orm.autofill.ColumnFiller;
+import xyz.ytora.sql4j.orm.autofill.ColumnFillerAdapter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -38,4 +40,9 @@ public @interface Column {
      * 字段是否存在
      */
     boolean exist() default true;
+
+    /**
+     * 列自动填充
+     */
+    Class<? extends ColumnFiller> fill() default ColumnFillerAdapter.class;
 }

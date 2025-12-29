@@ -7,6 +7,7 @@ import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.orm.Entity;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
+import xyz.ytora.sql4j.sql.select.SelectBuilder;
 import xyz.ytora.sql4j.sql.select.SelectWhereStage;
 import xyz.ytora.sql4j.util.OrmUtil;
 import xyz.ytora.ytool.str.Strs;
@@ -107,6 +108,7 @@ public class RepoProxyInterceptor {
             }
         } else if (args.length == 1) {
             Object arg1 = args[0];
+            // one
             if (methodName.equals("one") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 return OrmUtil.one((Class) sourceClass, where);
@@ -114,36 +116,48 @@ public class RepoProxyInterceptor {
                 return OrmUtil.count((Class) sourceClass, (ConditionExpressionBuilder) arg1);
             } else if (methodName.equals("one") && arg1 instanceof Entity) {
                 return OrmUtil.count((Class) sourceClass, (Entity) arg1);
-            } else if (methodName.equals("count") && arg1 instanceof Consumer) {
+            } else if (methodName.equals("one") && arg1 instanceof SelectBuilder) {
+                return OrmUtil.count((Class) sourceClass, (SelectBuilder) arg1);
+            }
+            // count
+            else if (methodName.equals("count") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 return OrmUtil.count((Class) sourceClass, where);
             } else if (methodName.equals("count") && arg1 instanceof ConditionExpressionBuilder) {
                 return OrmUtil.count((Class) sourceClass, (ConditionExpressionBuilder) arg1);
             } else if (methodName.equals("count") && arg1 instanceof Entity) {
                 return OrmUtil.count((Class) sourceClass, (Entity) arg1);
-            } else if (methodName.equals("list") && arg1 instanceof Consumer) {
+            } else if (methodName.equals("count") && arg1 instanceof SelectBuilder) {
+                return OrmUtil.count((Class) sourceClass, (SelectBuilder) arg1);
+            }
+            // list
+            else if (methodName.equals("list") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 return OrmUtil.list((Class) sourceClass, where);
             } else if (methodName.equals("list") && arg1 instanceof ConditionExpressionBuilder) {
                 return OrmUtil.list((Class) sourceClass, (ConditionExpressionBuilder) arg1);
             } else if (methodName.equals("list") && arg1 instanceof Entity) {
                 return OrmUtil.list((Class) sourceClass, (Entity) arg1);
-            } else if (methodName.equals("insert") && arg1 instanceof List) {
+            } else if (methodName.equals("list") && arg1 instanceof SelectBuilder) {
+                return OrmUtil.list((Class) sourceClass, (SelectBuilder) arg1);
+            }
+            // insert
+            else if (methodName.equals("insert") && arg1 instanceof List) {
                 OrmUtil.insert((Class) sourceClass, (List) arg1);
                 return null;
             } else if (methodName.equals("insert") && arg1 instanceof Entity) {
                 OrmUtil.insert((Class) sourceClass, (Entity) arg1);
                 return null;
-            } else if (methodName.equals("delete") && arg1 instanceof Consumer) {
+            }
+            // delete
+            else if (methodName.equals("delete") && arg1 instanceof Consumer) {
                 Consumer<ConditionExpressionBuilder> where = (Consumer<ConditionExpressionBuilder>) arg1;
                 OrmUtil.delete((Class) sourceClass, where);
                 return null;
-            }
-            else if (methodName.equals("delete") && arg1 instanceof ConditionExpressionBuilder) {
+            } else if (methodName.equals("delete") && arg1 instanceof ConditionExpressionBuilder) {
                 OrmUtil.delete((Class) sourceClass, (ConditionExpressionBuilder) arg1);
                 return null;
-            }
-            else if (methodName.equals("delete") && arg1 instanceof Entity) {
+            } else if (methodName.equals("delete") && arg1 instanceof Entity) {
                 OrmUtil.delete((Class) sourceClass, (Entity) arg1);
                 return null;
             }
@@ -164,6 +178,8 @@ public class RepoProxyInterceptor {
                 return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (ConditionExpressionBuilder) arg3);
             } else if (methodName.equals("page") && arg1 instanceof Integer && arg2 instanceof Integer && arg3 instanceof Entity) {
                 return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (Entity) arg3);
+            } else if (methodName.equals("page") && arg1 instanceof Integer && arg2 instanceof Integer && arg3 instanceof SelectBuilder) {
+                return OrmUtil.page((Class) sourceClass, (Integer) arg1, (Integer) arg2, (SelectBuilder) arg3);
             }
         }
 

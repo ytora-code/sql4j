@@ -10,7 +10,9 @@ import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.orm.Entity;
 import xyz.ytora.sql4j.orm.Page;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
+import xyz.ytora.sql4j.sql.OrderItem;
 import xyz.ytora.sql4j.sql.SqlInfo;
+import xyz.ytora.sql4j.sql.select.*;
 import xyz.ytora.sql4j.sql.update.SetStage;
 import xyz.ytora.sql4j.sql.update.UpdateStage;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
@@ -28,6 +30,21 @@ import java.util.function.Consumer;
  * 封装了ORM操作
  */
 public class OrmUtil {
+
+    /**
+     * 查询符合条件的唯一数据
+     */
+    public static <T extends Entity<T>> T one(Class<T> clazz, SelectBuilder selectBuilder) {
+        ExecResult execResult = selectBuilder.getSQLHelper().getSqlExecutionEngine().executeSelect(selectBuilder.getTranslator().translate(selectBuilder));
+        List<Map<String, Object>> resultList = execResult.getResultList();
+        if (resultList.isEmpty()) {
+            return null;
+        } else if (resultList.size() == 1) {
+            return execResult.toBean(clazz);
+        } else {
+            throw new Sql4JException(Strs.format("one: 根据条件只希望查到最多一条数据，实际查到[{}]", resultList.size()));
+        }
+    }
 
     /**
      * 查询符合条件的唯一数据
@@ -66,6 +83,30 @@ public class OrmUtil {
     /**
      * 查询符合条件的数据总条数
      */
+    public static <T extends Entity<T>> long count(Class<T> clazz, SelectBuilder selectBuilder) {
+        // 重写 selectBuilder 的 SELECT 子句 和 FROM 子句
+        SelectStage selectStage = selectBuilder.getSQLHelper().select(Count.of("1").as("count"));
+        selectBuilder.setSelectStage(selectStage);
+        selectBuilder.setFromBuilder(selectStage.from(clazz));
+        // count 查询不需要 order，清空
+        if (selectBuilder.getOrderByStage() != null) {
+            selectBuilder.getOrderByStage().getOrderItems().clear();
+        }
+
+        ExecResult execResult = selectBuilder.getSQLHelper().getSqlExecutionEngine().executeSelect(selectBuilder.getTranslator().translate(selectBuilder));
+        List<Map<String, Object>> result = execResult.getResultList();
+        // 清理count脏字段
+        selectBuilder.getSelectStage().getSelectColumns().clear();
+        if (!result.isEmpty()) {
+            Map<String, Object> countMap = result.get(0);
+            return (Long) countMap.getOrDefault("count", 0L);
+        }
+        return 0;
+    }
+
+    /**
+     * 查询符合条件的数据总条数
+     */
     public static <T extends Entity<T>> long count(Class<T> clazz, Consumer<ConditionExpressionBuilder> where) {
         ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(null);
         where.accept(expressionBuilder);
@@ -98,6 +139,14 @@ public class OrmUtil {
     /**
      * 查询符合条件的数据列表
      */
+    public static <T extends Entity<T>> List<T> list(Class<T> clazz, SelectBuilder selectBuilder) {
+        ExecResult execResult = selectBuilder.getSQLHelper().getSqlExecutionEngine().executeSelect(selectBuilder.getTranslator().translate(selectBuilder));
+        return execResult.toBeans(clazz);
+    }
+
+    /**
+     * 查询符合条件的数据列表
+     */
     public static <T extends Entity<T>> List<T> list(Class<T> clazz, Consumer<ConditionExpressionBuilder> where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         return sqlHelper.select(clazz).from(clazz).where(where).submit(clazz);
@@ -117,6 +166,45 @@ public class OrmUtil {
     public static <T extends Entity<T>> List<T> list(Class<T> clazz, T where) {
         SQLHelper sqlHelper = SQLHelper.getInstance();
         return list(clazz, sqlHelper.toWhere(where));
+    }
+
+    /**
+     * 分页查询符合条件的数据列表
+     */
+    public static <T extends Entity<T>> Page<T> page(Class<T> clazz, Integer pageNo, Integer pageSize, SelectBuilder selectBuilder) {
+        // 0.事先保存下查询字段，排序字段的副本，因为count里面会对这两个子句进行重写
+        List<SFunction<?, ?>> colList = new ArrayList<>();
+        if (selectBuilder.getSelectStage() != null) {
+            colList.addAll(selectBuilder.getSelectStage().getSelectColumns());
+        }
+        List<OrderItem> orderItems = new ArrayList<>();
+        if (selectBuilder.getOrderByStage() != null) {
+            orderItems.addAll(selectBuilder.getOrderByStage().getOrderItems());
+        }
+
+        // 1.查询符合条件的总数据量
+        long total = count(clazz, selectBuilder);
+
+        // 2.根据分页信息计算出limit和offset
+        int limit = pageSize;
+        int offset = (pageNo - 1) * pageSize;
+
+        // 3.回写 selectBuilder
+        selectBuilder.setLimitStage(new LimitStage(selectBuilder, limit));
+        selectBuilder.setOffsetStage(new OffsetStage(selectBuilder, offset));
+        for (SFunction<?, ?> sFunction : colList) {
+            selectBuilder.getSelectStage().select(sFunction);
+        }
+        selectBuilder.setOrderByStage(new OrderByStage(selectBuilder, orderItems));
+
+        // 4.查询
+        ExecResult execResult = selectBuilder.getSQLHelper().getSqlExecutionEngine().executeSelect(selectBuilder.getTranslator().translate(selectBuilder));
+        Page<T> page = new Page<>(pageNo, pageSize);
+        page.setPages((int) ((total + pageSize - 1) / pageSize));
+        page.setTotal(total);
+        page.setRecords(execResult.toBeans(clazz));
+
+        return page;
     }
 
     /**

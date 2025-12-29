@@ -3,6 +3,7 @@ package xyz.ytora.sql4j.sql.insert;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Table;
 import xyz.ytora.sql4j.enums.IdType;
+import xyz.ytora.sql4j.orm.autofill.ColumnFiller;
 import xyz.ytora.sql4j.sql.AbsSql;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.ytool.id.IdGenerator;
@@ -11,6 +12,7 @@ import xyz.ytora.ytool.id.Ids;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * VALUE 阶段，指定要插入的数据
@@ -39,7 +41,7 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
             for (Object datum : insertedData) {
                 check(datum);
             }
-            this.insertedDataList.add(insertedData);
+            addRow(insertedData);
         }
         this.idIndex = idIndex;
         this.count = count;
@@ -56,13 +58,14 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
      * VALUE 后面可能继续 VALUE
      */
     public ValuesStage value(List<Object> insertedData) {
-        if (insertedData.size() != count) {
+        int autoFillSize = getInsertBuilder().getIntoStage().getAutoFillInsertedColumn().size();
+        if (insertedData.size() + autoFillSize != count) {
             throw new Sql4JException("插入数据的长度【" + insertedData.size() + "】与指定的字段长度【" + count + "】不匹配");
         }
         for (Object datum : insertedData) {
             check(datum);
         }
-        insertedDataList.add(insertedData);
+        addRow(insertedData);
         return this;
     }
 
@@ -115,6 +118,28 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
     @Override
     public List<Object> submit() {
         return getInsertBuilder().getSQLHelper().getSqlExecutionEngine().executeInsert(getInsertBuilder().getTranslator().translate(getInsertBuilder())).getIds();
+    }
+
+    /**
+     * 增加一行插入数据
+     */
+    private void addRow(List<Object> row) {
+        // row 里面已有的自动填充字段
+        Map<Integer, ColumnFiller> autoFillColIndexMap = getInsertBuilder().getIntoStage().getAutoFillColIndexMap();
+        for (Integer index : autoFillColIndexMap.keySet()) {
+            Object value = row.get(index);
+            if (value == null) {
+                ColumnFiller columnFiller = autoFillColIndexMap.get(index);
+                row.set(index, columnFiller.fillOnInsert());
+            }
+        }
+
+        // 额外的自动填充字段
+        List<ColumnFiller> columnFillers = getInsertBuilder().getIntoStage().getAutoFillInsertedColumn();
+        for (ColumnFiller columnFiller : columnFillers) {
+            row.add(columnFiller.fillOnInsert());
+        }
+        insertedDataList.add(row);
     }
 
     /**

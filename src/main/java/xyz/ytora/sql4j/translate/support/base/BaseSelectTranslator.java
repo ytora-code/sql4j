@@ -154,7 +154,7 @@ public class BaseSelectTranslator implements ISelectTranslator {
 
         // 7. ORDER BY 排序
         OrderByStage orderByStage = builder.getOrderByStage();
-        if (orderByStage != null) {
+        if (orderByStage != null && !orderByStage.getOrderItems().isEmpty()) {
             String orderExpression = orderByStage.getOrderItems().stream()
                     .map(item -> {
                         String column = Sql4jUtil.parseColumn(item.getOrderColumn(), builder);
