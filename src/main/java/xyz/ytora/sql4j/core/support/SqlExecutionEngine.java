@@ -12,10 +12,8 @@ import xyz.ytora.sql4j.interceptor.SqlInterceptor;
 import xyz.ytora.sql4j.sql.SqlInfo;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * SQL 执行引擎
@@ -46,6 +44,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
         }
 
         Connection connection = connectionProvider.getConnection();
+        startTime = System.currentTimeMillis();
         try {
             // 获取数据库的元数据
             DatabaseMetaData connectionMetaData = connection.getMetaData();
@@ -56,6 +55,14 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 setParameters(statement, params);
 
                 try (ResultSet resultSet = statement.executeQuery()) {
+
+                    // 耗时
+                    long cost = System.currentTimeMillis() - startTime;
+                    Long slowSqlThreshold = sqlHelper.getSlowSqlThreshold();
+                    if (0 < slowSqlThreshold && slowSqlThreshold <= cost) {
+                        sqlHelper.getSlowSqlQueue().offer(sqlInfo);
+                    }
+
                     List<Map<String, Object>> resultList = new ArrayList<>();
                     ResultSetMetaData metaData = resultSet.getMetaData();
                     int columnCount = metaData.getColumnCount();
@@ -69,7 +76,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                         resultList.add(row);
                     }
                     // 创建并返回执行结果
-                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, System.currentTimeMillis() - startTime, 0);
+                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, cost, 0);
                     return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
@@ -99,13 +106,20 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 setParameters(statement, params);
                 int affectedRows = statement.executeUpdate();
 
+                // 耗时
+                long cost = System.currentTimeMillis() - startTime;
+                Long slowSqlThreshold = sqlHelper.getSlowSqlThreshold();
+                if (0 < slowSqlThreshold && slowSqlThreshold <= cost) {
+                    sqlHelper.getSlowSqlQueue().offer(sqlInfo);
+                }
+
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     List<Object> ids = new ArrayList<>();
                     while (generatedKeys.next()) {
                         ids.add(generatedKeys.getObject(1));
                     }
 
-                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, System.currentTimeMillis() - startTime, 0);
+                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, cost, 0);
                     return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
@@ -135,8 +149,14 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 setParameters(statement, params);
                 int affectedRows = statement.executeUpdate();
 
+                // 耗时
+                long cost = System.currentTimeMillis() - startTime;
+                Long slowSqlThreshold = sqlHelper.getSlowSqlThreshold();
+                if (0 < slowSqlThreshold && slowSqlThreshold <= cost) {
+                    sqlHelper.getSlowSqlQueue().offer(sqlInfo);
+                }
 
-                ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, System.currentTimeMillis() - startTime, 0);
+                ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, cost, 0);
                 return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
             }
         } catch (SQLException e) {
@@ -245,7 +265,6 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
 
     /**
      * 检查即将执行的 SQL 有没有 DROP、TRUNCATE 这种危险语句
-     * @param sqlInfo
      */
     private void check(SqlInfo sqlInfo) {
         String sqls = sqlInfo.getSql();

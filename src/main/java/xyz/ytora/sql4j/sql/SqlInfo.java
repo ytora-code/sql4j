@@ -36,11 +36,24 @@ public class SqlInfo {
      */
     private final List<Object> orderedParms;
 
+    /**
+     * SQL 耗时
+     */
+    private Long costMillis;
+
     public SqlInfo(SqlBuilder sqlBuilder, SqlType sqlType, String sql, List<Object> orderedParms) {
         this.sqlBuilder = sqlBuilder;
         this.sqlType = sqlType;
         this.sql = sql.trim();
         this.orderedParms = orderedParms;
+    }
+
+    public Long getCostMillis() {
+        return costMillis;
+    }
+
+    public void setCostMillis(Long costMillis) {
+        this.costMillis = costMillis;
     }
 
     public SqlBuilder getSqlBuilder() {

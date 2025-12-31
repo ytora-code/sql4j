@@ -40,14 +40,19 @@ import xyz.ytora.ytool.str.Strs;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
 public class SQLHelper {
 
     /**
-     * 实体类只能扫描一次
+     * 慢SQL列表
      */
-    private static boolean scanFlag = false;
+    private static final PriorityBlockingQueue<SqlInfo> SLOW_SQL_QUEUE = new PriorityBlockingQueue<>(
+            11,
+            Comparator.comparingLong(SqlInfo::getCostMillis)
+                    .reversed()
+    );
 
     /**
      * 当前正在使用的全局唯一的 SQLHelper 对象
@@ -93,6 +98,11 @@ public class SQLHelper {
      * 数据库元数据获取服务
      */
     private IMetaService metaService;
+
+    /**
+     * 慢 SQL 阈值
+     */
+    private Long slowSqlThreshold = -1L;
 
     public SQLHelper() {
         addSqlInterceptor(new PreventFullTableUpdateInterceptor());
@@ -201,6 +211,20 @@ public class SQLHelper {
 
     public IMetaService getMetaService() {
         return metaService;
+    }
+
+    public void setSlowSqlThreshold(Long slowSqlThreshold) {
+        if (slowSqlThreshold != null) {
+            this.slowSqlThreshold = slowSqlThreshold;
+        }
+    }
+
+    public Long getSlowSqlThreshold() {
+        return slowSqlThreshold;
+    }
+
+    public PriorityBlockingQueue<SqlInfo> getSlowSqlQueue() {
+        return SLOW_SQL_QUEUE;
     }
 
     /*================================== SQL链式调用起点 =======================================*/
