@@ -39,8 +39,8 @@ import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
 public class SQLHelper {
@@ -48,11 +48,7 @@ public class SQLHelper {
     /**
      * 慢SQL列表
      */
-    private static final PriorityBlockingQueue<SqlInfo> SLOW_SQL_QUEUE = new PriorityBlockingQueue<>(
-            11,
-            Comparator.comparingLong(SqlInfo::getCostMillis)
-                    .reversed()
-    );
+    private static final ConcurrentHashMap<String, SqlInfo> SLOW_SQL_QUEUE = new ConcurrentHashMap<>();
 
     /**
      * 当前正在使用的全局唯一的 SQLHelper 对象
@@ -223,7 +219,7 @@ public class SQLHelper {
         return slowSqlThreshold;
     }
 
-    public PriorityBlockingQueue<SqlInfo> getSlowSqlQueue() {
+    public ConcurrentHashMap<String, SqlInfo> getSlowSqlQueue() {
         return SLOW_SQL_QUEUE;
     }
 
@@ -296,7 +292,7 @@ public class SQLHelper {
             try {
                 Object val = getter.invoke(entity);
                 if (val != null) {
-                    String columnName = null;
+                    String columnName;
                     FieldMetadata fieldMetadata = getter.toField();
                     Column columnAnno = fieldMetadata.getAnnotation(Column.class);
                     if (columnAnno != null && Strs.isNotEmpty(columnAnno.value())) {

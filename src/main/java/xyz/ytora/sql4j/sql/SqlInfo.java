@@ -1,7 +1,9 @@
 package xyz.ytora.sql4j.sql;
 
 import xyz.ytora.sql4j.enums.SqlType;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -85,12 +87,45 @@ public class SqlInfo {
         return interceptorEnabled;
     }
 
+    /**
+     * 格式化真实 SQL
+     */
+    public String formatSql() {
+        if (sql == null || sql.isEmpty()) {
+            return sql;
+        }
+
+        // 获取展开后的参数列表
+        List<Object> params = getOrderedParms();
+        if (params == null || params.isEmpty()) {
+            return sql;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        int paramIndex = 0;
+        int sqlLength = sql.length();
+
+        for (int i = 0; i < sqlLength; i++) {
+            char c = sql.charAt(i);
+            if (c == '?' && paramIndex < params.size()) {
+                // 获取当前参数并格式化
+                Object param = params.get(paramIndex++);
+                sb.append(Sql4jUtil.formatVal(param));
+            } else {
+                sb.append(c);
+            }
+        }
+
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         return "SqlInfo{" +
                 "sqlType=" + sqlType +
                 ", sql='" + sql + '\'' +
                 ", orderedPlaceholder=" + orderedParms +
+                ", costMillis=" + costMillis +
                 '}';
     }
 }

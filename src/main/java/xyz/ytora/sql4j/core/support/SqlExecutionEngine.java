@@ -57,10 +57,11 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 try (ResultSet resultSet = statement.executeQuery()) {
 
                     // 耗时
-                    long cost = System.currentTimeMillis() - startTime;
+                    long costMillis = System.currentTimeMillis() - startTime;
+                    sqlInfo.setCostMillis(costMillis);
                     Long slowSqlThreshold = sqlHelper.getSlowSqlThreshold();
-                    if (0 < slowSqlThreshold && slowSqlThreshold <= cost) {
-                        sqlHelper.getSlowSqlQueue().offer(sqlInfo);
+                    if (0 < slowSqlThreshold && slowSqlThreshold <= costMillis) {
+                        sqlHelper.getSlowSqlQueue().put(sqlInfo.formatSql(), sqlInfo);
                     }
 
                     List<Map<String, Object>> resultList = new ArrayList<>();
@@ -76,7 +77,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                         resultList.add(row);
                     }
                     // 创建并返回执行结果
-                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, cost, 0);
+                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), resultList, null, null, costMillis, 0);
                     return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
@@ -107,10 +108,11 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 int affectedRows = statement.executeUpdate();
 
                 // 耗时
-                long cost = System.currentTimeMillis() - startTime;
+                long costMillis = System.currentTimeMillis() - startTime;
+                sqlInfo.setCostMillis(costMillis);
                 Long slowSqlThreshold = sqlHelper.getSlowSqlThreshold();
-                if (0 < slowSqlThreshold && slowSqlThreshold <= cost) {
-                    sqlHelper.getSlowSqlQueue().offer(sqlInfo);
+                if (0 < slowSqlThreshold && slowSqlThreshold <= costMillis) {
+                    sqlHelper.getSlowSqlQueue().put(sqlInfo.formatSql(), sqlInfo);
                 }
 
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
@@ -119,7 +121,7 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                         ids.add(generatedKeys.getObject(1));
                     }
 
-                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, cost, 0);
+                    ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, ids, costMillis, 0);
                     return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
                 }
             }
@@ -150,13 +152,14 @@ public class SqlExecutionEngine implements ISqlExecutionEngine {
                 int affectedRows = statement.executeUpdate();
 
                 // 耗时
-                long cost = System.currentTimeMillis() - startTime;
+                long costMillis = System.currentTimeMillis() - startTime;
+                sqlInfo.setCostMillis(costMillis);
                 Long slowSqlThreshold = sqlHelper.getSlowSqlThreshold();
-                if (0 < slowSqlThreshold && slowSqlThreshold <= cost) {
-                    sqlHelper.getSlowSqlQueue().offer(sqlInfo);
+                if (0 < slowSqlThreshold && slowSqlThreshold <= costMillis) {
+                    sqlHelper.getSlowSqlQueue().put(sqlInfo.formatSql(), sqlInfo);
                 }
 
-                ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, cost, 0);
+                ExecResult execResult = createExecResult(sqlInfo, DbType.fromString(connectionMetaData.getDatabaseProductName()), null, affectedRows, null, costMillis, 0);
                 return after(sqlHelper.getSqlInterceptors(), sqlInfo, execResult);
             }
         } catch (SQLException e) {

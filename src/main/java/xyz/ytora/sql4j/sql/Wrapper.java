@@ -1,6 +1,7 @@
 package xyz.ytora.sql4j.sql;
 
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,46 +14,11 @@ import java.util.Date;
 public record Wrapper(Object value) implements SFunction<Object, Object> {
 
     public String getRealValue() {
-        return formatVal(value);
+        return Sql4jUtil.formatVal(value);
     }
 
     public static Wrapper of(Object value) {
         return new Wrapper(value);
-    }
-
-    /**
-     * 把 Java 值格式化为 SQL 字面量
-     */
-    private String formatVal(Object val) {
-        if (val == null) {
-            return "NULL";
-        }
-        if (val instanceof String || val instanceof Character) {
-            return "'" + escapeSingleQuote(String.valueOf(val)) + "'";
-        }
-        if (val instanceof BigDecimal) {
-            return ((BigDecimal) val).toPlainString();
-        }
-        if (val instanceof Number) {
-            return val.toString();
-        }
-        if (val instanceof Boolean) {
-            // 按常见习惯转 1/0，也可以根据数据库定制
-            return ((Boolean) val) ? "1" : "0";
-        }
-        if (val instanceof Date) {
-            // 简单处理，实际项目建议使用占位符+参数绑定
-            return "'" + val + "'";
-        }
-        // 其他类型统一按字符串处理
-        return "'" + escapeSingleQuote(val.toString()) + "'";
-    }
-
-    /**
-     * 单引号转义
-     */
-    private String escapeSingleQuote(String str) {
-        return str.replace("'", "''");
     }
 
     @Override
