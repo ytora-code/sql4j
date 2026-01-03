@@ -1,7 +1,9 @@
 package xyz.ytora.sql4j.func.support;
 
+import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.AliasRegister;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 /**
  * 不是 SQL 中的函数，该类用于将字符串直接拼接到 SQL 中
@@ -11,7 +13,11 @@ import xyz.ytora.sql4j.sql.AliasRegister;
  */
 public class Raw implements SQLFunc {
 
-    private final String rawStr;
+    private String rawStr;
+
+    private SFunction<?, ?> colFn;
+
+    private AliasRegister aliasRegister;
 
     private String as;
 
@@ -19,8 +25,16 @@ public class Raw implements SQLFunc {
         this.rawStr = rawStr;
     }
 
+    public Raw(SFunction<?, ?> colFn) {
+        this.colFn = colFn;
+    }
+
     public static Raw of(String rawStr) {
         return new Raw(rawStr);
+    }
+
+    public static Raw of(SFunction<?, ?> colFn) {
+        return new Raw(colFn);
     }
 
     @Override
@@ -36,11 +50,14 @@ public class Raw implements SQLFunc {
 
     @Override
     public void addAliasRegister(AliasRegister aliasRegister) {
-        // 该方法无需使用aliasRegister，有个空实现就行
+        this.aliasRegister = aliasRegister;
     }
 
     @Override
     public String getValue() {
-        return rawStr;
+        if (rawStr != null) {
+            return rawStr;
+        }
+        return Sql4jUtil.parseColumn(colFn, aliasRegister);
     }
 }

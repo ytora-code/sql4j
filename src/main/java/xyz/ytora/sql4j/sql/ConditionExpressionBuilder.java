@@ -134,7 +134,7 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /**
      * 取反
      */
-    public ExpressionBuilder not(boolean condition) {
+    public ConditionExpressionBuilder not(boolean condition) {
         if (condition) {
             return not();
         }
@@ -224,7 +224,7 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /**
      * LIKE：column like value
      */
-    public <T> ExpressionBuilder like(boolean condition, SFunction<T, ?> column, Object value) {
+    public <T> ConditionExpressionBuilder like(boolean condition, SFunction<T, ?> column, Object value) {
         if (condition) {
             return like(column, value);
         }
@@ -234,7 +234,7 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /**
      * 在xx范围：id in (1, 2, 3)
      */
-    public <T> ExpressionBuilder in(boolean condition, SFunction<T, ?> column, Object... values) {
+    public <T> ConditionExpressionBuilder in(boolean condition, SFunction<T, ?> column, Object... values) {
         if (condition) {
             return in(column, values);
         }
@@ -244,7 +244,7 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /**
      * IN 子查询
      */
-    public <T> ExpressionBuilder in(boolean condition, SFunction<T, ?> column, AbsSelect subSelect) {
+    public <T> ConditionExpressionBuilder in(boolean condition, SFunction<T, ?> column, AbsSelect subSelect) {
         if (condition) {
             return in(column, subSelect);
         }
@@ -254,7 +254,7 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     /**
      * 在xx范围：id between 1 and 2
      */
-    public <T> ExpressionBuilder betweenAnd(boolean condition, SFunction<T, ?> column, Object leftValue, Object rightValue) {
+    public <T> ConditionExpressionBuilder betweenAnd(boolean condition, SFunction<T, ?> column, Object leftValue, Object rightValue) {
         if (condition) {
             return betweenAnd(column, leftValue, rightValue);
         }

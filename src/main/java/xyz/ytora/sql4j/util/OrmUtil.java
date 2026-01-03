@@ -83,11 +83,13 @@ public class OrmUtil {
     /**
      * 查询符合条件的数据总条数
      */
-    public static <T extends Entity<T>> long count(Class<T> clazz, SelectBuilder selectBuilder) {
+    public static <T> long count(Class<T> clazz, SelectBuilder selectBuilder) {
         // 重写 selectBuilder 的 SELECT 子句 和 FROM 子句
         SelectStage selectStage = selectBuilder.getSQLHelper().select(Count.of("1").as("count"));
         selectBuilder.setSelectStage(selectStage);
-        selectBuilder.setFromBuilder(selectStage.from(clazz));
+        if (selectBuilder.getFromStage() == null) {
+            selectBuilder.setFromBuilder(selectStage.from(clazz));
+        }
         // count 查询不需要 order，清空
         if (selectBuilder.getOrderByStage() != null) {
             selectBuilder.getOrderByStage().getOrderItems().clear();
@@ -172,7 +174,7 @@ public class OrmUtil {
     /**
      * 分页查询符合条件的数据列表
      */
-    public static <T extends Entity<T>> Page<T> page(Class<T> clazz, Integer pageNo, Integer pageSize, SelectBuilder selectBuilder) {
+    public static <T> Page<T> page(Class<T> clazz, Integer pageNo, Integer pageSize, SelectBuilder selectBuilder) {
         // 0.事先保存下查询字段，排序字段的副本，因为count里面会对这两个子句进行重写
         List<SFunction<?, ?>> colList = new ArrayList<>();
         if (selectBuilder.getSelectStage() != null) {

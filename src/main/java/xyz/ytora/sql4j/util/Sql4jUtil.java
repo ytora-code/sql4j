@@ -3,6 +3,7 @@ package xyz.ytora.sql4j.util;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.anno.Table;
+import xyz.ytora.sql4j.func.Alias;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.orm.autofill.ColumnFiller;
@@ -132,6 +133,9 @@ public class Sql4jUtil {
     public static <T> String parseColumn(SFunction<T, ?> fn, AliasRegister register) {
         if (fn instanceof SQLFunc sqlFunc) {
             return sqlFunc.getValue();
+        }
+        if (fn instanceof Alias alias) {
+            return alias.getAlias();
         }
         SerializedLambda sl = serializedLambda(fn);
         Class<?> clazz = parseClass(sl);

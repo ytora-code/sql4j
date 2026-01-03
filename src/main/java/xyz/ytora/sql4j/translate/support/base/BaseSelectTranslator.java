@@ -2,6 +2,7 @@ package xyz.ytora.sql4j.translate.support.base;
 
 import xyz.ytora.sql4j.anno.Column;
 import xyz.ytora.sql4j.enums.SqlType;
+import xyz.ytora.sql4j.func.Alias;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.func.SQLFunc;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
@@ -34,8 +35,11 @@ public class BaseSelectTranslator implements ISelectTranslator {
         // 1.1 如果指定了查询字段
         List<SFunction<?, ?>> selectColumns = builder.getSelectStage().getSelectColumns();
         for (SFunction<?, ?> f : selectColumns) {
+            if (f instanceof Alias alias) {
+                joiner.add(Sql4jUtil.parseColumn(alias.getColumn(), builder) + " AS " + alias.getAlias());
+            }
             // 函数字段
-            if (f instanceof SQLFunc func) {
+            else if (f instanceof SQLFunc func) {
                 func.addAliasRegister(builder);
                 String column = func.getValue();
                 String as = func.as();
