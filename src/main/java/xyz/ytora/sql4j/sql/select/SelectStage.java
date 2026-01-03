@@ -29,7 +29,7 @@ public class SelectStage extends AbsSelect implements SelectEndStage {
         this.selectColumns.add(selectColumns);
     }
 
-    public SelectStage(SelectBuilder selectBuilder, List<SFunction<?, ?>> selectColumns) {
+    public <T> SelectStage(SelectBuilder selectBuilder, List<SFunction<T, ?>> selectColumns) {
         setSelectBuilder(selectBuilder);
         selectBuilder.setSelectStage(this);
         this.selectColumns.addAll(selectColumns);

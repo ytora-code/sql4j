@@ -140,6 +140,7 @@ public class OrmUtil {
      * 查询符合条件的数据列表
      */
     public static <T extends Entity<T>> List<T> list(Class<T> clazz, SelectBuilder selectBuilder) {
+        selectBuilder.setFromBuilder(new FromStage(selectBuilder, clazz));
         ExecResult execResult = selectBuilder.getSQLHelper().getSqlExecutionEngine().executeSelect(selectBuilder.getTranslator().translate(selectBuilder));
         return execResult.toBeans(clazz);
     }

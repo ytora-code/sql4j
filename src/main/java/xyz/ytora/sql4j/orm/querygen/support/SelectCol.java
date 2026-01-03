@@ -32,7 +32,7 @@ public class SelectCol extends AbsQueryExplain {
         SelectStage selectStage = selectBuilder.getSelectStage();
         for (String orderCol : orderCols) {
             if (selectStage == null) {
-                List<SFunction<?, ?>> list = new ArrayList<>();
+                List<SFunction<Object, ?>> list = new ArrayList<>();
                 list.add(Raw.of(Strs.toUnderline(orderCol)));
                 selectStage = new SelectStage(selectBuilder, list);
             } else {

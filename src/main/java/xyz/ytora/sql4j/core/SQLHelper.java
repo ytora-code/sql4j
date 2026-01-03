@@ -236,6 +236,11 @@ public class SQLHelper {
         return new SelectStage(selectBuilder, Arrays.asList(columns));
     }
 
+    public final <T> SelectStage select(List<SFunction<T, ?>> columns) {
+        SelectBuilder selectBuilder = new SelectBuilder(this);
+        return new SelectStage(selectBuilder, columns);
+    }
+
     public SelectStage select(Class<?> tableColumns) {
         SelectBuilder selectBuilder = new SelectBuilder(this);
         return new SelectStage(selectBuilder, tableColumns);
