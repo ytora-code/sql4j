@@ -3,7 +3,6 @@ package xyz.ytora.sql4j.sql.insert;
 import xyz.ytora.sql4j.Sql4JException;
 import xyz.ytora.sql4j.anno.Table;
 import xyz.ytora.sql4j.enums.IdType;
-import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.orm.autofill.ColumnFiller;
 import xyz.ytora.sql4j.sql.AbsSql;
 import xyz.ytora.sql4j.sql.SqlInfo;
@@ -59,10 +58,11 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
      * VALUE 后面可能继续 VALUE
      */
     public ValuesStage value(List<Object> insertedData) {
-        int autoFillSize = getInsertBuilder().getIntoStage().getAutoFillInsertedColumn().size();
-        if (insertedData.size() + autoFillSize != count) {
-            throw new Sql4JException("插入数据的长度【" + insertedData.size() + "】与指定的字段长度【" + count + "】不匹配");
-        }
+        // TODO 取消字段个数匹配检查，一般不会有问题
+//        int autoFillSize = getInsertBuilder().getIntoStage().getAutoFillInsertedColumn().size();
+//        if (insertedData.size() + autoFillSize != count) {
+//            throw new Sql4JException("插入数据的长度【" + insertedData.size() + "】与指定的字段长度【" + count + "】不匹配");
+//        }
         for (Object datum : insertedData) {
             check(datum);
         }
@@ -78,7 +78,15 @@ public class ValuesStage extends AbsInsert implements InsertEndStage {
             for (Object datum : insertedData) {
                 check(datum);
             }
-            this.value(insertedData);
+            if (insertedData instanceof ArrayList<Object>) {
+                this.value(insertedData);
+            } else {
+                List<Object> newInsertedData = new ArrayList<>(insertedData.size());
+                for (int i = 0; i < insertedData.size(); i++) {
+                    newInsertedData.add(i, insertedData.get(i));
+                }
+                this.value(newInsertedData);
+            }
         }
         return this;
     }

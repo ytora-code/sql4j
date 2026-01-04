@@ -179,7 +179,7 @@ public class ExpressionBuilder extends AbsSql {
     public <T> ExpressionBuilder like(SFunction<T, ?> column, Object value) {
         appendPredicateStart();
         String left = parsePlaceholder(column);
-        String right = parsePlaceholder(value);
+        String right = parsePlaceholder("%" + value + "%");
         expression.append(left).append(SPACE).append("LIKE").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
         return this;
