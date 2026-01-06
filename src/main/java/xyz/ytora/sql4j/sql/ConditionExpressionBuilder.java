@@ -1,5 +1,6 @@
 package xyz.ytora.sql4j.sql;
 
+import xyz.ytora.sql4j.enums.SegmentType;
 import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.sql.select.AbsSelect;
 
@@ -102,6 +103,12 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     @Override
     public <T> ConditionExpressionBuilder isNotNull(SFunction<T, ?> column) {
         super.isNotNull(column);
+        return this;
+    }
+
+    @Override
+    public ConditionExpressionBuilder apply(String whereFragment, Object... values) {
+        super.apply(whereFragment, values);
         return this;
     }
 
@@ -277,6 +284,16 @@ public class ConditionExpressionBuilder extends ExpressionBuilder {
     public <T> ConditionExpressionBuilder isNotNull(boolean condition, SFunction<T, ?> column) {
         if (condition) {
             return isNotNull(column);
+        }
+        return this;
+    }
+
+    /**
+     * 自定义 WHERE 片段
+     */
+    public ConditionExpressionBuilder apply(boolean condition, String whereFragment, Object... values) {
+        if (condition) {
+            return apply(whereFragment, values);
         }
         return this;
     }

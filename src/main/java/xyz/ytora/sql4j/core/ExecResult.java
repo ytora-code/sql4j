@@ -10,6 +10,7 @@ import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.coll.Colls;
+import xyz.ytora.ytool.json.Jsons;
 import xyz.ytora.ytool.str.Strs;
 
 import java.lang.reflect.InvocationTargetException;
@@ -193,7 +194,24 @@ public class ExecResult {
                     else if (parameterType.isAssignableFrom(value.getClass())) {
                         setter.invoke(bean, value);
                     }
-                    // 如果不能直接赋值，则要类型转换
+                    // 如果返回值是Map，则特殊处理，优先将value识别为json
+                    else if (Map.class.isAssignableFrom(parameterType)) {
+                        String jsonValue = value.toString();
+                        Object jsonResult = null;
+                        try {
+                            jsonResult = Jsons.fromJsonStr(jsonValue, parameterType);
+                        } catch (Exception e) {
+                            // 转换失败，value不是json，则尝试最后一步：走caster
+                            sqlHelper.getLogger().warn("实体类字段：{}是Map类型，但是对应的数据库字段值：{}不为json", setter.toField().getName(), jsonValue);
+
+                            // 最后一步，走caster
+                            ITypeCaster typeCaster = sqlHelper.getTypeCaster();
+                            value = typeCaster.cast(value, parameterType);
+                            setter.invoke(bean, value);
+                        }
+                        setter.invoke(bean, jsonResult);
+                    }
+                    // 最后一步，走caster
                     else {
                         ITypeCaster typeCaster = sqlHelper.getTypeCaster();
                         value = typeCaster.cast(value, parameterType);

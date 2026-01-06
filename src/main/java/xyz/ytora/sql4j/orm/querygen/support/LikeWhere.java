@@ -28,7 +28,7 @@ public class LikeWhere extends AbsQueryExplain {
     protected SelectBuilder positive(SelectBuilder selectBuilder, QueryToken token) {
         String col = Strs.toUnderline(token.getKey());
         String pat = token.getValue().substring(1, token.getValue().length() - 1);
-        selectBuilder.getWhereStage().getWhere().like(Raw.of(Strs.toUnderline(col)), "%" + pat + "%");
+        selectBuilder.getWhereStage().getWhere().like(Raw.of(Strs.toUnderline(col)), pat);
         return selectBuilder;
     }
 
@@ -36,7 +36,7 @@ public class LikeWhere extends AbsQueryExplain {
     protected SelectBuilder negate(SelectBuilder selectBuilder, QueryToken token) {
         String col = Strs.toUnderline(token.getKey());
         String pat = token.getValue().substring(1, token.getValue().length() - 1);
-        selectBuilder.getWhereStage().getWhere().not().like(Raw.of(Strs.toUnderline(col)), "%" + pat + "%");
+        selectBuilder.getWhereStage().getWhere().not().like(Raw.of(Strs.toUnderline(col)), pat);
         return selectBuilder;
     }
 

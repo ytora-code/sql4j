@@ -81,6 +81,9 @@ public class ExpressionBuilder extends AbsSql {
      * 等值匹配：column = value
      */
     public <T> ExpressionBuilder eq(SFunction<T, ?> column, Object value) {
+        if (value == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
@@ -105,6 +108,9 @@ public class ExpressionBuilder extends AbsSql {
      * 不等于：column != value
      */
     public <T> ExpressionBuilder ne(SFunction<T, ?> column, Object value) {
+        if (value == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
@@ -129,6 +135,9 @@ public class ExpressionBuilder extends AbsSql {
      * 大于：column > value
      */
     public <T> ExpressionBuilder gt(SFunction<T, ?> column, Object value) {
+        if (value == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
@@ -141,6 +150,9 @@ public class ExpressionBuilder extends AbsSql {
      * 大于等于：column >= value
      */
     public <T> ExpressionBuilder ge(SFunction<T, ?> column, Object value) {
+        if (value == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
@@ -153,6 +165,9 @@ public class ExpressionBuilder extends AbsSql {
      * 小于：column < value
      */
     public <T> ExpressionBuilder lt(SFunction<T, ?> column, Object value) {
+        if (value == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
@@ -165,6 +180,9 @@ public class ExpressionBuilder extends AbsSql {
      * 小于等于：column <= value
      */
     public <T> ExpressionBuilder le(SFunction<T, ?> column, Object value) {
+        if (value == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
         String right = parsePlaceholder(value);
@@ -177,9 +195,19 @@ public class ExpressionBuilder extends AbsSql {
      * LIKE：column like value
      */
     public <T> ExpressionBuilder like(SFunction<T, ?> column, Object value) {
+        if (value == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
-        String right = parsePlaceholder("%" + value + "%");
+        String valStr = value.toString();
+        if (!valStr.startsWith("%")) {
+            valStr = "%" + valStr;
+        }
+        if (!valStr.endsWith("%")) {
+            valStr = valStr + "%";
+        }
+        String right = parsePlaceholder(valStr);
         expression.append(left).append(SPACE).append("LIKE").append(SPACE).append(right);
         lastType = SegmentType.PREDICATE;
         return this;
@@ -189,6 +217,9 @@ public class ExpressionBuilder extends AbsSql {
      * 在xx范围：id in (1, 2, 3)
      */
     public <T> ExpressionBuilder in(SFunction<T, ?> column, Object... values) {
+        if (values == null) {
+            return this;
+        }
         appendPredicateStart();
         String left = parsePlaceholder(column);
         List<Object> valueList = Arrays.stream(values).flatMap(v -> {
@@ -255,6 +286,24 @@ public class ExpressionBuilder extends AbsSql {
         appendPredicateStart();
         String left = parsePlaceholder(column);
         expression.append(left).append(SPACE).append("IS NOT NULL");
+        lastType = SegmentType.PREDICATE;
+        return this;
+    }
+
+    /**
+     * 自定义 WHERE 片段
+     */
+    public <T> ExpressionBuilder apply(String whereFragment, Object... values) {
+        appendPredicateStart();
+        List<Object> valueList = Arrays.stream(values).flatMap(v -> {
+            if (v instanceof Collection<?> coll) {
+                return coll.stream();
+            } else {
+                return Stream.of(v);
+            }
+        }).toList();
+        params.addAll(valueList);
+        expression.append("(").append(whereFragment).append(")");
         lastType = SegmentType.PREDICATE;
         return this;
     }

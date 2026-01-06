@@ -22,7 +22,15 @@ import java.util.Map;
  */
 public class TableCreatorManager {
 
+    /**
+     * 不同数据库产品与其对应TableCreator的映射
+     */
     private final Map<DbType, ITableCreator> tableCreatorMap = new HashMap<>();
+
+    /**
+     * 数据库表名称与实体类映射
+     */
+    private final Map<String, Class<?>> tableClassMapper = new HashMap<>();
 
     public TableCreatorManager() {
         // 注册 MYSQL 的 TableCreator
@@ -40,6 +48,15 @@ public class TableCreatorManager {
             return false;
         }
         Table tableAnno = clazz.getAnnotation(Table.class);
+        // 表名称
+        String tableName;
+        if (tableAnno != null && Strs.isNotEmpty(tableAnno.value())) {
+            tableName = tableAnno.value();
+        } else {
+            tableName = Strs.toUnderline(clazz.getSimpleName());
+        }
+        tableClassMapper.put(tableName, clazz);
+
         if (tableAnno == null || !tableAnno.createIfNotExist()) {
             return false;
         }
@@ -59,12 +76,6 @@ public class TableCreatorManager {
                 return false;
             }
 
-            String tableName;
-            if (Strs.isNotEmpty(tableAnno.value())) {
-                tableName = tableAnno.value();
-            } else {
-                tableName = Strs.toUnderline(clazz.getSimpleName());
-            }
             if (!tableCreator.exist(connection, tableName)) {
                 // 只有表不存在，才会进入这里
                 String ddl = tableCreator.toDDL(clazz, connection);
@@ -77,5 +88,9 @@ public class TableCreatorManager {
         } finally {
             connectionProvider.closeConnection(connection);
         }
+    }
+
+    public Map<String, Class<?>> getTableClassMapper() {
+        return tableClassMapper;
     }
 }
