@@ -266,19 +266,19 @@ public class SQLHelper {
      */
     public ExecResult submitSQL(String sql, Object... parms) {
         if (sql.startsWith("SELECT") || sql.startsWith("select")) {
-            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            SqlInfo sqlInfo = new SqlInfo(new SelectBuilder(this), SqlType.SELECT, sql, Arrays.asList(parms));
             sqlInfo.setInterceptorEnabled(false);
             return sqlExecutionEngine.executeSelect(sqlInfo);
         } else if (sql.startsWith("INSERT") || sql.startsWith("insert")) {
-            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            SqlInfo sqlInfo = new SqlInfo(new InsertBuilder(this), SqlType.INSERT, sql, Arrays.asList(parms));
             sqlInfo.setInterceptorEnabled(false);
             return sqlExecutionEngine.executeInsert(sqlInfo);
         } else if (sql.startsWith("UPDATE") || sql.startsWith("update")) {
-            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            SqlInfo sqlInfo = new SqlInfo(new UpdateBuilder(this), SqlType.UPDATE, sql, Arrays.asList(parms));
             sqlInfo.setInterceptorEnabled(false);
             return sqlExecutionEngine.executeUpdate(sqlInfo);
         } else if (sql.startsWith("DELETE") || sql.startsWith("delete")) {
-            SqlInfo sqlInfo = new SqlInfo(null, SqlType.SELECT, sql, Arrays.asList(parms));
+            SqlInfo sqlInfo = new SqlInfo(new DeleteBuilder(this), SqlType.DELETE, sql, Arrays.asList(parms));
             sqlInfo.setInterceptorEnabled(false);
             return sqlExecutionEngine.executeDelete(sqlInfo);
         }
