@@ -14,7 +14,7 @@ public class Entity<T extends Entity<T>> implements Serializable {
     /**
      * 主键id
      */
-    private String id;
+    protected String id;
 
     public String getId() {
         return id;

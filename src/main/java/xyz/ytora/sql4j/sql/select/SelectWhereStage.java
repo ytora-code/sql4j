@@ -65,11 +65,12 @@ public class SelectWhereStage extends AbsSelect implements SelectEndStage {
             return where;
         }
         if (whereExpr != null) {
-            ConditionExpressionBuilder expressionBuilder = new ConditionExpressionBuilder(getSelectBuilder());
-            whereExpr.accept(expressionBuilder);
-            return expressionBuilder;
+            where = new ConditionExpressionBuilder(getSelectBuilder());
+            whereExpr.accept(where);
+            return where;
         }
-        return null;
+        where = new ConditionExpressionBuilder(getSelectBuilder());
+        return where;
     }
 
     @Override

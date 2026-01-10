@@ -1,6 +1,7 @@
 package xyz.ytora.sql4j.interceptor;
 
 import xyz.ytora.sql4j.core.ExecResult;
+import xyz.ytora.sql4j.sql.SqlBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
 
 /**
@@ -9,6 +10,13 @@ import xyz.ytora.sql4j.sql.SqlInfo;
 public interface SqlInterceptor {
 
     Integer order();
+
+    /**
+     * 翻译SQL之前进行拦截，调整SQL结构并返回新的SQL结构
+     * @param sqlBuilder SQL构建器
+     * @return 新的QL构建器
+     */
+    SqlBuilder beforeTranslate(SqlBuilder sqlBuilder);
 
     /**
      * SQL 提交数据库之前进行拦截

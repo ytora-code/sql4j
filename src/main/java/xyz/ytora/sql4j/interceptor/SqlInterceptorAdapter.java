@@ -1,6 +1,7 @@
 package xyz.ytora.sql4j.interceptor;
 
 import xyz.ytora.sql4j.core.ExecResult;
+import xyz.ytora.sql4j.sql.SqlBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
 
 /**
@@ -11,6 +12,11 @@ public class SqlInterceptorAdapter implements SqlInterceptor {
     @Override
     public Integer order() {
         return 0;
+    }
+
+    @Override
+    public SqlBuilder beforeTranslate(SqlBuilder sqlBuilder) {
+        return sqlBuilder;
     }
 
     @Override
