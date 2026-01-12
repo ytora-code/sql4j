@@ -32,6 +32,11 @@ public @interface Column {
     boolean notNull() default false;
 
     /**
+     * 字段默认值
+     */
+    String defaultVal() default "";
+
+    /**
      * 字段注释
      */
     String comment() default "";

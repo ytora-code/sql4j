@@ -1,7 +1,5 @@
 package xyz.ytora.sql4j.enums;
 
-import xyz.ytora.ytool.json.JSON;
-
 /**
  * 数据库表的列类型(postgresSQL)
  */
@@ -39,4 +37,23 @@ public enum PostgreSQLColumnType {
         // 默认使用 TEXT 类型
         return TEXT.columnTypeName;
     }
+
+    public static boolean isStr(PostgreSQLColumnType type) {
+        return switch (type) {
+            case VARCHAR255, VARCHAR64, VARCHAR16, TEXT, JSON, DATE, DATE_TIME, BLOB -> true;
+            default -> false;
+        };
+    }
+
+    public static boolean isStr(String columnTypeName) {
+        PostgreSQLColumnType type;
+        try {
+            type = PostgreSQLColumnType.valueOf(columnTypeName);
+        } catch (IllegalArgumentException e) {
+            // 未识别类型，按字符串处理更安全
+            return true;
+        }
+        return isStr(type);
+    }
+
 }

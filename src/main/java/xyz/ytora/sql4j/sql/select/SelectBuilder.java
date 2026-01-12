@@ -1,11 +1,13 @@
 package xyz.ytora.sql4j.sql.select;
 
 import xyz.ytora.sql4j.core.SQLHelper;
+import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlBuilder;
 import xyz.ytora.sql4j.translate.ITranslator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * SELECT 构造器
@@ -124,6 +126,18 @@ public class SelectBuilder extends SqlBuilder {
 
     public SelectWhereStage getWhereStage() {
         return whereStage;
+    }
+
+    /**
+     * 增加 WHERE 条件
+     */
+    public ConditionExpressionBuilder addWhere(Consumer<ConditionExpressionBuilder> whereExpr) {
+        if (whereStage == null) {
+            whereStage = new SelectWhereStage(this, new ConditionExpressionBuilder(this));
+        }
+        ConditionExpressionBuilder where = whereStage.getWhere();
+        whereExpr.accept(where);
+        return where;
     }
 
     public void setGroupByStage(GroupByStage groupByStage) {

@@ -137,8 +137,19 @@ public class PostgreSQLTableCreator implements ITableCreator {
 
             createTableSQL.append(",\n\t")
                     .append(columnName).append(" ").append(columnType);
+            // 非空
             if (columnAnno != null && columnAnno.notNull()) {
                 createTableSQL.append(" NOT NULL");
+            }
+            // 默认值
+            if (columnAnno != null && Strs.isNotEmpty(columnAnno.defaultVal())) {
+                createTableSQL.append(" DEFAULT ");
+                // 如果字段类型是字符串，就要为默认值加单引号
+                if (PostgreSQLColumnType.isStr(columnType)) {
+                    createTableSQL.append("'").append(columnAnno.defaultVal()).append("'");
+                } else {
+                    createTableSQL.append(columnAnno.defaultVal());
+                }
             }
 
             // 如果字段有注释
