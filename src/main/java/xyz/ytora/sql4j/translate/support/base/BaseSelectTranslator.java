@@ -82,14 +82,8 @@ public class BaseSelectTranslator implements ISelectTranslator {
         List<JoinStage> joinStages = builder.getJoinStages();
         if (joinStages != null && !joinStages.isEmpty()) {
             for (JoinStage join : joinStages) {
-                Class<?> joinTable = join.getJoinTable();
-                String joinTableName = Sql4jUtil.parseTableNameFromClass(joinTable);
-                String joinTableAliasName = builder.getAlias(joinTable);
-                String joinKey = join.getJoinType().getJoinKey();
-                sql.append(joinKey).append(' ').append(joinTableName).append(' ');
-                if (joinTableAliasName != null) {
-                    sql.append(joinTableAliasName).append(' ');
-                }
+                String joinSql = join.getJoinTable();
+                sql.append(joinSql).append(' ');
                 if (join.getOn() != null) {
                     ConditionExpressionBuilder onExpressionBuilder = new ConditionExpressionBuilder(builder);
                     join.getOn().accept(onExpressionBuilder);

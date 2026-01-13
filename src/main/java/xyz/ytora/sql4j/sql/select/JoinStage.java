@@ -1,11 +1,12 @@
 package xyz.ytora.sql4j.sql.select;
 
-import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.enums.JoinType;
 import xyz.ytora.sql4j.enums.OrderType;
+import xyz.ytora.sql4j.func.SFunction;
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.OrderItem;
 import xyz.ytora.sql4j.sql.SqlInfo;
+import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,9 +24,9 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
     public JoinType joinType;
 
     /**
-     * 连接表
+     * 连接表(实体类)
      */
-    public Class<?> joinTable;
+    private final TableInfo tableInfo;
 
     /**
      * 连接条件
@@ -34,13 +35,46 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
 
     public JoinStage(JoinType joinType, Class<?> joinTable, SelectBuilder selectBuilder, Consumer<ConditionExpressionBuilder> on) {
         this.joinType = joinType;
-        this.joinTable = joinTable;
         setSelectBuilder(selectBuilder);
         getSelectBuilder().addJoinStages(this);
         this.on = on;
 
+        this.tableInfo = new TableInfo(1, joinTable, null, null);
         // 注册表别名
-        getSelectBuilder().addAlias(joinTable);
+        getSelectBuilder().addAlias(tableInfo);
+    }
+
+    public JoinStage(JoinType joinType, Class<?> joinTable, String alias, SelectBuilder selectBuilder, Consumer<ConditionExpressionBuilder> on) {
+        this.joinType = joinType;
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().addJoinStages(this);
+        this.on = on;
+
+        this.tableInfo = new TableInfo(1, joinTable, null, null);
+        // 注册表别名
+        getSelectBuilder().addAlias(tableInfo, alias);
+    }
+
+    public JoinStage(JoinType joinType, String joinTableStr, SelectBuilder selectBuilder, Consumer<ConditionExpressionBuilder> on) {
+        this.joinType = joinType;
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().addJoinStages(this);
+        this.on = on;
+
+        this.tableInfo = new TableInfo(2, null, joinTableStr, null);
+        // 注册表别名
+        getSelectBuilder().addAlias(tableInfo);
+    }
+
+    public JoinStage(JoinType joinType, String joinTableStr, String alias, SelectBuilder selectBuilder, Consumer<ConditionExpressionBuilder> on) {
+        this.joinType = joinType;
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().addJoinStages(this);
+        this.on = on;
+
+        this.tableInfo = new TableInfo(2, null, joinTableStr, null);
+        // 注册表别名
+        getSelectBuilder().addAlias(tableInfo, alias);
     }
 
     /**
@@ -104,8 +138,25 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
         return joinType;
     }
 
-    public Class<?> getJoinTable() {
-        return joinTable;
+    public String getJoinTable() {
+        StringBuilder joinSql = new StringBuilder();
+        String joinKey = getJoinType().getJoinKey();
+        if (tableInfo.tableType() == 1) {
+            Class<?> joinTable = tableInfo.tableCls();
+            String joinTableName = Sql4jUtil.parseTableNameFromClass(joinTable);
+            String joinTableAliasName = getSelectBuilder().getAlias(tableInfo);
+            joinSql.append(joinKey).append(' ').append(joinTableName);
+            if (joinTableAliasName != null) {
+                joinSql.append(' ').append(joinTableAliasName);
+            }
+        } else if (tableInfo.tableType() == 2) {
+            String joinTableAliasName = getSelectBuilder().getAlias(tableInfo);
+            joinSql.append(joinKey).append(' ').append(tableInfo.tableStr());
+            if (joinTableAliasName != null) {
+                joinSql.append(' ').append(joinTableAliasName);
+            }
+        }
+        return joinSql.toString();
     }
 
     public Consumer<ConditionExpressionBuilder> getOn() {

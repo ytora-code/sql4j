@@ -19,46 +19,50 @@ import java.util.function.Consumer;
 public class FromStage extends AbsSelect implements SelectEndStage {
 
     /**
-     * 表类型：1-物理表(class实体类) / 2-物理表(字符串直接指定表名称) / 3-虚拟表（子查询）
-     */
-    private final Integer tableType;
-
-    /**
      * FROM 主表
      */
-    private Class<?> mainTable;
-
-    /**
-     * FROM 主表
-     */
-    private String mainTableStr;
-
-    /**
-     * FROM 子查询
-     */
-    private AbsSelect subSelect;
+    private final TableInfo tableInfo;
 
     public FromStage(SelectBuilder selectBuilder, Class<?> mainTable) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setFromBuilder(this);
-        getSelectBuilder().addAlias(mainTable);
-        this.mainTable = mainTable;
-        tableType = 1;
+        this.tableInfo = new TableInfo(1, mainTable, null, null);
+        getSelectBuilder().addAlias(this.tableInfo);
+    }
+
+    public FromStage(SelectBuilder selectBuilder, Class<?> mainTable, String alias) {
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().setFromBuilder(this);
+        this.tableInfo = new TableInfo(1, mainTable, null, null);
+        getSelectBuilder().addAlias(this.tableInfo, alias);
     }
 
     public FromStage(SelectBuilder selectBuilder, String mainTableStr) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setFromBuilder(this);
-        this.mainTableStr = mainTableStr;
-        tableType = 2;
+        this.tableInfo = new TableInfo(2, null, mainTableStr, null);
+        getSelectBuilder().addAlias(this.tableInfo);
+    }
+
+    public FromStage(SelectBuilder selectBuilder, String mainTableStr, String alias) {
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().setFromBuilder(this);
+        this.tableInfo = new TableInfo(2, null, mainTableStr, null);
+        getSelectBuilder().addAlias(this.tableInfo, alias);
     }
 
     public FromStage(SelectBuilder selectBuilder, AbsSelect subSelect) {
         setSelectBuilder(selectBuilder);
         getSelectBuilder().setFromBuilder(this);
-        getSelectBuilder().addAlias(subSelect);
-        this.subSelect = subSelect;
-        tableType = 3;
+        this.tableInfo = new TableInfo(3, null, null, subSelect);
+        getSelectBuilder().addAlias(this.tableInfo);
+    }
+
+    public FromStage(SelectBuilder selectBuilder, AbsSelect subSelect, String alias) {
+        setSelectBuilder(selectBuilder);
+        getSelectBuilder().setFromBuilder(this);
+        this.tableInfo = new TableInfo(3, null, null, subSelect);
+        getSelectBuilder().addAlias(this.tableInfo, alias);
     }
 
     /**
@@ -69,6 +73,27 @@ public class FromStage extends AbsSelect implements SelectEndStage {
     }
 
     /**
+     * FROM 后可能是 LEFT JOIN 子句
+     */
+    public JoinStage leftJoin(Class<?> joinTable, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.LEFT_JOIN, joinTable, alias, getSelectBuilder(), on);
+    }
+
+    /**
+     * FROM 后可能是 LEFT JOIN 子句
+     */
+    public JoinStage leftJoin(String joinTableStr, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.LEFT_JOIN, joinTableStr, getSelectBuilder(), on);
+    }
+
+    /**
+     * FROM 后可能是 LEFT JOIN 子句
+     */
+    public JoinStage leftJoin(String joinTableStr, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.LEFT_JOIN, joinTableStr, alias, getSelectBuilder(), on);
+    }
+
+    /**
      * FROM 后可能是 RIGHT JOIN 子句
      */
     public JoinStage rightJoin(Class<?> joinTable, Consumer<ConditionExpressionBuilder> on) {
@@ -76,10 +101,52 @@ public class FromStage extends AbsSelect implements SelectEndStage {
     }
 
     /**
+     * FROM 后可能是 RIGHT JOIN 子句
+     */
+    public JoinStage rightJoin(Class<?> joinTable, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.RIGHT_JOIN, joinTable, alias, getSelectBuilder(), on);
+    }
+
+    /**
+     * FROM 后可能是 RIGHT JOIN 子句
+     */
+    public JoinStage rightJoin(String joinTableStr, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.RIGHT_JOIN, joinTableStr, getSelectBuilder(), on);
+    }
+
+    /**
+     * FROM 后可能是 RIGHT JOIN 子句
+     */
+    public JoinStage rightJoin(String joinTableStr, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.RIGHT_JOIN, joinTableStr, alias, getSelectBuilder(), on);
+    }
+
+    /**
      * FROM 后可能是 INNER JOIN 子句
      */
     public JoinStage innerJoin(Class<?> joinTable, Consumer<ConditionExpressionBuilder> on) {
         return new JoinStage(JoinType.INNER_JOIN, joinTable, getSelectBuilder(), on);
+    }
+
+    /**
+     * FROM 后可能是 INNER JOIN 子句
+     */
+    public JoinStage innerJoin(Class<?> joinTable, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.INNER_JOIN, joinTable, alias, getSelectBuilder(), on);
+    }
+
+    /**
+     * FROM 后可能是 INNER JOIN 子句
+     */
+    public JoinStage innerJoin(String joinTableStr, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.INNER_JOIN, joinTableStr, getSelectBuilder(), on);
+    }
+
+    /**
+     * FROM 后可能是 INNER JOIN 子句
+     */
+    public JoinStage innerJoin(String joinTableStr, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.INNER_JOIN, joinTableStr, alias, getSelectBuilder(), on);
     }
 
     /**
@@ -125,36 +192,47 @@ public class FromStage extends AbsSelect implements SelectEndStage {
     }
 
     public Integer getTableType() {
-        return tableType;
+        return tableInfo.tableType();
     }
 
     public String getFromTableSql(List<Object> orderedParms) {
         StringBuilder sql = new StringBuilder();
-        if (tableType == 1) {
+        // 实体类表
+        if (tableInfo.tableType() == 1) {
+            Class<?> mainTable = tableInfo.tableCls();
             String tableName = Sql4jUtil.parseTableNameFromClass(mainTable);
             sql.append(tableName).append(' ');
-            String alias = getSelectBuilder().getAlias(mainTable);
             if (!getSelectBuilder().single()) {
+                String alias = getSelectBuilder().getAlias(tableInfo);
                 sql.append(alias).append(' ');
             }
             return sql.toString();
-        } else if (tableType == 2) {
-            return mainTableStr + ' ';
         }
-        if (tableType == 3) {
+        // 字符串表
+        else if (tableInfo.tableType() == 2) {
+            sql.append(tableInfo.tableStr()).append(' ');
+            if (!getSelectBuilder().single()) {
+                String alias = getSelectBuilder().getAlias(tableInfo);
+                sql.append(alias).append(' ');
+            }
+            return sql.toString();
+        }
+        // 子查询虚拟表
+        else if (tableInfo.tableType() == 3) {
             // 虚拟表
-            AbsSelect subSelect = this.getSubSelect();
+            AbsSelect subSelect = tableInfo.subSelect();
             sql.append('(');
             SqlInfo sqlInfo = subSelect.getSelectBuilder().getSQLHelper().getTranslator().translate(subSelect.getSelectBuilder());
             sql.append(sqlInfo.getSql());
             orderedParms.addAll(sqlInfo.getOrderedParms());
-            sql.append(')').append(' ').append(getSelectBuilder().getAlias(subSelect)).append(' ');
+            sql.append(')').append(' ').append(getSelectBuilder().getAlias(tableInfo)).append(' ');
+            return sql.toString();
         }
-        throw new Sql4JException("未知的 FROM TABLE 类型: " + tableType);
+        throw new Sql4JException("未知的 FROM TABLE 类型: " + tableInfo.tableType());
     }
 
     public AbsSelect getSubSelect() {
-        return subSelect;
+        return tableInfo.subSelect();
     }
 
     @Override

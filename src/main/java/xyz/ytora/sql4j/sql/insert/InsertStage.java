@@ -1,6 +1,7 @@
 package xyz.ytora.sql4j.sql.insert;
 
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.sql4j.sql.select.TableInfo;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,13 +11,13 @@ import java.util.Collection;
  */
 public class InsertStage extends AbsInsert {
 
-    private final Class<?> table;
+    private final TableInfo tableInfo;
 
     public InsertStage(InsertBuilder insertBuilder, Class<?> table) {
         setInsertBuilder(insertBuilder);
         getInsertBuilder().setInsertStage(this);
-        getInsertBuilder().addAlias(table);
-        this.table = table;
+        this.tableInfo = new TableInfo(1, table, null, null);
+        getInsertBuilder().addAlias(tableInfo);
     }
 
     /**
@@ -35,6 +36,6 @@ public class InsertStage extends AbsInsert {
     }
 
     public Class<?> getTable() {
-        return table;
+        return tableInfo.tableCls();
     }
 }

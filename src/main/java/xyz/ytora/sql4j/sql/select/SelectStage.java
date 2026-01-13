@@ -68,8 +68,22 @@ public class SelectStage extends AbsSelect implements SelectEndStage {
     /**
      * SELECT 后可能进入 FROM 阶段
      */
+    public <T> FromStage from(Class<T> table, String alias) {
+        return new FromStage(getSelectBuilder(), table, alias);
+    }
+
+    /**
+     * SELECT 后可能进入 FROM 阶段
+     */
     public <T> FromStage from(String table) {
         return new FromStage(getSelectBuilder(), table);
+    }
+
+    /**
+     * SELECT 后可能进入 FROM 阶段，手动指定别名
+     */
+    public <T> FromStage from(String table, String alias) {
+        return new FromStage(getSelectBuilder(), table, alias);
     }
 
     /**
@@ -78,6 +92,14 @@ public class SelectStage extends AbsSelect implements SelectEndStage {
     public <T> FromStage from(AbsSelect subSelect) {
         subSelect.getSelectBuilder().isSub();
         return new FromStage(getSelectBuilder(), subSelect);
+    }
+
+    /**
+     * SELECT 后可能进入 FROM 阶段（子查询）
+     */
+    public <T> FromStage from(AbsSelect subSelect, String alias) {
+        subSelect.getSelectBuilder().isSub();
+        return new FromStage(getSelectBuilder(), subSelect, alias);
     }
 
     public List<SFunction<?, ?>> getSelectColumns() {

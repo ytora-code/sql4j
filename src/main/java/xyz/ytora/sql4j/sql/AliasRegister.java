@@ -1,12 +1,9 @@
 package xyz.ytora.sql4j.sql;
 
-import xyz.ytora.sql4j.sql.select.AbsSelect;
+import xyz.ytora.sql4j.sql.select.TableInfo;
 import xyz.ytora.ytool.str.Strs;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -15,49 +12,70 @@ import java.util.stream.Collectors;
 public class AliasRegister {
 
     /**
-     * 映射：实体类 -> 别名
+     * 表和别名的映射
+     * tableAliasMapper 的 key 可以是：
+     * 1.实体类class
+     * 2.字符串
+     * 3。子查询 AbsSelect
      */
-    private final Map<Class<?>, String> classAliasMapper = new HashMap<>();
+    private final Map<TableInfo, String> tableAliasMapper = new LinkedHashMap<>();
 
     /**
-     * 将子查询作为虚拟表时，子查询也需要别名
-     * 映射：子查询 -> 别名
+     * 判断是否单表，如果单表就不用别名了
      */
-    private final Map<AbsSelect, String> subSelectAliasMapper = new HashMap<>();
-
     public Boolean single() {
-        return classAliasMapper.size() <= 1;
+        return tableAliasMapper.size() <= 1;
     }
 
-    public String getAlias(Class<?> clazz) {
-        return classAliasMapper.get(clazz);
-    }
-
-    public String getAlias(AbsSelect subSelect) {
-        return subSelectAliasMapper.get(subSelect);
-    }
-
-    public String addAlias(Class<?> clazz) {
-        String tableName = Strs.toUnderline(clazz.getSimpleName());
-        String alias = Arrays.stream(tableName.split("_")).map(i -> {
-            if (!i.isEmpty()) {
-                return i.substring(0, 1).toLowerCase();
-            } else {
-                return "";
+    /**
+     * 根据表信息获取表的别名
+     */
+    public String getAlias(TableInfo tableInfo) {
+        for (Object key : tableAliasMapper.keySet()) {
+            if (key.equals(tableInfo)) {
+                return tableAliasMapper.get(key);
             }
-        }).collect(Collectors.joining());
-        return addAlias(clazz, alias);
+        }
+        return null;
     }
 
-    public String addAlias(AbsSelect subSelect) {
-        String alise = numberToLetter(subSelectAliasMapper.size());
-        subSelectAliasMapper.put(subSelect, alise);
-        return alise;
+    /**
+     * 根据表的实体类获取表的别名
+     */
+    public String getAlias(Class<?> tableCls) {
+        for (TableInfo key : tableAliasMapper.keySet()) {
+            if (key.tableCls().equals(tableCls)) {
+                return tableAliasMapper.get(key);
+            }
+        }
+        return null;
     }
 
-    public String addAlias(Class<?> clazz, String alise) {
+    /**
+     * 注册表的别名
+     */
+    public String addAlias(TableInfo tableInfo) {
+        Integer tableType = tableInfo.tableType();
+        if (tableType == 1) {
+            Class<?> clazz = tableInfo.tableCls();
+            String tableName = Strs.toUnderline(clazz.getSimpleName());
+            String alias = Arrays.stream(tableName.split("_")).map(i -> i.isEmpty() ? "" : i.substring(0, 1).toLowerCase()).collect(Collectors.joining());
+            return addAlias(tableInfo, alias);
+        } else if (tableType == 2) {
+            String alias = Arrays.stream(tableInfo.tableStr().split("_")).map(i -> i.isEmpty() ? "" : i.substring(0, 1).toLowerCase()).collect(Collectors.joining());
+            return addAlias(tableInfo, alias);
+        } else {
+            String alise = numberToLetter(tableAliasMapper.size());
+            return addAlias(tableInfo, alise);
+        }
+    }
+
+    /**
+     * 添加别名
+     */
+    public String addAlias(TableInfo tableInfo, String alise) {
         // 校验别名是否重复
-        Collection<String> values = classAliasMapper.values();
+        Collection<String> values = tableAliasMapper.values();
         boolean exist = values.contains(alise);
         String _alise = alise;
         for (int i = 1; exist; i++) {
@@ -65,7 +83,7 @@ public class AliasRegister {
             exist = values.contains(alise);
         }
 
-        classAliasMapper.put(clazz, alise);
+        tableAliasMapper.put(tableInfo, alise);
         return alise;
     }
 

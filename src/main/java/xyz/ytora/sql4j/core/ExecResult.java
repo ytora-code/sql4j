@@ -10,6 +10,7 @@ import xyz.ytora.sql4j.util.Sql4jUtil;
 import xyz.ytora.ytool.classcache.classmeta.FieldMetadata;
 import xyz.ytora.ytool.classcache.classmeta.MethodMetadata;
 import xyz.ytora.ytool.coll.Colls;
+import xyz.ytora.ytool.convert.Converts;
 import xyz.ytora.ytool.json.Jsons;
 import xyz.ytora.ytool.str.Strs;
 
@@ -152,8 +153,18 @@ public class ExecResult {
         if (Map.class.isAssignableFrom(clazz) || Object.class.equals(clazz)) {
             return (T) row;
         }
+        // 如果是字符串，则要将每一行化为以逗号分隔的字符串
         if (String.class.equals(clazz)) {
             return (T) row.values().stream().map(String::valueOf).collect(Collectors.joining(","));
+        }
+        // 如果是数字，认为是要将一行的第一列转为数字并返回
+        if (Number.class.equals(clazz)) {
+
+            Optional<String> firstOp = row.keySet().stream().findFirst();
+            if (firstOp.isPresent()) {
+                return Converts.convert(row.get(firstOp.get()), clazz);
+            }
+            throw new Sql4JException("将查询结果集转为数字失败：返回结果至少要包含一列数据");
         }
         try {
             // 实例化Bean对象

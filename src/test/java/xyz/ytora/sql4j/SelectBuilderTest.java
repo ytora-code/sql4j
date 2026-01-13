@@ -7,6 +7,7 @@ import xyz.ytora.sql4j.core.SQLHelper;
 import xyz.ytora.sql4j.enums.OrderType;
 import xyz.ytora.sql4j.func.support.Concat;
 import xyz.ytora.sql4j.func.support.Count;
+import xyz.ytora.sql4j.func.support.Raw;
 import xyz.ytora.sql4j.sql.SqlInfo;
 import xyz.ytora.sql4j.sql.Wrapper;
 
@@ -163,5 +164,19 @@ public class SelectBuilderTest {
         String expectedSql = "SELECT user_name, order_amount FROM (SELECT user_name, id, age FROM user WHERE age = ?) a WHERE user_name > ?";
         assertEquals(expectedSql, sqlInfo.getSql());
         assertEquals(2, sqlInfo.getOrderedParms().size());
+    }
+
+    // 8. 测试字符串表
+    @Test
+    public void testStrTable() {
+        SqlInfo sqlInfo = sqlHelper.select().from(Order.class, "0111")
+                .leftJoin(Order.class, "o222", on -> on.eq(Raw.of("id", "o1Id"), Raw.of("o2Id.id")))
+                .end();
+        // 预期生成的SQL语句
+        // TODO 对应这种自查询，希望可以智能识别不同的表，而不是使用 Raw 手动指定
+        String expectedSql = "SELECT * FROM order 0111 LEFT JOIN order o222 ON o1Id.id = o2Id.id";
+        assertEquals(expectedSql, sqlInfo.getSql());
+        assertEquals(0, sqlInfo.getOrderedParms().size());
+
     }
 }

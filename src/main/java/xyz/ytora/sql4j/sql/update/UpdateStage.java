@@ -1,19 +1,20 @@
 package xyz.ytora.sql4j.sql.update;
 
 import xyz.ytora.sql4j.func.SFunction;
+import xyz.ytora.sql4j.sql.select.TableInfo;
 
 /**
  * UPDATE 阶段，指定要更新的表
  */
 public class UpdateStage extends AbsUpdate {
 
-    private final Class<?> table;
+    private final TableInfo tableInfo;
 
     public UpdateStage(UpdateBuilder updateBuilder, Class<?> table) {
         setUpdateBuilder(updateBuilder);
         getUpdateBuilder().setUpdateStage(this);
-        getUpdateBuilder().addAlias(table);
-        this.table = table;
+        this.tableInfo = new TableInfo(1, table, null, null);
+        getUpdateBuilder().addAlias(tableInfo);
     }
 
     /**
@@ -24,6 +25,6 @@ public class UpdateStage extends AbsUpdate {
     }
 
     public Class<?> getTable() {
-        return table;
+        return tableInfo.tableCls();
     }
 }

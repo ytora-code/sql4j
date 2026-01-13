@@ -2,6 +2,7 @@ package xyz.ytora.sql4j.sql.delete;
 
 import xyz.ytora.sql4j.sql.ConditionExpressionBuilder;
 import xyz.ytora.sql4j.sql.SqlInfo;
+import xyz.ytora.sql4j.sql.select.TableInfo;
 import xyz.ytora.sql4j.util.Sql4jUtil;
 
 import java.util.function.Consumer;
@@ -11,28 +12,20 @@ import java.util.function.Consumer;
  */
 public class FromStage extends AbsDelete implements DeleteEndStage {
 
-    /**
-     * 表类型：1-物理表(class实体类) / 2-物理表(字符串直接指定表名称)
-     */
-    private final Integer tableType;
-
-    private Class<?> table;
-
-    private String tableStr;
+    private final TableInfo tableInfo;
 
     public FromStage(DeleteBuilder deleteBuilder, Class<?> table) {
         setDeleteBuilder(deleteBuilder);
         getDeleteBuilder().setFromStage(this);
-        getDeleteBuilder().addAlias(table);
-        this.table = table;
-        this.tableType = 1;
+        this.tableInfo = new TableInfo(1, table, null, null);
+        getDeleteBuilder().addAlias(tableInfo);
     }
 
     public FromStage(DeleteBuilder deleteBuilder, String tableStr) {
         setDeleteBuilder(deleteBuilder);
         getDeleteBuilder().setFromStage(this);
-        this.tableStr = tableStr;
-        this.tableType = 2;
+        this.tableInfo = new TableInfo(1, null, tableStr, null);
+        getDeleteBuilder().addAlias(tableInfo);
     }
 
     /**
@@ -50,17 +43,17 @@ public class FromStage extends AbsDelete implements DeleteEndStage {
      * 获取要被删除数据的目标表名称
      */
     public String getTableName() {
-        if (tableType == 1) {
-            return Sql4jUtil.parseTableNameFromClass(table);
+        if (tableInfo.tableType() == 1) {
+            return Sql4jUtil.parseTableNameFromClass(tableInfo.tableCls());
         }
-        return tableStr;
+        return tableInfo.tableStr();
     }
 
     /**
      * 获取要被删除数据的目标表的CLASS
      */
     public Class<?> getTableClass() {
-        return table;
+        return tableInfo.tableCls();
     }
 
     @Override

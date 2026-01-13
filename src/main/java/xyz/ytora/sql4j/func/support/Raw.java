@@ -33,6 +33,12 @@ public class Raw implements SQLFunc {
         return new Raw(rawStr);
     }
 
+    public static Raw of(String rawStr, String as) {
+        Raw raw = new Raw(rawStr);
+        raw.as = as;
+        return raw;
+    }
+
     public static Raw of(SFunction<?, ?> colFn) {
         return new Raw(colFn);
     }
@@ -56,6 +62,9 @@ public class Raw implements SQLFunc {
     @Override
     public String getValue() {
         if (rawStr != null) {
+            if (as != null) {
+                return as + "." + rawStr;
+            }
             return rawStr;
         }
         return Sql4jUtil.parseColumn(colFn, aliasRegister);
