@@ -92,6 +92,27 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
     }
 
     /**
+     * JOIN 后可能是 LEFT JOIN 子句
+     */
+    public JoinStage leftJoin(Class<?> joinTable, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.LEFT_JOIN, joinTable, alias, getSelectBuilder(), on);
+    }
+
+    /**
+     * JOIN 后可能是 LEFT JOIN 子句
+     */
+    public JoinStage leftJoin(String joinTableStr, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.LEFT_JOIN, joinTableStr, getSelectBuilder(), on);
+    }
+
+    /**
+     * JOIN 后可能是 LEFT JOIN 子句
+     */
+    public JoinStage leftJoin(String joinTableStr, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.LEFT_JOIN, joinTableStr, alias, getSelectBuilder(), on);
+    }
+
+    /**
      * JOIN 后可能是 RIGHT JOIN 子句
      */
     public JoinStage rightJoin(Class<?> joinTable, Consumer<ConditionExpressionBuilder> on) {
@@ -99,10 +120,52 @@ public class JoinStage extends AbsSelect implements SelectEndStage {
     }
 
     /**
+     * JOIN 后可能是 RIGHT JOIN 子句
+     */
+    public JoinStage rightJoin(Class<?> joinTable, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.RIGHT_JOIN, joinTable, alias, getSelectBuilder(), on);
+    }
+
+    /**
+     * JOIN 后可能是 RIGHT JOIN 子句
+     */
+    public JoinStage rightJoin(String joinTableStr, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.RIGHT_JOIN, joinTableStr, getSelectBuilder(), on);
+    }
+
+    /**
+     * JOIN 后可能是 RIGHT JOIN 子句
+     */
+    public JoinStage rightJoin(String joinTableStr, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.RIGHT_JOIN, joinTableStr, alias, getSelectBuilder(), on);
+    }
+
+    /**
      * JOIN 后可能是 INNER JOIN 子句
      */
     public JoinStage innerJoin(Class<?> joinTable, Consumer<ConditionExpressionBuilder> on) {
         return new JoinStage(JoinType.INNER_JOIN, joinTable, getSelectBuilder(), on);
+    }
+
+    /**
+     * JOIN 后可能是 INNER JOIN 子句
+     */
+    public JoinStage innerJoin(Class<?> joinTable, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.INNER_JOIN, joinTable, alias, getSelectBuilder(), on);
+    }
+
+    /**
+     * JOIN 后可能是 INNER JOIN 子句
+     */
+    public JoinStage innerJoin(String joinTableStr, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.INNER_JOIN, joinTableStr, getSelectBuilder(), on);
+    }
+
+    /**
+     * JOIN 后可能是 INNER JOIN 子句
+     */
+    public JoinStage innerJoin(String joinTableStr, String alias, Consumer<ConditionExpressionBuilder> on) {
+        return new JoinStage(JoinType.INNER_JOIN, joinTableStr, alias, getSelectBuilder(), on);
     }
 
     /**

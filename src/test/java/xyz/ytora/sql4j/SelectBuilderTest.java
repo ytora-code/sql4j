@@ -169,12 +169,12 @@ public class SelectBuilderTest {
     // 8. 测试字符串表
     @Test
     public void testStrTable() {
-        SqlInfo sqlInfo = sqlHelper.select().from(Order.class, "0111")
-                .leftJoin(Order.class, "o222", on -> on.eq(Raw.of("id", "o1Id"), Raw.of("o2Id.id")))
+        SqlInfo sqlInfo = sqlHelper.select().from(Order.class, "o1")
+                .leftJoin(Order.class, "o2", on -> on.eq(Raw.of("id", "o2"), Raw.of("o1.id")))
                 .end();
         // 预期生成的SQL语句
         // TODO 对应这种自查询，希望可以智能识别不同的表，而不是使用 Raw 手动指定
-        String expectedSql = "SELECT * FROM order 0111 LEFT JOIN order o222 ON o1Id.id = o2Id.id";
+        String expectedSql = "SELECT * FROM order o1 LEFT JOIN order o2 ON o2.id = o1.id";
         assertEquals(expectedSql, sqlInfo.getSql());
         assertEquals(0, sqlInfo.getOrderedParms().size());
 
