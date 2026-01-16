@@ -80,7 +80,7 @@ public class DefaultMetaService implements IMetaService {
         try {
             connection = connectionProvider.getConnection();
             DatabaseMetaData metaData = connection.getMetaData();
-            rs = metaData.getSchemas();
+            rs = metaData.getSchemas(catalog, null);
             while (rs.next()) {
                 String schemaName = rs.getString("TABLE_SCHEM");
                 list.add(schemaName);

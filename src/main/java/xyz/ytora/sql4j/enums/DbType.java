@@ -23,6 +23,10 @@ public enum DbType {
 
     private final String productName;
 
+    public String getProductName() {
+        return productName;
+    }
+
     /**
      * 根据数据库产品名称获取对应的枚举值
      *

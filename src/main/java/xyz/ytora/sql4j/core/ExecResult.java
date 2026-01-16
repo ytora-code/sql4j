@@ -158,7 +158,7 @@ public class ExecResult {
             return (T) row.values().stream().map(String::valueOf).collect(Collectors.joining(","));
         }
         // 如果是数字，认为是要将一行的第一列转为数字并返回
-        if (Number.class.equals(clazz)) {
+        if (Number.class.isAssignableFrom(clazz)) {
 
             Optional<String> firstOp = row.keySet().stream().findFirst();
             if (firstOp.isPresent()) {
