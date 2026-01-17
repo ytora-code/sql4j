@@ -21,7 +21,18 @@ public class Raw implements SQLFunc {
 
     private String as;
 
+    /**
+     * 是否应该翻译为a.b格式，默认情况应该翻译成a AS b
+     */
+    private Boolean dotFlag;
+
     public Raw(String rawStr) {
+        this.dotFlag = false;
+        this.rawStr = rawStr;
+    }
+
+    public Raw(String rawStr, Boolean dotFlag) {
+        this.dotFlag = dotFlag;
         this.rawStr = rawStr;
     }
 
@@ -34,7 +45,7 @@ public class Raw implements SQLFunc {
     }
 
     public static Raw of(String rawStr, String as) {
-        Raw raw = new Raw(rawStr);
+        Raw raw = new Raw(rawStr, true);
         raw.as = as;
         return raw;
     }
@@ -62,7 +73,7 @@ public class Raw implements SQLFunc {
     @Override
     public String getValue() {
         if (rawStr != null) {
-            if (as != null) {
+            if (as != null && dotFlag) {
                 return as + "." + rawStr;
             }
             return rawStr;

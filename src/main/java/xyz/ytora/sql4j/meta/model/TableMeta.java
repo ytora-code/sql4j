@@ -36,6 +36,16 @@ public class TableMeta {
      */
     private List<ColumnMeta> columnMetas;
 
+    /**
+     * 外键元数据
+     */
+    private List<ForeignKeyMeta> foreignKeyMetas;
+
+    /**
+     * 索引元数据
+     */
+    private List<IndexMeta> indexMetas;
+
     public String getCatalog() {
         return catalog;
     }
@@ -82,5 +92,21 @@ public class TableMeta {
 
     public void setColumnMetas(List<ColumnMeta> columnMetas) {
         this.columnMetas = columnMetas;
+    }
+
+    public List<ForeignKeyMeta> getForeignKeyMetas() {
+        return foreignKeyMetas;
+    }
+
+    public void setForeignKeyMetas(List<ForeignKeyMeta> foreignKeyMetas) {
+        this.foreignKeyMetas = foreignKeyMetas;
+    }
+
+    public List<IndexMeta> getIndexMetas() {
+        return indexMetas;
+    }
+
+    public void setIndexMetas(List<IndexMeta> indexMetas) {
+        this.indexMetas = indexMetas;
     }
 }

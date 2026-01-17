@@ -83,8 +83,6 @@ public class TableCreatorManager {
                 return true;
             }
             return false;
-        } catch (SQLException e) {
-            throw new Sql4JException(e);
         } finally {
             connectionProvider.closeConnection(connection);
         }
