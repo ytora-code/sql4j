@@ -112,7 +112,7 @@ public class DefaultMetaService implements IMetaService {
                     TableMeta tableMeta = new TableMeta();
                     // 获取表名
                     String tableName = rs.getString("TABLE_NAME");
-                    tableMeta.setTable(tableName);
+                    tableMeta.setName(tableName);
                     // 表描述
                     String remarks = rs.getString("REMARKS");
                     tableMeta.setComment(remarks);
@@ -221,7 +221,7 @@ public class DefaultMetaService implements IMetaService {
                     ViewMeta tableMeta = new ViewMeta();
                     //获取视图名
                     String name = rs.getString("TABLE_NAME");
-                    tableMeta.setViewName(name);
+                    tableMeta.setName(name);
                     //视图描述
                     String remarks = rs.getString("REMARKS");
                     tableMeta.setComment(remarks);

@@ -19,7 +19,7 @@ public class ViewMeta {
     /**
      * 视图名称
      */
-    private String viewName;
+    private String name;
 
     /**
      * 视图注释
@@ -47,12 +47,12 @@ public class ViewMeta {
         this.schema = schema;
     }
 
-    public String getViewName() {
-        return viewName;
+    public String getName() {
+        return name;
     }
 
-    public void setViewName(String viewName) {
-        this.viewName = viewName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getComment() {

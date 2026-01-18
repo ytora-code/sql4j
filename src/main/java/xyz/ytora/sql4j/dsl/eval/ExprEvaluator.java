@@ -206,7 +206,7 @@ public class ExprEvaluator {
             return aStr.startsWith(p.substring(0, p.length() - 1));
         }
 
-        // 如果你希望“无通配符时等价于完全匹配”，把下行改为：return aStr.equals(p);
+        // 如果希望“无通配符时等价于完全匹配”，把下行改为：return aStr.equals(p);
         return false;
     }
 

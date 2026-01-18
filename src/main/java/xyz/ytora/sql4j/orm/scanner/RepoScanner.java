@@ -64,7 +64,7 @@ public class RepoScanner {
         // 1. 提取泛型参数 T
         Type actualTypeArgument = extractGenericType(repoClazz);
 
-        // 2. 调用你原本的 ByteBuddy 逻辑生成子类
+        // 2. 调用 ByteBuddy 逻辑生成代理子类
         return generateSubclass(repoClazz, actualTypeArgument);
     }
 

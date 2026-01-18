@@ -19,7 +19,7 @@ public class TableMeta {
     /**
      * 表名称
      */
-    private String table;
+    private String name;
 
     /**
      * 表注释
@@ -62,12 +62,12 @@ public class TableMeta {
         this.schema = schema;
     }
 
-    public String getTable() {
-        return table;
+    public String getName() {
+        return name;
     }
 
-    public void setTable(String table) {
-        this.table = table;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getComment() {
